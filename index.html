@@ -1,0 +1,2083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KINGSMEN ACADEMY — REACTION LABS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div id="homeView">
+  <div class="academy-header">
+    <div class="hairline"><span class="rule"></span><span class="diamond"></span><span class="rule"></span></div>
+    <img class="academy-mark" src="assets/KGMAcad_gold.png" alt="Kingsmen Academy crest">
+    <h1 class="academy-name">KINGSMEN ACADEMY</h1>
+    <p class="academy-sub">REACTION LABS <b>&middot;</b> PERFORMANCE DIVISION</p>
+    <div class="hairline" style="margin-top:16px;"><span class="rule"></span><span class="diamond"></span><span class="rule"></span></div>
+  </div>
+
+  <div class="home-inner">
+    <p class="menu-lede">Instrumented drills for the split-second decisions that separate a member from the rest of the room.</p>
+
+    <div class="streak-strip" id="streakStrip">
+      <span class="streak-lbl">TRAINING STREAK</span>
+      <span class="streak-val" id="streakVal">0 DAYS</span>
+    </div>
+
+    <div class="home-nav-grid">
+      <div class="home-card" id="homeCardWorkouts" tabindex="0" role="button">
+        <div class="hc-eyebrow">TRAIN</div>
+        <div class="hc-title">Workouts</div>
+        <div class="hc-desc">24 instrumented drills across four training categories — Reaction Speed, Processing Speed, Processing Complexity, Memory.</div>
+      </div>
+      <div class="home-card" id="homeCardStats" tabindex="0" role="button">
+        <div class="hc-eyebrow">REVIEW</div>
+        <div class="hc-title">Stats</div>
+        <div class="hc-desc">All-time bests across every module, plus a recent activity feed of your last runs.</div>
+      </div>
+      <div class="home-card" id="homeCardLeaderboards" tabindex="0" role="button">
+        <div class="hc-eyebrow">COMPARE</div>
+        <div class="hc-title">Leaderboards</div>
+        <div class="hc-desc">Your personal rankings — accuracy across the fixed-trial drills, and standout speed records.</div>
+      </div>
+      <div class="home-card" id="homeCardTheory" tabindex="0" role="button">
+        <div class="hc-eyebrow">STUDY</div>
+        <div class="hc-title">Theory</div>
+        <div class="hc-desc">What actually moves reaction speed — sleep, vision, nutrition, training, and how fast a human can realistically get.</div>
+      </div>
+      <div class="home-card" id="homeCardWeekly" tabindex="0" role="button">
+        <div class="hc-eyebrow">THIS WEEK</div>
+        <div class="hc-title">Weekly Challenge</div>
+        <div class="hc-desc">Three modules, rotating every Monday. Beat your all-time best in each before the week resets.</div>
+      </div>
+      <div class="home-card" id="homeCardRank" tabindex="0" role="button">
+        <div class="hc-eyebrow">CALIBRATE</div>
+        <div class="hc-title">Rank</div>
+        <div class="hc-desc" id="homeRankDesc">Copper through Legend — a rank for every workout, every category, and an overall total.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="menuView">
+  <button class="backBtn" id="menuBackBtn">&larr; HOME</button>
+  <div class="sub-header">
+    <p class="eyebrow">KINGSMEN ACADEMY // WORKOUTS</p>
+    <h1>Workouts</h1>
+  </div>
+
+  <div class="menu-inner">
+    <p class="menu-lede">Instrumented drills for the split-second decisions that separate a member from the rest of the room. Choose a module below.</p>
+
+    <div class="tile hero standalone live" id="lastPlayedHero" tabindex="0" role="button">
+      <img class="hero-glyph" src="assets/KGMAcad_gold.png" alt="">
+      <div class="hero-stat"><div class="hs-lbl">TODAY</div><div class="hs-val" id="lastPlayedStat">0 RUNS</div></div>
+      <div class="t-eyebrow" id="lastPlayedEyebrow">LAST PLAYED</div>
+      <div class="t-title" id="lastPlayedTitle">Colour Flick</div>
+      <div class="t-desc" id="lastPlayedDesc">Three chained splits per trial — color reaction, then aim-click to the ball, then to the target.</div>
+      <div class="t-status">&#9679; READY — CLICK TO ENTER</div>
+    </div>
+
+    <div class="category-block">
+      <div class="category-header">
+        <h2 class="category-title">Reaction Speed</h2>
+        <span class="category-sub">Single stimulus, single response</span>
+      </div>
+
+      <div class="category-row">
+        <!-- Colour Flick — shelved for now. The #app container and its whole script block are
+             still in this file untouched; restore this tile (and its KA_GAMES entry) to bring it back. -->
+        <!--
+        <div class="tile live" id="tileReactionLab" tabindex="0" role="button">
+          <span class="t-icon">LIVE</span>
+          <div class="t-eyebrow">MODULE 00 &middot; LIVE</div>
+          <div class="t-title">Colour Flick</div>
+          <div class="t-desc">Three chained splits per trial — color reaction, then aim-click to the ball, then to the target.</div>
+          <div class="t-status">&#9679; READY — CLICK TO ENTER</div>
+        </div>
+        -->
+        <div class="tile live" id="tileGoNoGo" tabindex="0" role="button">
+          <span class="t-icon">LIVE</span>
+          <div class="t-eyebrow">MODULE 01 &middot; LIVE</div>
+          <div class="t-title">Go / No-Go</div>
+          <div class="t-desc">Click the go color, hold off on the no-go color — and stay sharp when the rule flips mid-run.</div>
+          <div class="t-status">&#9679; READY — CLICK TO ENTER</div>
+        </div>
+        <div class="tile live" id="tileFlashReflex" tabindex="0" role="button">
+          <span class="t-icon">LIVE</span>
+          <div class="t-eyebrow">MODULE 02 &middot; LIVE</div>
+          <div class="t-title">Flash Reflex</div>
+          <div class="t-desc">An arrow flashes, then vanishes — swing your mouse that way within 0.5s. Each hit shortens the flash until you can't keep up.</div>
+          <div class="t-status">&#9679; READY — CLICK TO ENTER</div>
+        </div>
+        <div class="tile live" id="tilePeripheralPing" tabindex="0" role="button">
+          <span class="t-icon">LIVE</span>
+          <div class="t-eyebrow">MODULE 03 &middot; LIVE</div>
+          <div class="t-title">Peripheral Ping</div>
+          <div class="t-desc">Hold near center — a dot pings somewhere on screen, often near the edges. Click it as fast as you can.</div>
+          <div class="t-status">&#9679; READY — CLICK TO ENTER</div>
+        </div>
+        <div class="tile live" id="tileChoiceReaction" tabindex="0" role="button">
+          <span class="t-icon">LIVE</span>
+          <div class="t-eyebrow">MODULE 04 &middot; LIVE</div>
+          <div class="t-title">Choice Reaction</div>
+          <div class="t-desc">A color flashes center-screen — click the zone it's mapped to. Four-way choice reaction time, no aiming required.</div>
+          <div class="t-status">&#9679; READY — CLICK TO ENTER</div>
+        </div>
+        <div class="tile live" id="tileAudioReflex" tabindex="0" role="button">
+          <span class="t-icon">LIVE</span>
+          <div class="t-eyebrow">MODULE 05 &middot; LIVE</div>
+          <div class="t-title">Audio Reflex</div>
+          <div class="t-desc">No visual cue — a tone plays without warning. Click the instant you hear it. Pure auditory reaction time.</div>
+          <div class="t-status">&#9679; READY — CLICK TO ENTER</div>
+        </div>
+        <div class="tile live" id="tileBaseReflex" tabindex="0" role="button">
+          <span class="t-icon">LIVE</span>
+          <div class="t-eyebrow">MODULE 06 &middot; LIVE</div>
+          <div class="t-title">Base Reflex</div>
+          <div class="t-desc">The purest test — red turns green, click instantly. Your average here sets your baseline rank.</div>
+          <div class="t-status">&#9679; READY — CLICK TO ENTER</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="category-block">
+      <div class="category-header">
+        <h2 class="category-title">Processing Speed</h2>
+        <span class="category-sub">Fast categorize &amp; compare</span>
+      </div>
+      <div class="category-row">
+        <div class="tile live" id="tileFlanker" tabindex="0" role="button">
+          <span class="t-icon">LIVE</span>
+          <div class="t-eyebrow">MODULE 07 &middot; LIVE</div>
+          <div class="t-title">Flanker Task</div>
+          <div class="t-desc">An arrow appears, flanked by distractors — move your mouse the direction the center one points.</div>
+          <div class="t-status">&#9679; READY — CLICK TO ENTER</div>
+        </div>
+        <div class="tile live" id="tileParityRush" tabindex="0" role="button">
+          <span class="t-icon">LIVE</span>
+          <div class="t-eyebrow">MODULE 08 &middot; LIVE</div>
+          <div class="t-title">Parity Rush</div>
+          <div class="t-desc">A number flashes center-screen — click EVEN or ODD before it's gone.</div>
+          <div class="t-status">&#9679; READY — CLICK TO ENTER</div>
+        </div>
+        <div class="tile live" id="tileSizeCompare" tabindex="0" role="button">
+          <span class="t-icon">LIVE</span>
+          <div class="t-eyebrow">MODULE 09 &middot; LIVE</div>
+          <div class="t-title">Size Compare</div>
+          <div class="t-desc">Two circles appear side by side — click the bigger one.</div>
+          <div class="t-status">&#9679; READY — CLICK TO ENTER</div>
+        </div>
+        <div class="tile live" id="tileOddOneOut" tabindex="0" role="button">
+          <span class="t-icon">LIVE</span>
+          <div class="t-eyebrow">MODULE 10 &middot; LIVE</div>
+          <div class="t-title">Odd One Out</div>
+          <div class="t-desc">A grid of matching circles hides one slightly different shade. Find and click it fast.</div>
+          <div class="t-status">&#9679; READY — CLICK TO ENTER</div>
+        </div>
+        <div class="tile live" id="tileMathSprint" tabindex="0" role="button">
+          <span class="t-icon">LIVE</span>
+          <div class="t-eyebrow">MODULE 11 &middot; LIVE</div>
+          <div class="t-title">Math Sprint</div>
+          <div class="t-desc">A quick equation flashes — click TRUE or FALSE before the window closes.</div>
+          <div class="t-status">&#9679; READY — CLICK TO ENTER</div>
+        </div>
+        <div class="tile live" id="tileCountRush" tabindex="0" role="button">
+          <span class="t-icon">LIVE</span>
+          <div class="t-eyebrow">MODULE 12 &middot; LIVE</div>
+          <div class="t-title">Count Rush</div>
+          <div class="t-desc">A cluster of dots flashes center-screen — click how many, before the window closes.</div>
+          <div class="t-status">&#9679; READY — CLICK TO ENTER</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="category-block">
+      <div class="category-header">
+        <h2 class="category-title">Processing Complexity</h2>
+        <span class="category-sub">Conflicting &amp; interfering information</span>
+      </div>
+      <div class="category-row">
+        <div class="tile live" id="tileStroop" tabindex="0" role="button">
+          <span class="t-icon">LIVE</span>
+          <div class="t-eyebrow">MODULE 13 &middot; LIVE</div>
+          <div class="t-title">Stroop Test</div>
+          <div class="t-desc">A color name appears printed in a different ink color. Click the ink color — ignore what it says.</div>
+          <div class="t-status">&#9679; READY — CLICK TO ENTER</div>
+        </div>
+        <div class="tile live" id="tileAntiSaccade" tabindex="0" role="button">
+          <span class="t-icon">LIVE</span>
+          <div class="t-eyebrow">MODULE 14 &middot; LIVE</div>
+          <div class="t-title">Anti-Saccade</div>
+          <div class="t-desc">A dot flashes on one side — click the zone on the OPPOSITE side. Fights your own reflex.</div>
+          <div class="t-status">&#9679; READY — CLICK TO ENTER</div>
+        </div>
+        <div class="tile live" id="tileTriggerDiscipline" tabindex="0" role="button">
+          <span class="t-icon">LIVE</span>
+          <div class="t-eyebrow">MODULE 15 &middot; LIVE</div>
+          <div class="t-title">Trigger Discipline</div>
+          <div class="t-desc">A cue calls for a left click, or a left+right chord. Fire the wrong button near the moment it matters and it fails.</div>
+          <div class="t-status">&#9679; READY — CLICK TO ENTER</div>
+        </div>
+        <div class="tile live" id="tileSimonEffect" tabindex="0" role="button">
+          <span class="t-icon">LIVE</span>
+          <div class="t-eyebrow">MODULE 16 &middot; LIVE</div>
+          <div class="t-title">Simon Effect</div>
+          <div class="t-desc">An arrow appears left or right — click the direction it POINTS, not the side it's on. Position and direction fight each other half the time.</div>
+          <div class="t-status">&#9679; READY — CLICK TO ENTER</div>
+        </div>
+        <div class="tile live" id="tileFeatureSearch" tabindex="0" role="button">
+          <span class="t-icon">LIVE</span>
+          <div class="t-eyebrow">MODULE 17 &middot; LIVE</div>
+          <div class="t-title">Feature Search</div>
+          <div class="t-desc">Find the one cell matching a target color AND shape — every distractor shares only one of the two.</div>
+          <div class="t-status">&#9679; READY — CLICK TO ENTER</div>
+        </div>
+        <div class="tile live" id="tileSplitFocus" tabindex="0" role="button">
+          <span class="t-icon">LIVE</span>
+          <div class="t-eyebrow">MODULE 18 &middot; LIVE</div>
+          <div class="t-title">Split Focus</div>
+          <div class="t-desc">Click the center the instant it lights up — ignore the decoy flashes trying to pull you off it.</div>
+          <div class="t-status">&#9679; READY — CLICK TO ENTER</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="category-block">
+      <div class="category-header">
+        <h2 class="category-title">Memory</h2>
+        <span class="category-sub">Hold it, then use it</span>
+      </div>
+      <div class="category-row">
+        <div class="tile live" id="tileSimon" tabindex="0" role="button">
+          <span class="t-icon">LIVE</span>
+          <div class="t-eyebrow">MODULE 19 &middot; LIVE</div>
+          <div class="t-title">Simon Sequence</div>
+          <div class="t-desc">Watch the pads light up, then repeat the sequence back. It grows by one every round you get right.</div>
+          <div class="t-status">&#9679; READY — CLICK TO ENTER</div>
+        </div>
+        <div class="tile live" id="tileSymbolMatch" tabindex="0" role="button">
+          <span class="t-icon">LIVE</span>
+          <div class="t-eyebrow">MODULE 20 &middot; LIVE</div>
+          <div class="t-title">Symbol 1-Back</div>
+          <div class="t-desc">Symbols appear one at a time — click MATCH only when the current one repeats the last one.</div>
+          <div class="t-status">&#9679; READY — CLICK TO ENTER</div>
+        </div>
+        <div class="tile live" id="tileGridRecall" tabindex="0" role="button">
+          <span class="t-icon">LIVE</span>
+          <div class="t-eyebrow">MODULE 21 &middot; LIVE</div>
+          <div class="t-title">Grid Recall</div>
+          <div class="t-desc">Cells in a 3x3 grid light up in sequence — click them back in order. Grows by one each round you get right.</div>
+          <div class="t-status">&#9679; READY — CLICK TO ENTER</div>
+        </div>
+        <div class="tile live" id="tileCalloutRecall" tabindex="0" role="button">
+          <span class="t-icon">LIVE</span>
+          <div class="t-eyebrow">MODULE 22 &middot; LIVE</div>
+          <div class="t-title">Callout Recall</div>
+          <div class="t-desc">A short string of directions flashes one at a time — repeat them back in the same order.</div>
+          <div class="t-status">&#9679; READY — CLICK TO ENTER</div>
+        </div>
+        <div class="tile live" id="tileLoadoutRecall" tabindex="0" role="button">
+          <span class="t-icon">LIVE</span>
+          <div class="t-eyebrow">MODULE 23 &middot; LIVE</div>
+          <div class="t-title">Loadout Recall</div>
+          <div class="t-desc">Four icons flash, then a lineup with decoys appears — click only the ones you saw.</div>
+          <div class="t-status">&#9679; READY — CLICK TO ENTER</div>
+        </div>
+        <div class="tile live" id="tileSequenceReversal" tabindex="0" role="button">
+          <span class="t-icon">LIVE</span>
+          <div class="t-eyebrow">MODULE 24 &middot; LIVE</div>
+          <div class="t-title">Sequence Reversal</div>
+          <div class="t-desc">Watch a short sequence, then play it back — backwards, last one first.</div>
+          <div class="t-status">&#9679; READY — CLICK TO ENTER</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-footer">24 MODULES &middot; ALL LIVE</div>
+  </div>
+</div>
+
+<div id="statsView">
+  <button class="backBtn" id="statsBackBtn">&larr; HOME</button>
+  <div class="sub-header">
+    <p class="eyebrow">KINGSMEN ACADEMY // PERFORMANCE RECORD</p>
+    <h1>Stats</h1>
+  </div>
+  <div class="stats-inner">
+    <div class="stats-section">
+      <div class="stats-section-title">All-Time Bests</div>
+      <div class="stats-grid" id="statsGrid"></div>
+    </div>
+    <div class="stats-section">
+      <div class="stats-section-title">Recent Activity</div>
+      <div class="activity-feed" id="statsActivityFeed"></div>
+    </div>
+    <div class="stats-section">
+      <div class="stats-section-title">Backup &amp; Restore</div>
+      <p class="stats-backup-note">All records, history, and weekly progress live only in this browser's local storage — clearing your browser data erases them. Export a backup file periodically, or import one to restore.</p>
+      <div class="stats-backup-actions">
+        <button id="statsExportBtn">EXPORT DATA</button>
+        <button id="statsImportBtn" class="btn-secondary">IMPORT DATA</button>
+        <input type="file" id="statsImportInput" accept="application/json" style="display:none;">
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="leaderboardsView">
+  <button class="backBtn" id="leaderboardsBackBtn">&larr; HOME</button>
+  <div class="sub-header">
+    <p class="eyebrow">KINGSMEN ACADEMY // PERSONAL RANKINGS</p>
+    <h1>Leaderboards</h1>
+  </div>
+  <div class="leaderboard-inner">
+    <div class="leaderboard-section">
+      <div class="leaderboard-section-title">Accuracy — Fixed-Trial Drills</div>
+      <div class="leaderboard-list" id="lbAccuracyList"></div>
+    </div>
+    <div class="leaderboard-section">
+      <div class="leaderboard-section-title">Speed &amp; Special Records</div>
+      <div class="leaderboard-list" id="lbSpecialList"></div>
+    </div>
+  </div>
+</div>
+
+<div id="theoryView">
+  <button class="backBtn" id="theoryBackBtn">&larr; HOME</button>
+  <div class="sub-header">
+    <p class="eyebrow">KINGSMEN ACADEMY // FIELD MANUAL</p>
+    <h1>Theory</h1>
+  </div>
+  <div class="theory-inner">
+    <p class="menu-lede">Reaction time isn't one skill — it's detection, decision, movement, and prediction, stacked together. A 160&nbsp;ms player who predicts well will beat a 130&nbsp;ms player who doesn't. Here's what actually moves the needle, and what doesn't.</p>
+
+    <div class="theory-callout">
+      <div class="theory-callout-title">The Four-Part Model</div>
+      <div class="theory-callout-grid">
+        <div><b>Detection</b> — spotting the stimulus. Trained by Colour Flick, Peripheral Ping, Flash Reflex.</div>
+        <div><b>Decision</b> — picking the right response among options. Trained by Choice Reaction, Go/No-Go, Parity Rush.</div>
+        <div><b>Movement</b> — executing the click cleanly. Trained by Trigger Discipline, Flanker Task.</div>
+        <div><b>Prediction</b> — recognizing a pattern so the decision is already made. Trained by Simon Sequence, Symbol 1-Back.</div>
+      </div>
+      <p>Shaving 10&nbsp;ms off raw detection is genuinely hard. Shaving 30–80&nbsp;ms off decision time through pattern recognition and experience is often realistic — and matters more in a real game than a faster raw reflex.</p>
+    </div>
+
+    <div class="theory-callout">
+      <div class="theory-callout-title">How Fast Can a Human Get?</div>
+      <table class="theory-table">
+        <tr><th>Level</th><th>Visual reaction</th></tr>
+        <tr><td>Average adult</td><td>220–270 ms</td></tr>
+        <tr><td>Competitive gamer</td><td>170–220 ms</td></tr>
+        <tr><td>Excellent</td><td>150–170 ms</td></tr>
+        <tr><td>Elite</td><td>130–150 ms</td></tr>
+        <tr><td>Exceptional, consistently repeatable</td><td>120–130 ms</td></tr>
+      </table>
+      <p>Below ~120&nbsp;ms as a sustained average is extraordinarily rare — you're pushing against nerve conduction and muscle activation limits, not just skill. Isolated sub-110&nbsp;ms trials happen; holding that average over many trials essentially doesn't. Watch for anticipation: a predictable rhythm or a narrow random interval lets people unconsciously guess. A test measuring genuine reaction needs wide, unpredictable timing and should penalize early clicks.</p>
+    </div>
+
+    <div class="theory-accordion" id="theoryAccordion">
+      <details class="theory-item">
+        <summary>Genetics — the ceiling</summary>
+        <div class="ti-body">
+          <p>Sets your floor and ceiling more than anything else on this list. Essentially no room to change these directly — the rest of this page is about training around them.</p>
+          <ul>
+            <li>Nerve conduction velocity</li>
+            <li>Myelination of neurons</li>
+            <li>Muscle fiber composition</li>
+            <li>Baseline dopamine levels</li>
+            <li>Visual processing speed &amp; brain structure</li>
+            <li>Age — reaction speed typically peaks in the early-to-mid 20s</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="theory-item">
+        <summary>Sleep — probably the biggest lever</summary>
+        <div class="ti-body">
+          <p>One bad night can cost you 20–50&nbsp;ms. Nothing else on this page moves the number that much that fast.</p>
+          <ul>
+            <li>8–9 hours of quality sleep</li>
+            <li>Consistent sleep schedule</li>
+            <li>Eliminate accumulated sleep debt</li>
+            <li>Treat sleep apnea if present</li>
+            <li>Avoid alcohol before bed</li>
+            <li>Reduce blue light before sleeping</li>
+            <li>Keep the room cool</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="theory-item">
+        <summary>Vision &amp; monitor setup</summary>
+        <div class="ti-body">
+          <p>Your eyes are the input device — everything downstream depends on what they hand off.</p>
+          <ul>
+            <li>Correct prescription, worn consistently</li>
+            <li>Reduce dry eyes, blink normally</li>
+            <li>Good, consistent room lighting</li>
+            <li>Top of monitor around eye level</li>
+            <li>Center of screen directly ahead</li>
+            <li>About an arm's length away</li>
+          </ul>
+          <p class="ti-note">Dominant eye positioning</p>
+          <p>Many FPS professionals sit slightly offset so their dominant eye is more centered on the screen. The dominant eye isn't faster — the brain gets slightly cleaner information with less binocular conflict, marginally reducing visual processing demand. The effect is small, but at elite levels every millisecond counts.</p>
+          <p class="ti-note">Lean peeking</p>
+          <p>Siege's Q/E lean exposes only a sliver of your model while keeping your own view mostly stable — that stability is exactly what keeps detection time low on a lean-peek trade instead of adding a second re-focus cost on top of the reaction itself.</p>
+        </div>
+      </details>
+
+      <details class="theory-item">
+        <summary>Hardware &amp; input</summary>
+        <div class="ti-body">
+          <p>This is the one category that can cut effective reaction time without touching your actual reflexes — the frame the stimulus first appears on is a hard floor under everything else.</p>
+          <table class="theory-table">
+            <tr><th>Refresh rate</th><th>Frame interval</th></tr>
+            <tr><td>60 Hz</td><td>16.7 ms</td></tr>
+            <tr><td>144 Hz</td><td>6.9 ms</td></tr>
+            <tr><td>240 Hz</td><td>4.2 ms</td></tr>
+            <tr><td>360 Hz</td><td>2.8 ms</td></tr>
+            <tr><td>540 Hz</td><td>1.85 ms</td></tr>
+          </table>
+          <ul>
+            <li>Low-persistence display</li>
+            <li>Fast pixel response</li>
+            <li>Low input-lag monitor (check response time, not just Hz)</li>
+            <li>High polling-rate mouse &amp; keyboard</li>
+            <li>Stable high FPS — dips hurt more than a lower average helps</li>
+            <li>NVIDIA Reflex / AMD Anti-Lag</li>
+            <li>Strip out unnecessary latency sources (wireless dongles, overlays, V-Sync where it adds lag)</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="theory-item">
+        <summary>Nutrition</summary>
+        <div class="ti-body">
+          <p class="ti-note">Hydration</p>
+          <ul>
+            <li>Even mild dehydration measurably slows reaction time</li>
+            <li>Worsens attention</li>
+            <li>Degrades motor control</li>
+          </ul>
+          <p class="ti-note">Protein &amp; carbohydrates</p>
+          <ul>
+            <li>Protein supports neurotransmitter production, recovery, and general brain function</li>
+            <li>The brain runs on glucose — too little carb intake means slower thinking and reduced attention</li>
+            <li>Too much in one sitting causes post-meal sluggishness</li>
+            <li>Most esports athletes perform best after a moderate meal, not a heavy or empty one</li>
+          </ul>
+          <p class="ti-note">Omega-3 &amp; micronutrients</p>
+          <ul>
+            <li>Omega-3 may support neuronal membrane function and cognitive performance — a long-term investment, not an instant fix</li>
+            <li>Deficiencies in iron, B12, folate, magnesium, zinc, or vitamin D all measurably hurt cognitive performance if you're actually low</li>
+          </ul>
+          <p class="ti-note">Caffeine</p>
+          <ul>
+            <li>One of the strongest legal reaction enhancers available — typically worth 5–20&nbsp;ms</li>
+            <li>Best dose is roughly 2–3&nbsp;mg per kg of bodyweight</li>
+            <li>Too much causes jitter, worse aim, and anxiety — costing back more than the caffeine gained</li>
+          </ul>
+          <p class="ti-note">Creatine, nitrates, L-theanine</p>
+          <ul>
+            <li>Creatine — small cognitive benefits, particularly under sleep deprivation</li>
+            <li>Beetroot nitrates — may improve cerebral blood flow, though evidence is mixed</li>
+            <li>L-theanine + caffeine — well supported for smoother focus and less jitter than caffeine alone</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="theory-item">
+        <summary>Physical fitness</summary>
+        <div class="ti-body">
+          <p>Elite gamers increasingly train physically — exercise improves blood flow, executive function, attention, and reaction speed directly, not just general health.</p>
+          <ul>
+            <li>Cardio: running, cycling, swimming, rowing</li>
+            <li>Strength training — improves motor unit recruitment, movement speed, and fatigue resistance</li>
+            <li>Neck strength — some evidence for better head stability and less fatigue over long sessions</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="theory-item">
+        <summary>Motor learning &amp; practice</summary>
+        <div class="ti-body">
+          <p>Reaction isn't only seeing — it's moving. These are trainable motor skills, not fixed traits:</p>
+          <ul>
+            <li>Mouse flicks</li>
+            <li>Click timing</li>
+            <li>Finger speed</li>
+            <li>Keyboard precision</li>
+          </ul>
+          <p>Eventually the movement becomes automatic, freeing up conscious attention for the decision itself.</p>
+        </div>
+      </details>
+
+      <details class="theory-item">
+        <summary>Training the brain</summary>
+        <div class="ti-body">
+          <p>This is where the modules in this app come in — each one isolates a specific piece of the reaction chain instead of training the whole thing as one vague blur.</p>
+          <ul>
+            <li>Simple reaction — a stimulus appears, you respond (a peeking enemy, a red gadget light)</li>
+            <li>Choice reaction — different stimuli map to different responses (operator/gadget ID, which angle to swing)</li>
+            <li>Go / No-Go — respond to one signal, withhold on another (the exact skill behind not shooting a teammate through a smoke or a headglitch)</li>
+            <li>Multiple object tracking &amp; peripheral vision — tracking a drone read, a cam, and a doorway at once without losing any of them</li>
+            <li>Pattern recognition — turn "see, think, decide" into "see, already know" (recognizing a default plant or a common roam spot instantly)</li>
+          </ul>
+          <p class="ti-note">Prediction training</p>
+          <p>The biggest gap between professionals and average players. Pros rarely react to a raw stimulus — they predict it (a rotate about to open, a common re-peek timing), so the reaction effectively starts before the event happens.</p>
+        </div>
+      </details>
+
+      <details class="theory-item">
+        <summary>Stress, arousal &amp; warm-up</summary>
+        <div class="ti-body">
+          <p class="ti-note">High anxiety</p>
+          <ul>
+            <li>Slower decisions</li>
+            <li>Tunnel vision</li>
+            <li>Muscle tension</li>
+          </ul>
+          <p class="ti-note">What helps</p>
+          <ul>
+            <li>Breathing exercises</li>
+            <li>Experience &amp; confidence</li>
+            <li>Repeated exposure</li>
+          </ul>
+          <p>The goal isn't to be as calm as possible — there's a sweet spot between too relaxed (slow) and too stressed (inaccurate) where reactions are both fast and consistent. That's the Yerkes–Dodson relationship, if you want the term for it.</p>
+          <p>This is the exact gap between a player who plays clean in ranked scrims and one who tunnel-visions and whiffs the read in a 1v1 for match point — same mechanical skill, different arousal level.</p>
+          <p class="ti-note">Warm-up</p>
+          <ul>
+            <li>Most people react measurably faster after 10–20 minutes of warm-up</li>
+            <li>Raises nerve conduction speed</li>
+            <li>Raises muscle temperature</li>
+            <li>Raises general alertness</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="theory-item">
+        <summary>Game knowledge &amp; deliberate practice</summary>
+        <div class="ti-body">
+          <p>Arguably the single biggest "reaction speed" increase available — and it isn't physiological at all. In Siege specifically, knowing these reduces decision time enormously:</p>
+          <ul>
+            <li>Headglitches, common angles, and where hard breach opens a new one mid-round</li>
+            <li>Reinforcement, rotate, and drone-scan timings for the site being played</li>
+            <li>Operator tendencies — which roamers hold which spots, who plays aggro vs. anchors</li>
+            <li>Audio cues — footsteps through soft walls, drone/cam beeps, gadget deploy sounds (Kaid claw, Jäger ADS, Bandit battery hum), breach charges</li>
+            <li>Utility usage — knowing what a sound or a destroyed gadget tells you about intent</li>
+          </ul>
+          <p>A player with a 170&nbsp;ms simple reaction who's acting on expectation will often beat a 120&nbsp;ms player reacting to genuine surprise — this is most of what separates a ranked grinder from a pro in Siege specifically, since so much of the game is pre-fight information, not raw aim.</p>
+          <p class="ti-note">Measure the right things</p>
+          <ul>
+            <li>Average reaction time</li>
+            <li>Consistency (standard deviation)</li>
+            <li>Directional bias — left, right, up, down (Siege plays vertically: hatches, rappel, destruction)</li>
+            <li>Friend/foe mix-ups under pressure — hesitation or misfires on teammates</li>
+            <li>Fatigue over a session</li>
+            <li>Improvement curve over time</li>
+          </ul>
+          <p>Consistency usually matters more than any one fast trial — which is why this app tracks accuracy and full-run history alongside best times, not just personal bests in isolation.</p>
+        </div>
+      </details>
+
+      <details class="theory-item">
+        <summary>Environment &amp; avoiding fatigue</summary>
+        <div class="ti-body">
+          <ul>
+            <li>Comfortable temperature, good posture, quiet room</li>
+            <li>Comfortable chair, consistent setup</li>
+            <li>Mouse sensitivity that matches your grip and monitor size</li>
+          </ul>
+          <p>Reaction time steadily worsens with long sessions, sleep deprivation, hunger, and dehydration. Many professional teams schedule breaks roughly every hour specifically to protect reaction performance, not just to rest.</p>
+        </div>
+      </details>
+
+      <details class="theory-item">
+        <summary>Weak or unproven claims</summary>
+        <div class="ti-body">
+          <p>Commonly repeated, but the evidence is thin or the effect is tiny. Worth knowing about, not worth building a routine around.</p>
+          <ul class="ti-weak">
+            <li>Sitting with the dominant eye more centered on the monitor — plausible mechanism, very small measured effect</li>
+            <li>Vision-training glasses</li>
+            <li>Blue-light gaming glasses — unless they're reducing eye strain over long sessions, which is a separate benefit</li>
+            <li>General "brain training" apps unrelated to the actual task</li>
+            <li>Nootropics beyond caffeine — most have little high-quality supporting evidence</li>
+            <li>Ginkgo biloba, Rhodiola rosea</li>
+            <li>Lion's Mane — interesting research direction, no strong evidence yet for faster gaming reactions</li>
+            <li>Binaural beats</li>
+            <li>Colored room lighting</li>
+          </ul>
+        </div>
+      </details>
+    </div>
+  </div>
+</div>
+
+<div id="weeklyView">
+  <button class="backBtn" id="weeklyBackBtn">&larr; HOME</button>
+  <div class="sub-header">
+    <p class="eyebrow">KINGSMEN ACADEMY // WEEKLY CHALLENGE</p>
+    <h1>This Week</h1>
+  </div>
+  <div class="weekly-inner">
+    <p class="weekly-countdown" id="weeklyCountdown">Resets in <b>—</b></p>
+    <p class="weekly-summary" id="weeklySummary"></p>
+    <div class="weekly-grid" id="weeklyGrid"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<div id="rankRefModal">
+  <div class="rank-ref-card">
+    <button class="rank-ref-close" id="rankRefClose">&times;</button>
+    <div class="rank-ref-title" id="rankRefTitle">Ranks</div>
+    <div class="rank-ladder" id="rankRefLadder"></div>
+  </div>
+</div>
+
+
+<div id="app">
+  <button class="backBtn" id="backBtn">&larr; ACADEMY MENU</button>
+  <header>
+    <div>
+      <p class="eyebrow">KINGSMEN ACADEMY // REFLEX INSTRUMENTATION</p>
+      <h1>COLOUR <span>FLICK</span></h1>
+    </div>
+    <div id="hud">
+      <div class="hud-row stageA" id="rowA"><span class="lbl">A · COLOR REACTION</span><span class="val" id="hudA">—</span></div>
+      <div class="hud-row stageB-move" id="rowBmove"><span class="lbl">B · MOVE (ANY DIRECTION)</span><span class="val" id="hudBmove">—</span></div>
+      <div class="hud-row stageB-aim" id="rowBaim"><span class="lbl">B · AIM LOCK (WITHIN 10° OF TARGET)</span><span class="val" id="hudBaim">—</span></div>
+      <div class="hud-row stageB-click" id="rowBclick"><span class="lbl">B · CLICK BALL</span><span class="val" id="hudBclick">—</span></div>
+      <div class="hud-row stageB-dev" id="rowBdev"><span class="lbl">B · LINE DEVIATION</span><span class="val" id="hudBdev">—</span></div>
+      <div class="hud-row stageC-move" id="rowCmove"><span class="lbl">C · MOVE (ANY DIRECTION)</span><span class="val" id="hudCmove">—</span></div>
+      <div class="hud-row stageC-aim" id="rowCaim"><span class="lbl">C · AIM LOCK (WITHIN 10° OF TARGET)</span><span class="val" id="hudCaim">—</span></div>
+      <div class="hud-row stageC-click" id="rowCclick"><span class="lbl">C · CLICK TARGET</span><span class="val" id="hudCclick">—</span></div>
+      <div class="hud-row stageC-dev" id="rowCdev"><span class="lbl">C · LINE DEVIATION</span><span class="val" id="hudCdev">—</span></div>
+    </div>
+  </header>
+
+  <div id="playfield">
+    <div class="cue hidden" id="cue">WAIT FOR GREEN</div>
+
+    <div id="reflexCircle">
+      <div class="rc-label" id="rcLabel">WAIT</div>
+    </div>
+
+    <div id="guideLine"></div>
+
+    <div class="mover" id="ball">
+      <svg viewBox="0 0 56 56">
+        <circle class="ring" cx="28" cy="28" r="24"/>
+        <circle class="core" cx="28" cy="28" r="6"/>
+      </svg>
+    </div>
+
+    <div class="mover" id="targetB">
+      <svg viewBox="0 0 64 64">
+        <circle class="ring" cx="32" cy="32" r="28"/>
+        <circle class="ring" cx="32" cy="32" r="18" opacity="0.6"/>
+        <circle class="core" cx="32" cy="32" r="7"/>
+      </svg>
+    </div>
+  </div>
+
+  <div id="startPanel">
+    <div class="stage" id="stageLabel">STANDBY</div>
+    <h1 style="font-size:15px; color:var(--dim); font-weight:400; letter-spacing:0.05em;">
+      Three chained splits per trial
+    </h1>
+    <div class="steps">
+      <div><b>A — Color reaction:</b> click the circle to arm it, then stay on it and click again once it flashes a color.</div>
+      <div><b>B — Move to ball:</b> a ball appears, painted the same color as stage A — along with a couple of wrong-colored decoys. Click the right one.</div>
+      <div><b>C — Move to target:</b> a new target appears immediately after, same color again, with fresh decoys. Click the right one.</div>
+    </div>
+    <p>Drifting off the circle before the reveal, or clicking too early, restarts stage A. Clicking a decoy just flashes red — try again.</p>
+
+    <button id="startBtn">START TEST</button>
+  </div>
+
+  <div id="resultCard">
+    <div class="card">
+      <div class="title">TRIAL <span id="trialNum">1</span> — SPLIT RESULTS</div>
+      <div class="subtitle" id="resultSubtitle">ALL THREE STAGES TRACKED INDEPENDENTLY</div>
+      <div class="metric stageA"><span class="m-lbl">A · Color reaction</span><span class="m-val" id="rA">—</span></div>
+      <div class="metric move"><span class="m-lbl">B · Move reaction (move any direction)</span><span class="m-val" id="rBmove">—</span></div>
+      <div class="metric aim"><span class="m-lbl">B · Aim lock (within 10° of target)</span><span class="m-val" id="rBaim">—</span></div>
+      <div class="metric click"><span class="m-lbl">B · Click time (ball)</span><span class="m-val" id="rBclick">—</span></div>
+      <div class="metric dev"><span class="m-lbl">B · Line deviation (avg px off ideal path)</span><span class="m-val" id="rBdev">—</span></div>
+      <div class="metric move"><span class="m-lbl">C · Move reaction (move any direction)</span><span class="m-val" id="rCmove">—</span></div>
+      <div class="metric aim"><span class="m-lbl">C · Aim lock (within 10° of target)</span><span class="m-val" id="rCaim">—</span></div>
+      <div class="metric click"><span class="m-lbl">C · Click time (target)</span><span class="m-val" id="rCclick">—</span></div>
+      <div class="metric dev"><span class="m-lbl">C · Line deviation (avg px off ideal path)</span><span class="m-val" id="rCdev">—</span></div>
+      <div class="metric record" id="rBestARow"><span class="m-lbl">Best A · Color reaction (all-time)</span><span class="m-val" id="rBestA">—</span></div>
+      <div class="metric record" id="rBestBclickRow"><span class="m-lbl">Best B · Click time (all-time)</span><span class="m-val" id="rBestBclick">—</span></div>
+      <div class="metric record" id="rBestCclickRow"><span class="m-lbl">Best C · Click time (all-time)</span><span class="m-val" id="rBestCclick">—</span></div>
+      <button id="nextBtn">NEXT TRIAL</button>
+      <button class="btn-secondary returnAcademyBtn">RETURN TO ACADEMY</button>
+    </div>
+  </div>
+
+  <div id="log"></div>
+</div>
+
+<div id="gng">
+  <button class="backBtn" id="gngBackBtn">&larr; ACADEMY MENU</button>
+  <header>
+    <div>
+      <p class="eyebrow">KINGSMEN ACADEMY // INHIBITION INSTRUMENTATION</p>
+      <h1>GO / <span>NO-GO</span></h1>
+    </div>
+    <div id="gngHud">
+      <div class="hud-row active"><span class="lbl">RULE</span><span class="val" id="gngRuleVal">—</span></div>
+      <div class="hud-row active"><span class="lbl">TRIAL</span><span class="val" id="gngTrialVal">0 / 20</span></div>
+      <div class="hud-row active"><span class="lbl">SCORE</span><span class="val" id="gngScoreVal">0</span></div>
+      <div class="hud-row active"><span class="lbl">STREAK</span><span class="val" id="gngStreakVal">0</span></div>
+    </div>
+  </header>
+
+  <div id="gngPlayfield">
+    <div class="gng-rule-banner" id="gngRuleBanner">RULE — CLICK ONLY ON <span id="gngRuleColorText">GREEN</span></div>
+
+    <div id="gngStim">
+      <div class="rc-label" id="gngStimLabel"></div>
+    </div>
+
+    <div class="gng-feedback" id="gngFeedback"></div>
+  </div>
+
+  <div id="gngStartPanel">
+    <div class="stage" id="gngStageLabel">STANDBY</div>
+    <h1 style="font-size:15px; color:var(--dim); font-weight:400; letter-spacing:0.05em;">
+      Click the go color. Hold off on the no-go color. Watch the rule.
+    </h1>
+    <div class="steps">
+      <div><b>Go:</b> click the circle as fast as you can while it's showing the go color.</div>
+      <div><b>No-Go:</b> the circle flashes the other color — don't click it. Any click on it is a false alarm.</div>
+      <div><b>Rule switch:</b> every so often the go/no-go colors swap. The banner above always shows the current rule — read it, don't assume.</div>
+    </div>
+    <p>20 trials per run. A missed go or a false alarm just gets logged — the run keeps moving.</p>
+    <button id="gngStartBtn">START RUN</button>
+  </div>
+
+  <div id="gngResultCard">
+    <div class="card">
+      <div class="title">RUN COMPLETE</div>
+      <div class="subtitle">20 TRIALS &middot; INHIBITION &amp; SWITCH-COST SUMMARY</div>
+      <div class="metric gng-acc"><span class="m-lbl">Overall correct (out of 20)</span><span class="m-val" id="gngROverall">—</span></div>
+      <div class="metric gng-hit"><span class="m-lbl">Correct clicks (go trials)</span><span class="m-val" id="gngRHits">—</span></div>
+      <div class="metric click"><span class="m-lbl">Avg go reaction time</span><span class="m-val" id="gngRAvgRt">—</span></div>
+      <div class="metric gng-miss"><span class="m-lbl">Misses (missed go)</span><span class="m-val" id="gngRMisses">—</span></div>
+      <div class="metric gng-false"><span class="m-lbl">False alarms (clicked no-go)</span><span class="m-val" id="gngRFalse">—</span></div>
+      <div class="metric gng-acc"><span class="m-lbl">Accuracy</span><span class="m-val" id="gngRAcc">—</span></div>
+      <div class="metric gng-switch"><span class="m-lbl">Rule-switch cost (extra ms right after a switch)</span><span class="m-val" id="gngRSwitchCost">—</span></div>
+      <div class="metric record" id="gngRBestRow"><span class="m-lbl">Best overall correct (all-time)</span><span class="m-val" id="gngRBest">—</span></div>
+      <button id="gngNextBtn">RUN AGAIN</button>
+      <button class="btn-secondary returnAcademyBtn">RETURN TO ACADEMY</button>
+    </div>
+  </div>
+
+  <div id="gngLog"></div>
+</div>
+
+<div id="flk">
+  <button class="backBtn" id="flkBackBtn">&larr; ACADEMY MENU</button>
+  <header>
+    <div>
+      <p class="eyebrow">KINGSMEN ACADEMY // INTERFERENCE INSTRUMENTATION</p>
+      <h1>FLANKER <span>TASK</span></h1>
+    </div>
+    <div id="flkHud">
+      <div class="hud-row active"><span class="lbl">MODE</span><span class="val" id="flkModeVal">EASY</span></div>
+      <div class="hud-row active"><span class="lbl">TRIAL</span><span class="val" id="flkTrialVal">0 / 20</span></div>
+      <div class="hud-row active"><span class="lbl">CORRECT</span><span class="val" id="flkScoreVal">0</span></div>
+      <div class="hud-row active"><span class="lbl">STREAK</span><span class="val" id="flkStreakVal">0</span></div>
+    </div>
+  </header>
+
+  <div id="flkPlayfield">
+    <div id="flkArrows" class="horizontal"></div>
+    <div class="flk-feedback" id="flkFeedback"></div>
+  </div>
+
+  <div id="flkStartPanel">
+    <div class="stage" id="flkStageLabel">STANDBY</div>
+    <h1 style="font-size:15px; color:var(--dim); font-weight:400; letter-spacing:0.05em;">
+      Ignore the distractors. Move where the center arrow points.
+    </h1>
+    <div class="steps">
+      <div><b>Center arrow:</b> a row (or column) of arrows appears — only the middle one matters.</div>
+      <div><b>Respond:</b> flick your mouse in the direction the middle arrow points, as fast as you can.</div>
+      <div><b>Distractors:</b> the flanking arrows sometimes point the same way, sometimes the opposite way. They're noise — don't follow them.</div>
+    </div>
+    <p>20 trials per run. Wrong direction or no response in time still gets logged, and the run keeps moving.</p>
+    <div class="difficulty-note">
+      <div><b>Easy</b> — arrows only ever point left or right.</div>
+      <div><b>Full</b> — arrows can point in all 4 directions, testing broader discrimination.</div>
+    </div>
+    <div class="mode-toggle">
+      <button id="flkEasyBtn" class="selected">EASY — LEFT / RIGHT</button>
+      <button id="flkFullBtn">FULL — 4 DIRECTION</button>
+    </div>
+    <button id="flkStartBtn">START RUN</button>
+  </div>
+
+  <div id="flkResultCard">
+    <div class="card">
+      <div class="title">RUN COMPLETE</div>
+      <div class="subtitle">20 TRIALS &middot; INTERFERENCE SUMMARY</div>
+      <div class="metric flk-hit"><span class="m-lbl">Correct</span><span class="m-val" id="flkRHits">—</span></div>
+      <div class="metric click"><span class="m-lbl">Avg correct reaction time</span><span class="m-val" id="flkRAvgRt">—</span></div>
+      <div class="metric flk-err"><span class="m-lbl">Wrong direction</span><span class="m-val" id="flkRErrors">—</span></div>
+      <div class="metric flk-miss"><span class="m-lbl">No response in time</span><span class="m-val" id="flkRMisses">—</span></div>
+      <div class="metric flk-acc"><span class="m-lbl">Accuracy</span><span class="m-val" id="flkRAcc">—</span></div>
+      <div class="metric flk-cost"><span class="m-lbl">Flanker effect (incongruent minus congruent ms)</span><span class="m-val" id="flkRCost">—</span></div>
+      <div class="metric record" id="flkRBestRow"><span class="m-lbl">Best correct, this mode (all-time)</span><span class="m-val" id="flkRBest">—</span></div>
+      <button id="flkNextBtn">RUN AGAIN</button>
+      <button class="btn-secondary returnAcademyBtn">RETURN TO ACADEMY</button>
+    </div>
+  </div>
+
+  <div id="flkLog"></div>
+</div>
+
+<div id="cr">
+  <button class="backBtn" id="crBackBtn">&larr; ACADEMY MENU</button>
+  <header>
+    <div>
+      <p class="eyebrow">KINGSMEN ACADEMY // CHOICE INSTRUMENTATION</p>
+      <h1>CHOICE <span>REACTION</span></h1>
+    </div>
+    <div id="crHud">
+      <div class="hud-row active"><span class="lbl">TRIAL</span><span class="val" id="crTrialVal">0 / 20</span></div>
+      <div class="hud-row active"><span class="lbl">CORRECT</span><span class="val" id="crScoreVal">0</span></div>
+      <div class="hud-row active"><span class="lbl">STREAK</span><span class="val" id="crStreakVal">0</span></div>
+    </div>
+  </header>
+
+  <div id="crPlayfield">
+    <div class="cr-zone" id="crZoneTop"></div>
+    <div class="cr-zone" id="crZoneBottom"></div>
+    <div class="cr-zone" id="crZoneLeft"></div>
+    <div class="cr-zone" id="crZoneRight"></div>
+    <div class="cr-zone" id="crZoneTopLeft"></div>
+    <div class="cr-zone" id="crZoneTopRight"></div>
+    <div class="cr-zone" id="crZoneBottomLeft"></div>
+    <div class="cr-zone" id="crZoneBottomRight"></div>
+    <div id="crStim"></div>
+    <div class="cr-feedback" id="crFeedback"></div>
+  </div>
+
+  <div id="crStartPanel">
+    <div class="stage" id="crStageLabel">STANDBY</div>
+    <h1 style="font-size:15px; color:var(--dim); font-weight:400; letter-spacing:0.05em;">
+      Eight zones, eight colors. Click the one that matches.
+    </h1>
+    <div class="steps">
+      <div><b>Mapping:</b> each of the eight zones is assigned a color for this run — shown on screen the whole time.</div>
+      <div><b>Respond:</b> a color flashes in the center. Click the zone with that color as fast as you can.</div>
+      <div><b>Mapping stays fixed</b> for the whole run in Normal mode, so it gets easier to trust as you go.</div>
+    </div>
+    <p>20 trials per run. A wrong zone or a missed response just gets logged — the run keeps moving.</p>
+    <div class="difficulty-note">
+      <div><b>Normal</b> — the mapping is set once and never changes.</div>
+      <div><b>Hard</b> — the mapping reshuffles twice mid-run, unannounced. Watch the labels.</div>
+      <div><b>Adaptive</b> — 30 trials, and the response window tightens as you get it right. Reports the fastest window you can hold, instead of a rank.</div>
+    </div>
+    <div class="mode-toggle">
+      <button id="crNormalBtn" class="selected">NORMAL</button>
+      <button id="crHardBtn">HARD</button>
+      <button id="crAdaptiveBtn">ADAPTIVE</button>
+    </div>
+    <button id="crStartBtn">START RUN</button>
+  </div>
+
+  <div id="crResultCard">
+    <div class="card">
+      <div class="title">RUN COMPLETE</div>
+      <div class="subtitle">20 TRIALS &middot; CHOICE REACTION SUMMARY</div>
+      <div class="metric cr-hit"><span class="m-lbl">Correct</span><span class="m-val" id="crRHits">—</span></div>
+      <div class="metric click"><span class="m-lbl">Avg correct reaction time</span><span class="m-val" id="crRAvgRt">—</span></div>
+      <div class="metric cr-err"><span class="m-lbl">Wrong zone</span><span class="m-val" id="crRErrors">—</span></div>
+      <div class="metric cr-miss"><span class="m-lbl">No response in time</span><span class="m-val" id="crRMisses">—</span></div>
+      <div class="metric cr-acc"><span class="m-lbl">Accuracy</span><span class="m-val" id="crRAcc">—</span></div>
+      <div class="metric record" id="crRBestRow"><span class="m-lbl">Best correct (all-time)</span><span class="m-val" id="crRBest">—</span></div>
+      <button id="crNextBtn">RUN AGAIN</button>
+      <button class="btn-secondary returnAcademyBtn">RETURN TO ACADEMY</button>
+    </div>
+  </div>
+
+  <div id="crLog"></div>
+</div>
+
+
+
+
+
+<div id="frx">
+  <button class="backBtn" id="frxBackBtn">&larr; ACADEMY MENU</button>
+  <header>
+    <div>
+      <p class="eyebrow">KINGSMEN ACADEMY // RAMP INSTRUMENTATION</p>
+      <h1>FLASH <span>REFLEX</span></h1>
+    </div>
+    <div id="frxHud">
+      <div class="hud-row active"><span class="lbl">ROUND</span><span class="val" id="frxRoundVal">0</span></div>
+      <div class="hud-row active frx-lives"><span class="lbl">LIVES</span><span class="val" id="frxLivesVal">3</span></div>
+      <div class="hud-row active frx-speed"><span class="lbl">FLASH</span><span class="val" id="frxSpeedVal">200 ms</span></div>
+      <div class="hud-row active"><span class="lbl">CORRECT</span><span class="val" id="frxScoreVal">0</span></div>
+    </div>
+  </header>
+
+  <div id="frxPlayfield">
+    <div id="frxArrow"></div>
+    <div class="frx-feedback" id="frxFeedback"></div>
+  </div>
+
+  <div id="frxStartPanel">
+    <div class="stage" id="frxStageLabel">STANDBY</div>
+    <h1 style="font-size:15px; color:var(--dim); font-weight:400; letter-spacing:0.05em;">
+      Catch the glimpse. Swing the mouse that way before it's gone.
+    </h1>
+    <div class="steps">
+      <div><b>Flash:</b> an arrow appears for a moment, then disappears completely.</div>
+      <div><b>Respond:</b> once it's gone, you have 0.5s to flick your mouse in the direction it pointed.</div>
+      <div><b>Ramp:</b> every correct round shaves time off the next flash — it gets harder to catch, not harder to react to.</div>
+    </div>
+    <p>3 lives. A wrong direction or no response in time costs one — the run ends when they're gone.</p>
+    <button id="frxStartBtn">START RUN</button>
+  </div>
+
+  <div id="frxResultCard">
+    <div class="card">
+      <div class="title">RUN COMPLETE</div>
+      <div class="subtitle">RAMP SUMMARY</div>
+      <div class="metric frx-rounds"><span class="m-lbl">Rounds survived</span><span class="m-val" id="frxRRounds">—</span></div>
+      <div class="metric frx-hit"><span class="m-lbl">Correct</span><span class="m-val" id="frxRHits">—</span></div>
+      <div class="metric frx-err"><span class="m-lbl">Missed</span><span class="m-val" id="frxRErrors">—</span></div>
+      <div class="metric click"><span class="m-lbl">Avg correct reaction time</span><span class="m-val" id="frxRAvgRt">—</span></div>
+      <div class="metric frx-speed"><span class="m-lbl">Fastest flash beaten</span><span class="m-val" id="frxRBestSpeed">—</span></div>
+      <div class="metric record" id="frxRBestRoundsRow"><span class="m-lbl">Best rounds survived (all-time)</span><span class="m-val" id="frxRBestRounds">—</span></div>
+      <div class="metric record" id="frxRBestFlashRow"><span class="m-lbl">Fastest flash ever beaten (all-time)</span><span class="m-val" id="frxRBestFlash">—</span></div>
+      <button id="frxNextBtn">RUN AGAIN</button>
+      <button class="btn-secondary returnAcademyBtn">RETURN TO ACADEMY</button>
+    </div>
+  </div>
+
+  <div id="frxLog"></div>
+</div>
+
+
+<div id="sim" class="game-view">
+  <button class="backBtn" id="simBackBtn">&larr; ACADEMY MENU</button>
+  <header>
+    <div>
+      <p class="eyebrow">KINGSMEN ACADEMY // SEQUENCE INSTRUMENTATION</p>
+      <h1>SIMON <span>SEQUENCE</span></h1>
+    </div>
+    <div class="game-hud">
+      <div class="hud-row active"><span class="lbl">ROUND</span><span class="val" id="simRoundVal">0</span></div>
+      <div class="hud-row active"><span class="lbl">STATE</span><span class="val" id="simStateVal">—</span></div>
+    </div>
+  </header>
+
+  <div class="game-playfield">
+    <div id="simPads">
+      <div class="sim-pad" id="simPadGreen" data-color="green"></div>
+      <div class="sim-pad" id="simPadRed" data-color="red"></div>
+      <div class="sim-pad" id="simPadBlue" data-color="blue"></div>
+      <div class="sim-pad" id="simPadYellow" data-color="yellow"></div>
+    </div>
+    <div class="game-feedback" id="simFeedback"></div>
+  </div>
+
+  <div class="game-start-panel" id="simStartPanel">
+    <div class="stage" id="simStageLabel">STANDBY</div>
+    <h1 style="font-size:15px; color:var(--dim); font-weight:400; letter-spacing:0.05em;">Watch the sequence. Repeat it back.</h1>
+    <div class="steps">
+      <div><b>Watch:</b> the pads light up in a sequence, one at a time.</div>
+      <div><b>Repeat:</b> click the pads back in the same order.</div>
+      <div><b>Grow:</b> get it right and the sequence grows by one. One wrong click ends the run.</div>
+    </div>
+    <button id="simStartBtn">START</button>
+  </div>
+
+  <div class="game-result-card" id="simResultCard">
+    <div class="card">
+      <div class="title">RUN COMPLETE</div>
+      <div class="subtitle">SEQUENCE MEMORY SUMMARY</div>
+      <div class="metric game-highlight"><span class="m-lbl">Longest sequence reached</span><span class="m-val" id="simRRounds">—</span></div>
+      <div class="metric game-good"><span class="m-lbl">Correct clicks</span><span class="m-val" id="simRCorrect">—</span></div>
+      <div class="metric record" id="simRBestRow"><span class="m-lbl">Best sequence (all-time)</span><span class="m-val" id="simRBest">—</span></div>
+      <button id="simNextBtn">RUN AGAIN</button>
+      <button class="btn-secondary returnAcademyBtn">RETURN TO ACADEMY</button>
+    </div>
+  </div>
+
+  <div class="game-log" id="simLog"></div>
+</div>
+
+
+<div id="str" class="game-view">
+  <button class="backBtn" id="strBackBtn">&larr; ACADEMY MENU</button>
+  <header>
+    <div>
+      <p class="eyebrow">KINGSMEN ACADEMY // INTERFERENCE INSTRUMENTATION</p>
+      <h1>STROOP <span>TEST</span></h1>
+    </div>
+    <div class="game-hud">
+      <div class="hud-row active"><span class="lbl">TRIAL</span><span class="val" id="strTrialVal">0 / 20</span></div>
+      <div class="hud-row active"><span class="lbl">CORRECT</span><span class="val" id="strScoreVal">0</span></div>
+      <div class="hud-row active"><span class="lbl">RULE</span><span class="val" id="strRuleVal">INK</span></div>
+    </div>
+  </header>
+
+  <div class="game-playfield">
+    <div id="strWord"></div>
+    <div id="strZones">
+      <div class="game-zone str-zone" data-color="RED">RED</div>
+      <div class="game-zone str-zone" data-color="GREEN">GREEN</div>
+      <div class="game-zone str-zone" data-color="BLUE">BLUE</div>
+      <div class="game-zone str-zone" data-color="YELLOW">YELLOW</div>
+    </div>
+    <div class="game-feedback" id="strFeedback"></div>
+  </div>
+
+  <div class="game-start-panel" id="strStartPanel">
+    <div class="stage" id="strStageLabel">STANDBY</div>
+    <h1 style="font-size:15px; color:var(--dim); font-weight:400; letter-spacing:0.05em;">Click the ink color. Ignore the word.</h1>
+    <div class="steps">
+      <div><b>Word:</b> a color name appears, printed in some ink color.</div>
+      <div><b>Respond:</b> click the button matching the ink color — not what the word says.</div>
+      <div><b>Watch out:</b> sometimes they match, sometimes they don't. Both happen equally often.</div>
+    </div>
+    <p>20 trials per run.</p>
+    <div class="difficulty-note">
+      <div><b>Normal</b> — always click the ink color.</div>
+      <div><b>Hard</b> — the rule flips to WORD MEANING twice mid-run. Watch the RULE readout.</div>
+    </div>
+    <div class="mode-toggle">
+      <button id="strNormalBtn" class="selected">NORMAL</button>
+      <button id="strHardBtn">HARD</button>
+    </div>
+    <button id="strStartBtn">START RUN</button>
+  </div>
+
+  <div class="game-result-card" id="strResultCard">
+    <div class="card">
+      <div class="title">RUN COMPLETE</div>
+      <div class="subtitle">20 TRIALS &middot; INTERFERENCE SUMMARY</div>
+      <div class="metric game-good"><span class="m-lbl">Correct</span><span class="m-val" id="strRCorrect">—</span></div>
+      <div class="metric click"><span class="m-lbl">Avg correct reaction time</span><span class="m-val" id="strRAvgRt">—</span></div>
+      <div class="metric game-bad"><span class="m-lbl">Wrong color</span><span class="m-val" id="strRWrong">—</span></div>
+      <div class="metric game-bad-strong"><span class="m-lbl">No response in time</span><span class="m-val" id="strRTimeout">—</span></div>
+      <div class="metric game-acc"><span class="m-lbl">Accuracy</span><span class="m-val" id="strRAcc">—</span></div>
+      <div class="metric game-highlight"><span class="m-lbl">Interference cost (mismatch minus match ms)</span><span class="m-val" id="strRInterference">—</span></div>
+      <div class="metric record" id="strRBestRow"><span class="m-lbl">Best correct (all-time)</span><span class="m-val" id="strRBest">—</span></div>
+      <button id="strNextBtn">RUN AGAIN</button>
+      <button class="btn-secondary returnAcademyBtn">RETURN TO ACADEMY</button>
+    </div>
+  </div>
+
+  <div class="game-log" id="strLog"></div>
+</div>
+
+
+<div id="mth" class="game-view">
+  <button class="backBtn" id="mthBackBtn">&larr; ACADEMY MENU</button>
+  <header>
+    <div>
+      <p class="eyebrow">KINGSMEN ACADEMY // ARITHMETIC INSTRUMENTATION</p>
+      <h1>MATH <span>SPRINT</span></h1>
+    </div>
+    <div class="game-hud">
+      <div class="hud-row active"><span class="lbl">TRIAL</span><span class="val" id="mthTrialVal">0 / 20</span></div>
+      <div class="hud-row active"><span class="lbl">CORRECT</span><span class="val" id="mthScoreVal">0</span></div>
+    </div>
+  </header>
+
+  <div class="game-playfield">
+    <div id="mthEquation"></div>
+    <div id="mthZones">
+      <div class="game-zone mth-zone true-zone" data-answer="true">TRUE</div>
+      <div class="game-zone mth-zone false-zone" data-answer="false">FALSE</div>
+    </div>
+    <div class="game-feedback" id="mthFeedback"></div>
+  </div>
+
+  <div class="game-start-panel" id="mthStartPanel">
+    <div class="stage" id="mthStageLabel">STANDBY</div>
+    <h1 style="font-size:15px; color:var(--dim); font-weight:400; letter-spacing:0.05em;">Is the equation true or false?</h1>
+    <div class="steps">
+      <div><b>Equation:</b> a simple sum flashes on screen, already worked out.</div>
+      <div><b>Respond:</b> click TRUE if it's correct, FALSE if it isn't — as fast as you can.</div>
+    </div>
+    <p>20 trials per run.</p>
+    <button id="mthStartBtn">START RUN</button>
+  </div>
+
+  <div class="game-result-card" id="mthResultCard">
+    <div class="card">
+      <div class="title">RUN COMPLETE</div>
+      <div class="subtitle">20 TRIALS &middot; ARITHMETIC SUMMARY</div>
+      <div class="metric game-good"><span class="m-lbl">Correct</span><span class="m-val" id="mthRCorrect">—</span></div>
+      <div class="metric click"><span class="m-lbl">Avg correct reaction time</span><span class="m-val" id="mthRAvgRt">—</span></div>
+      <div class="metric game-bad"><span class="m-lbl">Wrong</span><span class="m-val" id="mthRWrong">—</span></div>
+      <div class="metric game-bad-strong"><span class="m-lbl">No response in time</span><span class="m-val" id="mthRTimeout">—</span></div>
+      <div class="metric game-acc"><span class="m-lbl">Accuracy</span><span class="m-val" id="mthRAcc">—</span></div>
+      <div class="metric record" id="mthRBestRow"><span class="m-lbl">Best correct (all-time)</span><span class="m-val" id="mthRBest">—</span></div>
+      <button id="mthNextBtn">RUN AGAIN</button>
+      <button class="btn-secondary returnAcademyBtn">RETURN TO ACADEMY</button>
+    </div>
+  </div>
+
+  <div class="game-log" id="mthLog"></div>
+</div>
+
+
+<div id="odd" class="game-view">
+  <button class="backBtn" id="oddBackBtn">&larr; ACADEMY MENU</button>
+  <header>
+    <div>
+      <p class="eyebrow">KINGSMEN ACADEMY // VISUAL SEARCH INSTRUMENTATION</p>
+      <h1>ODD ONE <span>OUT</span></h1>
+    </div>
+    <div class="game-hud">
+      <div class="hud-row active"><span class="lbl">TRIAL</span><span class="val" id="oddTrialVal">0 / 20</span></div>
+      <div class="hud-row active"><span class="lbl">CORRECT</span><span class="val" id="oddScoreVal">0</span></div>
+    </div>
+  </header>
+
+  <div class="game-playfield">
+    <div id="oddGrid"></div>
+    <div class="game-feedback" id="oddFeedback"></div>
+  </div>
+
+  <div class="game-start-panel" id="oddStartPanel">
+    <div class="stage" id="oddStageLabel">STANDBY</div>
+    <h1 style="font-size:15px; color:var(--dim); font-weight:400; letter-spacing:0.05em;">Find the circle that doesn't match.</h1>
+    <div class="steps">
+      <div><b>Grid:</b> nine circles appear, all the same shade but one.</div>
+      <div><b>Respond:</b> click the odd one out as fast as you can.</div>
+    </div>
+    <p>20 trials per run.</p>
+    <button id="oddStartBtn">START RUN</button>
+  </div>
+
+  <div class="game-result-card" id="oddResultCard">
+    <div class="card">
+      <div class="title">RUN COMPLETE</div>
+      <div class="subtitle">20 TRIALS &middot; VISUAL SEARCH SUMMARY</div>
+      <div class="metric game-good"><span class="m-lbl">Correct</span><span class="m-val" id="oddRCorrect">—</span></div>
+      <div class="metric click"><span class="m-lbl">Avg correct reaction time</span><span class="m-val" id="oddRAvgRt">—</span></div>
+      <div class="metric game-bad"><span class="m-lbl">Wrong cell</span><span class="m-val" id="oddRWrong">—</span></div>
+      <div class="metric game-bad-strong"><span class="m-lbl">No response in time</span><span class="m-val" id="oddRTimeout">—</span></div>
+      <div class="metric game-acc"><span class="m-lbl">Accuracy</span><span class="m-val" id="oddRAcc">—</span></div>
+      <div class="metric record" id="oddRBestRow"><span class="m-lbl">Best correct (all-time)</span><span class="m-val" id="oddRBest">—</span></div>
+      <button id="oddNextBtn">RUN AGAIN</button>
+      <button class="btn-secondary returnAcademyBtn">RETURN TO ACADEMY</button>
+    </div>
+  </div>
+
+  <div class="game-log" id="oddLog"></div>
+</div>
+
+
+<div id="per" class="game-view">
+  <button class="backBtn" id="perBackBtn">&larr; ACADEMY MENU</button>
+  <header>
+    <div>
+      <p class="eyebrow">KINGSMEN ACADEMY // PERIPHERAL INSTRUMENTATION</p>
+      <h1>PERIPHERAL <span>PING</span></h1>
+    </div>
+    <div class="game-hud">
+      <div class="hud-row active"><span class="lbl">TRIAL</span><span class="val" id="perTrialVal">0 / 20</span></div>
+      <div class="hud-row active"><span class="lbl">CORRECT</span><span class="val" id="perScoreVal">0</span></div>
+    </div>
+  </header>
+
+  <div class="game-playfield">
+    <div id="perFixation"></div>
+    <div id="perPing"></div>
+    <div class="game-feedback" id="perFeedback"></div>
+  </div>
+
+  <div class="game-start-panel" id="perStartPanel">
+    <div class="stage" id="perStageLabel">STANDBY</div>
+    <h1 style="font-size:15px; color:var(--dim); font-weight:400; letter-spacing:0.05em;">Watch the center. Click where it pings.</h1>
+    <div class="steps">
+      <div><b>Hold:</b> keep your cursor on the center dot — it pulses gold when it's waiting for you.</div>
+      <div><b>Ping:</b> once you're back on center, a dot flashes somewhere on screen, often out near the edges.</div>
+      <div><b>Respond:</b> click it as fast as you can before it disappears, then return to center for the next one.</div>
+    </div>
+    <p>20 trials per run.</p>
+    <button id="perStartBtn">START RUN</button>
+  </div>
+
+  <div class="game-result-card" id="perResultCard">
+    <div class="card">
+      <div class="title">RUN COMPLETE</div>
+      <div class="subtitle">20 TRIALS &middot; PERIPHERAL REACTION SUMMARY</div>
+      <div class="metric game-good"><span class="m-lbl">Correct</span><span class="m-val" id="perRCorrect">—</span></div>
+      <div class="metric click"><span class="m-lbl">Avg reaction time</span><span class="m-val" id="perRAvgRt">—</span></div>
+      <div class="metric game-bad-strong"><span class="m-lbl">No response in time</span><span class="m-val" id="perRTimeout">—</span></div>
+      <div class="metric game-acc"><span class="m-lbl">Accuracy</span><span class="m-val" id="perRAcc">—</span></div>
+      <div class="metric record" id="perRBestRow"><span class="m-lbl">Best correct (all-time)</span><span class="m-val" id="perRBest">—</span></div>
+      <button id="perNextBtn">RUN AGAIN</button>
+      <button class="btn-secondary returnAcademyBtn">RETURN TO ACADEMY</button>
+    </div>
+  </div>
+
+  <div class="game-log" id="perLog"></div>
+</div>
+
+
+<div id="par" class="game-view">
+  <button class="backBtn" id="parBackBtn">&larr; ACADEMY MENU</button>
+  <header>
+    <div>
+      <p class="eyebrow">KINGSMEN ACADEMY // CATEGORIZATION INSTRUMENTATION</p>
+      <h1>PARITY <span>RUSH</span></h1>
+    </div>
+    <div class="game-hud">
+      <div class="hud-row active"><span class="lbl">TRIAL</span><span class="val" id="parTrialVal">0 / 20</span></div>
+      <div class="hud-row active"><span class="lbl">CORRECT</span><span class="val" id="parScoreVal">0</span></div>
+    </div>
+  </header>
+
+  <div class="game-playfield">
+    <div id="parNumber"></div>
+    <div id="parZones">
+      <div class="game-zone par-zone" data-parity="even">EVEN</div>
+      <div class="game-zone par-zone" data-parity="odd">ODD</div>
+    </div>
+    <div class="game-feedback" id="parFeedback"></div>
+  </div>
+
+  <div class="game-start-panel" id="parStartPanel">
+    <div class="stage" id="parStageLabel">STANDBY</div>
+    <h1 style="font-size:15px; color:var(--dim); font-weight:400; letter-spacing:0.05em;">Even or odd — click it fast.</h1>
+    <div class="steps">
+      <div><b>Number:</b> a number flashes center-screen.</div>
+      <div><b>Respond:</b> click EVEN or ODD before the window closes.</div>
+    </div>
+    <p>20 trials per run.</p>
+    <div class="difficulty-note">
+      <div><b>Normal</b> — EVEN and ODD always mean what they say.</div>
+      <div><b>Hard</b> — the labels flip twice mid-run, unannounced. Read them each time.</div>
+    </div>
+    <div class="mode-toggle">
+      <button id="parNormalBtn" class="selected">NORMAL</button>
+      <button id="parHardBtn">HARD</button>
+    </div>
+    <button id="parStartBtn">START RUN</button>
+  </div>
+
+  <div class="game-result-card" id="parResultCard">
+    <div class="card">
+      <div class="title">RUN COMPLETE</div>
+      <div class="subtitle">20 TRIALS &middot; CATEGORIZATION SUMMARY</div>
+      <div class="metric game-good"><span class="m-lbl">Correct</span><span class="m-val" id="parRCorrect">—</span></div>
+      <div class="metric click"><span class="m-lbl">Avg correct reaction time</span><span class="m-val" id="parRAvgRt">—</span></div>
+      <div class="metric game-bad"><span class="m-lbl">Wrong</span><span class="m-val" id="parRWrong">—</span></div>
+      <div class="metric game-bad-strong"><span class="m-lbl">No response in time</span><span class="m-val" id="parRTimeout">—</span></div>
+      <div class="metric game-acc"><span class="m-lbl">Accuracy</span><span class="m-val" id="parRAcc">—</span></div>
+      <div class="metric record" id="parRBestRow"><span class="m-lbl">Best correct (all-time)</span><span class="m-val" id="parRBest">—</span></div>
+      <button id="parNextBtn">RUN AGAIN</button>
+      <button class="btn-secondary returnAcademyBtn">RETURN TO ACADEMY</button>
+    </div>
+  </div>
+
+  <div class="game-log" id="parLog"></div>
+</div>
+
+
+<div id="siz" class="game-view">
+  <button class="backBtn" id="sizBackBtn">&larr; ACADEMY MENU</button>
+  <header>
+    <div>
+      <p class="eyebrow">KINGSMEN ACADEMY // MAGNITUDE INSTRUMENTATION</p>
+      <h1>SIZE <span>COMPARE</span></h1>
+    </div>
+    <div class="game-hud">
+      <div class="hud-row active"><span class="lbl">TRIAL</span><span class="val" id="sizTrialVal">0 / 20</span></div>
+      <div class="hud-row active"><span class="lbl">CORRECT</span><span class="val" id="sizScoreVal">0</span></div>
+      <div class="hud-row active"><span class="lbl">RULE</span><span class="val" id="sizRuleVal">BIGGER</span></div>
+    </div>
+  </header>
+
+  <div class="game-playfield">
+    <div id="sizLeftZone"><div class="siz-circle" id="sizLeftCircle"></div></div>
+    <div id="sizRightZone"><div class="siz-circle" id="sizRightCircle"></div></div>
+    <div class="game-feedback" id="sizFeedback"></div>
+  </div>
+
+  <div class="game-start-panel" id="sizStartPanel">
+    <div class="stage" id="sizStageLabel">STANDBY</div>
+    <h1 style="font-size:15px; color:var(--dim); font-weight:400; letter-spacing:0.05em;">Click the bigger circle.</h1>
+    <div class="steps">
+      <div><b>Two circles:</b> appear side by side, different sizes.</div>
+      <div><b>Respond:</b> click whichever one is bigger, as fast as you can.</div>
+    </div>
+    <p>20 trials per run.</p>
+    <div class="difficulty-note">
+      <div><b>Normal</b> — always click the bigger circle.</div>
+      <div><b>Hard</b> — the rule flips to SMALLER twice mid-run. Watch the RULE readout.</div>
+      <div><b>Adaptive</b> — 30 trials, and the two circles get closer in size as you get it right. Reports the smallest difference you can still see.</div>
+    </div>
+    <div class="mode-toggle">
+      <button id="sizNormalBtn" class="selected">NORMAL</button>
+      <button id="sizHardBtn">HARD</button>
+      <button id="sizAdaptiveBtn">ADAPTIVE</button>
+    </div>
+    <button id="sizStartBtn">START RUN</button>
+  </div>
+
+  <div class="game-result-card" id="sizResultCard">
+    <div class="card">
+      <div class="title">RUN COMPLETE</div>
+      <div class="subtitle">20 TRIALS &middot; MAGNITUDE SUMMARY</div>
+      <div class="metric game-good"><span class="m-lbl">Correct</span><span class="m-val" id="sizRCorrect">—</span></div>
+      <div class="metric click"><span class="m-lbl">Avg correct reaction time</span><span class="m-val" id="sizRAvgRt">—</span></div>
+      <div class="metric game-bad"><span class="m-lbl">Wrong</span><span class="m-val" id="sizRWrong">—</span></div>
+      <div class="metric game-bad-strong"><span class="m-lbl">No response in time</span><span class="m-val" id="sizRTimeout">—</span></div>
+      <div class="metric game-acc"><span class="m-lbl">Accuracy</span><span class="m-val" id="sizRAcc">—</span></div>
+      <div class="metric record" id="sizRBestRow"><span class="m-lbl">Best correct (all-time)</span><span class="m-val" id="sizRBest">—</span></div>
+      <button id="sizNextBtn">RUN AGAIN</button>
+      <button class="btn-secondary returnAcademyBtn">RETURN TO ACADEMY</button>
+    </div>
+  </div>
+
+  <div class="game-log" id="sizLog"></div>
+</div>
+
+
+<div id="nbk" class="game-view">
+  <button class="backBtn" id="nbkBackBtn">&larr; ACADEMY MENU</button>
+  <header>
+    <div>
+      <p class="eyebrow">KINGSMEN ACADEMY // WORKING MEMORY INSTRUMENTATION</p>
+      <h1>SYMBOL <span>1-BACK</span></h1>
+    </div>
+    <div class="game-hud">
+      <div class="hud-row active"><span class="lbl">TRIAL</span><span class="val" id="nbkTrialVal">0 / 20</span></div>
+      <div class="hud-row active"><span class="lbl">CORRECT</span><span class="val" id="nbkScoreVal">0</span></div>
+    </div>
+  </header>
+
+  <div class="game-playfield">
+    <div id="nbkSymbol"></div>
+    <button class="game-zone" id="nbkMatchBtn" style="position:absolute; width:140px; height:56px;">MATCH</button>
+    <div class="game-feedback" id="nbkFeedback"></div>
+  </div>
+
+  <div class="game-start-panel" id="nbkStartPanel">
+    <div class="stage" id="nbkStageLabel">STANDBY</div>
+    <h1 style="font-size:15px; color:var(--dim); font-weight:400; letter-spacing:0.05em;">Click MATCH only if it repeats the last one.</h1>
+    <div class="steps">
+      <div><b>Symbols:</b> one appears at a time, replacing the last.</div>
+      <div><b>Respond:</b> click MATCH only when the current symbol repeats an earlier one — how far back depends on difficulty.</div>
+      <div><b>Otherwise:</b> do nothing and let it pass.</div>
+    </div>
+    <p>20 trials per run.</p>
+    <div class="difficulty-note">
+      <div><b>Easy (1-back)</b> — match against the symbol right before this one.</div>
+      <div><b>Hard (2-back)</b> — match against the symbol from two trials ago instead.</div>
+    </div>
+    <div class="mode-toggle">
+      <button id="nbkEasyBtn" class="selected">EASY — 1-BACK</button>
+      <button id="nbkHardBtn">HARD — 2-BACK</button>
+    </div>
+    <button id="nbkStartBtn">START RUN</button>
+  </div>
+
+  <div class="game-result-card" id="nbkResultCard">
+    <div class="card">
+      <div class="title">RUN COMPLETE</div>
+      <div class="subtitle">20 TRIALS &middot; WORKING MEMORY SUMMARY</div>
+      <div class="metric game-good"><span class="m-lbl">Correct match clicks</span><span class="m-val" id="nbkRHits">—</span></div>
+      <div class="metric click"><span class="m-lbl">Avg correct reaction time</span><span class="m-val" id="nbkRAvgRt">—</span></div>
+      <div class="metric game-bad-strong"><span class="m-lbl">Missed matches</span><span class="m-val" id="nbkRMisses">—</span></div>
+      <div class="metric game-bad"><span class="m-lbl">False alarms (clicked non-match)</span><span class="m-val" id="nbkRFalse">—</span></div>
+      <div class="metric game-acc"><span class="m-lbl">Accuracy</span><span class="m-val" id="nbkRAcc">—</span></div>
+      <div class="metric record" id="nbkRBestRow"><span class="m-lbl">Best overall correct (all-time)</span><span class="m-val" id="nbkRBest">—</span></div>
+      <button id="nbkNextBtn">RUN AGAIN</button>
+      <button class="btn-secondary returnAcademyBtn">RETURN TO ACADEMY</button>
+    </div>
+  </div>
+
+  <div class="game-log" id="nbkLog"></div>
+</div>
+
+
+<div id="ant" class="game-view">
+  <button class="backBtn" id="antBackBtn">&larr; ACADEMY MENU</button>
+  <header>
+    <div>
+      <p class="eyebrow">KINGSMEN ACADEMY // INHIBITION INSTRUMENTATION</p>
+      <h1>ANTI-<span>SACCADE</span></h1>
+    </div>
+    <div class="game-hud">
+      <div class="hud-row active"><span class="lbl">TRIAL</span><span class="val" id="antTrialVal">0 / 20</span></div>
+      <div class="hud-row active"><span class="lbl">CORRECT</span><span class="val" id="antScoreVal">0</span></div>
+    </div>
+  </header>
+
+  <div class="game-playfield">
+    <div id="antFixation"></div>
+    <div id="antDot"></div>
+    <div id="antLeftZone">LEFT</div>
+    <div id="antRightZone">RIGHT</div>
+    <div class="game-feedback" id="antFeedback"></div>
+  </div>
+
+  <div class="game-start-panel" id="antStartPanel">
+    <div class="stage" id="antStageLabel">STANDBY</div>
+    <h1 style="font-size:15px; color:var(--dim); font-weight:400; letter-spacing:0.05em;">Click the opposite side from the flash.</h1>
+    <div class="steps">
+      <div><b>Flash:</b> a dot appears on the left or right side of the screen.</div>
+      <div><b>Respond:</b> click the zone on the OPPOSITE side — not the side it flashed on.</div>
+      <div><b>Fight the reflex:</b> your instinct will be to look toward it. Don't.</div>
+    </div>
+    <p>20 trials per run.</p>
+    <button id="antStartBtn">START RUN</button>
+  </div>
+
+  <div class="game-result-card" id="antResultCard">
+    <div class="card">
+      <div class="title">RUN COMPLETE</div>
+      <div class="subtitle">20 TRIALS &middot; INHIBITION SUMMARY</div>
+      <div class="metric game-good"><span class="m-lbl">Correct</span><span class="m-val" id="antRCorrect">—</span></div>
+      <div class="metric click"><span class="m-lbl">Avg correct reaction time</span><span class="m-val" id="antRAvgRt">—</span></div>
+      <div class="metric game-bad"><span class="m-lbl">Wrong side (looked toward it)</span><span class="m-val" id="antRWrong">—</span></div>
+      <div class="metric game-bad-strong"><span class="m-lbl">No response in time</span><span class="m-val" id="antRTimeout">—</span></div>
+      <div class="metric game-acc"><span class="m-lbl">Accuracy</span><span class="m-val" id="antRAcc">—</span></div>
+      <div class="metric record" id="antRBestRow"><span class="m-lbl">Best correct (all-time)</span><span class="m-val" id="antRBest">—</span></div>
+      <button id="antNextBtn">RUN AGAIN</button>
+      <button class="btn-secondary returnAcademyBtn">RETURN TO ACADEMY</button>
+    </div>
+  </div>
+
+  <div class="game-log" id="antLog"></div>
+</div>
+
+
+<div id="trg" class="game-view">
+  <button class="backBtn" id="trgBackBtn">&larr; ACADEMY MENU</button>
+  <header>
+    <div>
+      <p class="eyebrow">KINGSMEN ACADEMY // TRIGGER INSTRUMENTATION</p>
+      <h1>TRIGGER <span>DISCIPLINE</span></h1>
+    </div>
+    <div class="game-hud">
+      <div class="hud-row active"><span class="lbl">TRIAL</span><span class="val" id="trgTrialVal">0 / 20</span></div>
+      <div class="hud-row active"><span class="lbl">CORRECT</span><span class="val" id="trgScoreVal">0</span></div>
+    </div>
+  </header>
+
+  <div class="game-playfield">
+    <div id="trgStim"><span class="trg-label" id="trgStimLabel"></span></div>
+    <div class="game-feedback" id="trgFeedback"></div>
+  </div>
+
+  <div class="game-start-panel" id="trgStartPanel">
+    <div class="stage" id="trgStageLabel">STANDBY</div>
+    <h1 style="font-size:15px; color:var(--dim); font-weight:400; letter-spacing:0.05em;">Read the cue. Fire the right button — only the right button.</h1>
+    <div class="steps">
+      <div><b>LEFT CLICK:</b> cyan circle — left-click it, and nothing else. A right-click within 0.1s of your left-click fails the trial.</div>
+      <div><b>LEFT + RIGHT:</b> purple circle — click both buttons together, within 0.1s of each other.</div>
+      <div><b>Precision matters:</b> too spread apart, or the wrong extra button, both count as a fail — not just speed.</div>
+    </div>
+    <p>20 trials per run.</p>
+    <button id="trgStartBtn">START RUN</button>
+  </div>
+
+  <div class="game-result-card" id="trgResultCard">
+    <div class="card">
+      <div class="title">RUN COMPLETE</div>
+      <div class="subtitle">20 TRIALS &middot; TRIGGER DISCIPLINE SUMMARY</div>
+      <div class="metric game-good"><span class="m-lbl">Correct</span><span class="m-val" id="trgRCorrect">—</span></div>
+      <div class="metric click"><span class="m-lbl">Avg correct reaction time</span><span class="m-val" id="trgRAvgRt">—</span></div>
+      <div class="metric game-bad"><span class="m-lbl">Wrong button / bad chord</span><span class="m-val" id="trgRFail">—</span></div>
+      <div class="metric game-bad-strong"><span class="m-lbl">No response in time</span><span class="m-val" id="trgRTimeout">—</span></div>
+      <div class="metric game-acc"><span class="m-lbl">Accuracy</span><span class="m-val" id="trgRAcc">—</span></div>
+      <div class="metric record" id="trgRBestRow"><span class="m-lbl">Best correct (all-time)</span><span class="m-val" id="trgRBest">—</span></div>
+      <button id="trgNextBtn">RUN AGAIN</button>
+      <button class="btn-secondary returnAcademyBtn">RETURN TO ACADEMY</button>
+    </div>
+  </div>
+
+  <div class="game-log" id="trgLog"></div>
+</div>
+
+
+<div id="aud" class="game-view">
+  <button class="backBtn" id="audBackBtn">&larr; ACADEMY MENU</button>
+  <header>
+    <div>
+      <p class="eyebrow">KINGSMEN ACADEMY // AUDITORY INSTRUMENTATION</p>
+      <h1>AUDIO <span>REFLEX</span></h1>
+    </div>
+    <div class="game-hud">
+      <div class="hud-row active"><span class="lbl">TRIAL</span><span class="val" id="audTrialVal">0 / 15</span></div>
+      <div class="hud-row active"><span class="lbl">CORRECT</span><span class="val" id="audScoreVal">0</span></div>
+    </div>
+  </header>
+
+  <div class="game-playfield">
+    <div id="audZone" class="game-zone">LISTEN</div>
+    <div class="game-feedback" id="audFeedback"></div>
+  </div>
+
+  <div class="game-start-panel" id="audStartPanel">
+    <div class="stage" id="audStageLabel">STANDBY</div>
+    <h1 style="font-size:15px; color:var(--dim); font-weight:400; letter-spacing:0.05em;">No visual cue. Click the instant you hear the tone.</h1>
+    <div class="steps">
+      <div><b>Wait:</b> the zone stays still and silent for a random stretch of time.</div>
+      <div><b>Listen:</b> a short tone plays without warning.</div>
+      <div><b>Respond:</b> click the zone the instant you hear it. Clicking early fails the trial.</div>
+    </div>
+    <p>15 trials per run. Pure auditory reaction time — turn your sound on.</p>
+    <button id="audStartBtn">START RUN</button>
+  </div>
+
+  <div class="game-result-card" id="audResultCard">
+    <div class="card">
+      <div class="title">RUN COMPLETE</div>
+      <div class="subtitle">15 TRIALS &middot; AUDIO REACTION SUMMARY</div>
+      <div class="metric game-good"><span class="m-lbl">Correct</span><span class="m-val" id="audRCorrect">—</span></div>
+      <div class="metric click"><span class="m-lbl">Avg reaction time</span><span class="m-val" id="audRAvgRt">—</span></div>
+      <div class="metric game-bad-strong"><span class="m-lbl">False starts / missed</span><span class="m-val" id="audRErrors">—</span></div>
+      <div class="metric game-acc"><span class="m-lbl">Accuracy</span><span class="m-val" id="audRAcc">—</span></div>
+      <div class="metric record" id="audRBestRow"><span class="m-lbl">Best correct (all-time)</span><span class="m-val" id="audRBest">—</span></div>
+      <button id="audNextBtn">RUN AGAIN</button>
+      <button class="btn-secondary returnAcademyBtn">RETURN TO ACADEMY</button>
+    </div>
+  </div>
+
+  <div class="game-log" id="audLog"></div>
+</div>
+
+
+<div id="cnt" class="game-view">
+  <button class="backBtn" id="cntBackBtn">&larr; ACADEMY MENU</button>
+  <header>
+    <div>
+      <p class="eyebrow">KINGSMEN ACADEMY // ENUMERATION INSTRUMENTATION</p>
+      <h1>COUNT <span>RUSH</span></h1>
+    </div>
+    <div class="game-hud">
+      <div class="hud-row active"><span class="lbl">TRIAL</span><span class="val" id="cntTrialVal">0 / 20</span></div>
+      <div class="hud-row active"><span class="lbl">CORRECT</span><span class="val" id="cntScoreVal">0</span></div>
+    </div>
+  </header>
+
+  <div class="game-playfield">
+    <div id="cntDots"></div>
+    <div id="cntZones">
+      <div class="game-zone cnt-zone" data-count="1">1</div>
+      <div class="game-zone cnt-zone" data-count="2">2</div>
+      <div class="game-zone cnt-zone" data-count="3">3</div>
+      <div class="game-zone cnt-zone" data-count="4">4</div>
+      <div class="game-zone cnt-zone" data-count="5">5</div>
+    </div>
+    <div class="game-feedback" id="cntFeedback"></div>
+  </div>
+
+  <div class="game-start-panel" id="cntStartPanel">
+    <div class="stage" id="cntStageLabel">STANDBY</div>
+    <h1 style="font-size:15px; color:var(--dim); font-weight:400; letter-spacing:0.05em;">Count the dots. Click the number.</h1>
+    <div class="steps">
+      <div><b>Dots:</b> a cluster of 1-5 dots flashes center-screen.</div>
+      <div><b>Respond:</b> click the number matching how many, before the window closes.</div>
+      <div><b>Glance, don't tally:</b> the window is short enough that counting one-by-one costs you time.</div>
+    </div>
+    <p>20 trials per run.</p>
+    <button id="cntStartBtn">START RUN</button>
+  </div>
+
+  <div class="game-result-card" id="cntResultCard">
+    <div class="card">
+      <div class="title">RUN COMPLETE</div>
+      <div class="subtitle">20 TRIALS &middot; ENUMERATION SUMMARY</div>
+      <div class="metric game-good"><span class="m-lbl">Correct</span><span class="m-val" id="cntRCorrect">—</span></div>
+      <div class="metric click"><span class="m-lbl">Avg correct reaction time</span><span class="m-val" id="cntRAvgRt">—</span></div>
+      <div class="metric game-bad"><span class="m-lbl">Wrong</span><span class="m-val" id="cntRWrong">—</span></div>
+      <div class="metric game-bad-strong"><span class="m-lbl">No response in time</span><span class="m-val" id="cntRTimeout">—</span></div>
+      <div class="metric game-acc"><span class="m-lbl">Accuracy</span><span class="m-val" id="cntRAcc">—</span></div>
+      <div class="metric record" id="cntRBestRow"><span class="m-lbl">Best correct (all-time)</span><span class="m-val" id="cntRBest">—</span></div>
+      <button id="cntNextBtn">RUN AGAIN</button>
+      <button class="btn-secondary returnAcademyBtn">RETURN TO ACADEMY</button>
+    </div>
+  </div>
+
+  <div class="game-log" id="cntLog"></div>
+</div>
+
+
+<div id="sme" class="game-view">
+  <button class="backBtn" id="smeBackBtn">&larr; ACADEMY MENU</button>
+  <header>
+    <div>
+      <p class="eyebrow">KINGSMEN ACADEMY // SPATIAL CONFLICT INSTRUMENTATION</p>
+      <h1>SIMON <span>EFFECT</span></h1>
+    </div>
+    <div class="game-hud">
+      <div class="hud-row active"><span class="lbl">TRIAL</span><span class="val" id="smeTrialVal">0 / 20</span></div>
+      <div class="hud-row active"><span class="lbl">CORRECT</span><span class="val" id="smeScoreVal">0</span></div>
+    </div>
+  </header>
+
+  <div class="game-playfield">
+    <div id="smeArrow"></div>
+    <div id="smeLeftZone">LEFT</div>
+    <div id="smeRightZone">RIGHT</div>
+    <div class="game-feedback" id="smeFeedback"></div>
+  </div>
+
+  <div class="game-start-panel" id="smeStartPanel">
+    <div class="stage" id="smeStageLabel">STANDBY</div>
+    <h1 style="font-size:15px; color:var(--dim); font-weight:400; letter-spacing:0.05em;">Click the direction it points — ignore where it appears.</h1>
+    <div class="steps">
+      <div><b>Arrow:</b> appears on the left or right side of the screen, pointing left or right.</div>
+      <div><b>Respond:</b> click the direction it POINTS, not the side it's on.</div>
+      <div><b>Conflict:</b> position and direction line up half the time, and fight each other the other half.</div>
+    </div>
+    <p>20 trials per run.</p>
+    <button id="smeStartBtn">START RUN</button>
+  </div>
+
+  <div class="game-result-card" id="smeResultCard">
+    <div class="card">
+      <div class="title">RUN COMPLETE</div>
+      <div class="subtitle">20 TRIALS &middot; SPATIAL CONFLICT SUMMARY</div>
+      <div class="metric game-good"><span class="m-lbl">Correct</span><span class="m-val" id="smeRCorrect">—</span></div>
+      <div class="metric click"><span class="m-lbl">Avg correct reaction time</span><span class="m-val" id="smeRAvgRt">—</span></div>
+      <div class="metric game-bad"><span class="m-lbl">Wrong direction</span><span class="m-val" id="smeRWrong">—</span></div>
+      <div class="metric game-bad-strong"><span class="m-lbl">No response in time</span><span class="m-val" id="smeRTimeout">—</span></div>
+      <div class="metric game-acc"><span class="m-lbl">Accuracy</span><span class="m-val" id="smeRAcc">—</span></div>
+      <div class="metric record" id="smeRBestRow"><span class="m-lbl">Best correct (all-time)</span><span class="m-val" id="smeRBest">—</span></div>
+      <button id="smeNextBtn">RUN AGAIN</button>
+      <button class="btn-secondary returnAcademyBtn">RETURN TO ACADEMY</button>
+    </div>
+  </div>
+
+  <div class="game-log" id="smeLog"></div>
+</div>
+
+
+<div id="fsr" class="game-view">
+  <button class="backBtn" id="fsrBackBtn">&larr; ACADEMY MENU</button>
+  <header>
+    <div>
+      <p class="eyebrow">KINGSMEN ACADEMY // CONJUNCTION SEARCH INSTRUMENTATION</p>
+      <h1>FEATURE <span>SEARCH</span></h1>
+    </div>
+    <div class="game-hud">
+      <div class="hud-row active"><span class="lbl">TRIAL</span><span class="val" id="fsrTrialVal">0 / 20</span></div>
+      <div class="hud-row active"><span class="lbl">CORRECT</span><span class="val" id="fsrScoreVal">0</span></div>
+    </div>
+  </header>
+
+  <div class="game-playfield">
+    <div id="fsrGrid"></div>
+    <div class="game-feedback" id="fsrFeedback"></div>
+  </div>
+
+  <div class="game-start-panel" id="fsrStartPanel">
+    <div class="stage" id="fsrStageLabel">STANDBY</div>
+    <h1 id="fsrTargetLabel" style="font-size:15px; color:var(--dim); font-weight:400; letter-spacing:0.05em;">Find the target — it needs both features to match.</h1>
+    <div class="steps">
+      <div><b>Target:</b> a specific color AND shape combo — shown above, fixed for the whole run.</div>
+      <div><b>Distractors:</b> every other cell shares only ONE of those two features — never both.</div>
+      <div><b>Respond:</b> click the one cell matching both, as fast as you can.</div>
+    </div>
+    <p>20 trials per run. Same target all run — the grid reshuffles every trial.</p>
+    <button id="fsrStartBtn">START RUN</button>
+  </div>
+
+  <div class="game-result-card" id="fsrResultCard">
+    <div class="card">
+      <div class="title">RUN COMPLETE</div>
+      <div class="subtitle">20 TRIALS &middot; CONJUNCTION SEARCH SUMMARY</div>
+      <div class="metric game-good"><span class="m-lbl">Correct</span><span class="m-val" id="fsrRCorrect">—</span></div>
+      <div class="metric click"><span class="m-lbl">Avg correct reaction time</span><span class="m-val" id="fsrRAvgRt">—</span></div>
+      <div class="metric game-bad"><span class="m-lbl">Wrong cell</span><span class="m-val" id="fsrRWrong">—</span></div>
+      <div class="metric game-bad-strong"><span class="m-lbl">No response in time</span><span class="m-val" id="fsrRTimeout">—</span></div>
+      <div class="metric game-acc"><span class="m-lbl">Accuracy</span><span class="m-val" id="fsrRAcc">—</span></div>
+      <div class="metric record" id="fsrRBestRow"><span class="m-lbl">Best correct (all-time)</span><span class="m-val" id="fsrRBest">—</span></div>
+      <button id="fsrNextBtn">RUN AGAIN</button>
+      <button class="btn-secondary returnAcademyBtn">RETURN TO ACADEMY</button>
+    </div>
+  </div>
+
+  <div class="game-log" id="fsrLog"></div>
+</div>
+
+
+<div id="spl" class="game-view">
+  <button class="backBtn" id="splBackBtn">&larr; ACADEMY MENU</button>
+  <header>
+    <div>
+      <p class="eyebrow">KINGSMEN ACADEMY // DIVIDED ATTENTION INSTRUMENTATION</p>
+      <h1>SPLIT <span>FOCUS</span></h1>
+    </div>
+    <div class="game-hud">
+      <div class="hud-row active"><span class="lbl">TRIAL</span><span class="val" id="splTrialVal">0 / 20</span></div>
+      <div class="hud-row active"><span class="lbl">CORRECT</span><span class="val" id="splScoreVal">0</span></div>
+    </div>
+  </header>
+
+  <div class="game-playfield">
+    <div id="splCenter"></div>
+    <div id="splDecoy"></div>
+    <div class="game-feedback" id="splFeedback"></div>
+  </div>
+
+  <div class="game-start-panel" id="splStartPanel">
+    <div class="stage" id="splStageLabel">STANDBY</div>
+    <h1 style="font-size:15px; color:var(--dim); font-weight:400; letter-spacing:0.05em;">Only the center counts. Ignore everything else.</h1>
+    <div class="steps">
+      <div><b>Center:</b> the middle circle lights up gold — click it fast.</div>
+      <div><b>Distraction:</b> sometimes a decoy flashes out at the edge, at the same time. It looks similar. Don't click it.</div>
+      <div><b>Stay locked:</b> clicking the decoy fails the trial, even if you'd have caught the center in time.</div>
+    </div>
+    <p>20 trials per run.</p>
+    <button id="splStartBtn">START RUN</button>
+  </div>
+
+  <div class="game-result-card" id="splResultCard">
+    <div class="card">
+      <div class="title">RUN COMPLETE</div>
+      <div class="subtitle">20 TRIALS &middot; DIVIDED ATTENTION SUMMARY</div>
+      <div class="metric game-good"><span class="m-lbl">Correct</span><span class="m-val" id="splRCorrect">—</span></div>
+      <div class="metric click"><span class="m-lbl">Avg correct reaction time</span><span class="m-val" id="splRAvgRt">—</span></div>
+      <div class="metric game-bad"><span class="m-lbl">Distracted (clicked decoy)</span><span class="m-val" id="splRWrong">—</span></div>
+      <div class="metric game-bad-strong"><span class="m-lbl">No response in time</span><span class="m-val" id="splRTimeout">—</span></div>
+      <div class="metric game-acc"><span class="m-lbl">Accuracy</span><span class="m-val" id="splRAcc">—</span></div>
+      <div class="metric record" id="splRBestRow"><span class="m-lbl">Best correct (all-time)</span><span class="m-val" id="splRBest">—</span></div>
+      <button id="splNextBtn">RUN AGAIN</button>
+      <button class="btn-secondary returnAcademyBtn">RETURN TO ACADEMY</button>
+    </div>
+  </div>
+
+  <div class="game-log" id="splLog"></div>
+</div>
+
+
+<div id="grd" class="game-view">
+  <button class="backBtn" id="grdBackBtn">&larr; ACADEMY MENU</button>
+  <header>
+    <div>
+      <p class="eyebrow">KINGSMEN ACADEMY // SPATIAL MEMORY INSTRUMENTATION</p>
+      <h1>GRID <span>RECALL</span></h1>
+    </div>
+    <div class="game-hud">
+      <div class="hud-row active"><span class="lbl">ROUND</span><span class="val" id="grdRoundVal">0</span></div>
+      <div class="hud-row active"><span class="lbl">STATE</span><span class="val" id="grdStateVal">—</span></div>
+    </div>
+  </header>
+
+  <div class="game-playfield">
+    <div id="grdGrid"></div>
+    <div class="game-feedback" id="grdFeedback"></div>
+  </div>
+
+  <div class="game-start-panel" id="grdStartPanel">
+    <div class="stage" id="grdStageLabel">STANDBY</div>
+    <h1 style="font-size:15px; color:var(--dim); font-weight:400; letter-spacing:0.05em;">Watch which cells light up. Click them back in order.</h1>
+    <div class="steps">
+      <div><b>Watch:</b> cells in a 3x3 grid light up one at a time.</div>
+      <div><b>Repeat:</b> click the same cells back, in the same order.</div>
+      <div><b>Grow:</b> get it right and the sequence grows by one. One wrong click ends the run.</div>
+    </div>
+    <button id="grdStartBtn">START</button>
+  </div>
+
+  <div class="game-result-card" id="grdResultCard">
+    <div class="card">
+      <div class="title">RUN COMPLETE</div>
+      <div class="subtitle">SPATIAL MEMORY SUMMARY</div>
+      <div class="metric game-highlight"><span class="m-lbl">Longest sequence reached</span><span class="m-val" id="grdRRounds">—</span></div>
+      <div class="metric game-good"><span class="m-lbl">Correct clicks</span><span class="m-val" id="grdRCorrect">—</span></div>
+      <div class="metric record" id="grdRBestRow"><span class="m-lbl">Best sequence (all-time)</span><span class="m-val" id="grdRBest">—</span></div>
+      <button id="grdNextBtn">RUN AGAIN</button>
+      <button class="btn-secondary returnAcademyBtn">RETURN TO ACADEMY</button>
+    </div>
+  </div>
+
+  <div class="game-log" id="grdLog"></div>
+</div>
+
+
+<div id="clo" class="game-view">
+  <button class="backBtn" id="cloBackBtn">&larr; ACADEMY MENU</button>
+  <header>
+    <div>
+      <p class="eyebrow">KINGSMEN ACADEMY // VERBAL SEQUENCE INSTRUMENTATION</p>
+      <h1>CALLOUT <span>RECALL</span></h1>
+    </div>
+    <div class="game-hud">
+      <div class="hud-row active"><span class="lbl">TRIAL</span><span class="val" id="cloTrialVal">0 / 12</span></div>
+      <div class="hud-row active"><span class="lbl">CORRECT</span><span class="val" id="cloScoreVal">0</span></div>
+    </div>
+  </header>
+
+  <div class="game-playfield">
+    <div id="cloWord"></div>
+    <div id="cloZones">
+      <div class="game-zone clo-zone" data-dir="NORTH">NORTH</div>
+      <div class="game-zone clo-zone" data-dir="SOUTH">SOUTH</div>
+      <div class="game-zone clo-zone" data-dir="EAST">EAST</div>
+      <div class="game-zone clo-zone" data-dir="WEST">WEST</div>
+    </div>
+    <div class="game-feedback" id="cloFeedback"></div>
+  </div>
+
+  <div class="game-start-panel" id="cloStartPanel">
+    <div class="stage" id="cloStageLabel">STANDBY</div>
+    <h1 style="font-size:15px; color:var(--dim); font-weight:400; letter-spacing:0.05em;">Watch the callouts. Repeat them back in order.</h1>
+    <div class="steps">
+      <div><b>Callouts:</b> a short string of directions flashes one at a time, center-screen.</div>
+      <div><b>Repeat:</b> click them back in the same order they appeared.</div>
+      <div><b>One shot:</b> any wrong click fails that trial — the run keeps moving either way.</div>
+    </div>
+    <p>12 trials per run. Sequence length varies each trial.</p>
+    <div class="difficulty-note">
+      <div><b>Normal</b> — 12 trials, sequence length varies randomly between 3 and 5.</div>
+      <div><b>Adaptive</b> — 24 trials, and the sequence grows each time you get it right. Reports the longest string you can reliably hold.</div>
+    </div>
+    <div class="mode-toggle">
+      <button id="cloNormalBtn" class="selected">NORMAL</button>
+      <button id="cloAdaptiveBtn">ADAPTIVE</button>
+    </div>
+    <button id="cloStartBtn">START RUN</button>
+  </div>
+
+  <div class="game-result-card" id="cloResultCard">
+    <div class="card">
+      <div class="title">RUN COMPLETE</div>
+      <div class="subtitle">12 TRIALS &middot; VERBAL SEQUENCE SUMMARY</div>
+      <div class="metric game-good"><span class="m-lbl">Correct</span><span class="m-val" id="cloRCorrect">—</span></div>
+      <div class="metric game-acc"><span class="m-lbl">Accuracy</span><span class="m-val" id="cloRAcc">—</span></div>
+      <div class="metric record" id="cloRBestRow"><span class="m-lbl">Best correct (all-time)</span><span class="m-val" id="cloRBest">—</span></div>
+      <button id="cloNextBtn">RUN AGAIN</button>
+      <button class="btn-secondary returnAcademyBtn">RETURN TO ACADEMY</button>
+    </div>
+  </div>
+
+  <div class="game-log" id="cloLog"></div>
+</div>
+
+
+<div id="ldr" class="game-view">
+  <button class="backBtn" id="ldrBackBtn">&larr; ACADEMY MENU</button>
+  <header>
+    <div>
+      <p class="eyebrow">KINGSMEN ACADEMY // RECOGNITION INSTRUMENTATION</p>
+      <h1>LOADOUT <span>RECALL</span></h1>
+    </div>
+    <div class="game-hud">
+      <div class="hud-row active"><span class="lbl">TRIAL</span><span class="val" id="ldrTrialVal">0 / 12</span></div>
+      <div class="hud-row active"><span class="lbl">CORRECT</span><span class="val" id="ldrScoreVal">0</span></div>
+    </div>
+  </header>
+
+  <div class="game-playfield">
+    <div id="ldrIcon"></div>
+    <div id="ldrGrid"></div>
+    <div class="game-feedback" id="ldrFeedback"></div>
+  </div>
+
+  <div class="game-start-panel" id="ldrStartPanel">
+    <div class="stage" id="ldrStageLabel">STANDBY</div>
+    <h1 style="font-size:15px; color:var(--dim); font-weight:400; letter-spacing:0.05em;">Watch the icons. Pick the ones you saw from the lineup.</h1>
+    <div class="steps">
+      <div><b>Sequence:</b> four icons flash one at a time, center-screen.</div>
+      <div><b>Lineup:</b> a 3x3 grid appears with those four icons mixed in among decoys.</div>
+      <div><b>Respond:</b> click only the icons you saw. Order doesn't matter — clicking a decoy fails the trial.</div>
+    </div>
+    <p>12 trials per run.</p>
+    <button id="ldrStartBtn">START RUN</button>
+  </div>
+
+  <div class="game-result-card" id="ldrResultCard">
+    <div class="card">
+      <div class="title">RUN COMPLETE</div>
+      <div class="subtitle">12 TRIALS &middot; RECOGNITION SUMMARY</div>
+      <div class="metric game-good"><span class="m-lbl">Correct</span><span class="m-val" id="ldrRCorrect">—</span></div>
+      <div class="metric click"><span class="m-lbl">Avg correct time</span><span class="m-val" id="ldrRAvgRt">—</span></div>
+      <div class="metric game-acc"><span class="m-lbl">Accuracy</span><span class="m-val" id="ldrRAcc">—</span></div>
+      <div class="metric record" id="ldrRBestRow"><span class="m-lbl">Best correct (all-time)</span><span class="m-val" id="ldrRBest">—</span></div>
+      <button id="ldrNextBtn">RUN AGAIN</button>
+      <button class="btn-secondary returnAcademyBtn">RETURN TO ACADEMY</button>
+    </div>
+  </div>
+
+  <div class="game-log" id="ldrLog"></div>
+</div>
+
+
+<div id="rev" class="game-view">
+  <button class="backBtn" id="revBackBtn">&larr; ACADEMY MENU</button>
+  <header>
+    <div>
+      <p class="eyebrow">KINGSMEN ACADEMY // WORKING MEMORY INSTRUMENTATION</p>
+      <h1>SEQUENCE <span>REVERSAL</span></h1>
+    </div>
+    <div class="game-hud">
+      <div class="hud-row active"><span class="lbl">TRIAL</span><span class="val" id="revTrialVal">0 / 12</span></div>
+      <div class="hud-row active"><span class="lbl">CORRECT</span><span class="val" id="revScoreVal">0</span></div>
+    </div>
+  </header>
+
+  <div class="game-playfield">
+    <div id="revPads">
+      <div class="rev-pad" id="revPad0" data-index="0">1</div>
+      <div class="rev-pad" id="revPad1" data-index="1">2</div>
+      <div class="rev-pad" id="revPad2" data-index="2">3</div>
+      <div class="rev-pad" id="revPad3" data-index="3">4</div>
+    </div>
+    <div class="game-feedback" id="revFeedback"></div>
+  </div>
+
+  <div class="game-start-panel" id="revStartPanel">
+    <div class="stage" id="revStageLabel">STANDBY</div>
+    <h1 style="font-size:15px; color:var(--dim); font-weight:400; letter-spacing:0.05em;">Watch the sequence. Play it back backwards.</h1>
+    <div class="steps">
+      <div><b>Watch:</b> the pads light up one at a time, in order.</div>
+      <div><b>Reverse it:</b> click them back starting with the LAST one that lit, ending on the first.</div>
+      <div><b>One shot:</b> any wrong click fails that trial — the run keeps moving either way.</div>
+    </div>
+    <p>12 trials per run. Sequence length varies each trial.</p>
+    <button id="revStartBtn">START RUN</button>
+  </div>
+
+  <div class="game-result-card" id="revResultCard">
+    <div class="card">
+      <div class="title">RUN COMPLETE</div>
+      <div class="subtitle">12 TRIALS &middot; WORKING MEMORY SUMMARY</div>
+      <div class="metric game-good"><span class="m-lbl">Correct</span><span class="m-val" id="revRCorrect">—</span></div>
+      <div class="metric game-acc"><span class="m-lbl">Accuracy</span><span class="m-val" id="revRAcc">—</span></div>
+      <div class="metric record" id="revRBestRow"><span class="m-lbl">Best correct (all-time)</span><span class="m-val" id="revRBest">—</span></div>
+      <button id="revNextBtn">RUN AGAIN</button>
+      <button class="btn-secondary returnAcademyBtn">RETURN TO ACADEMY</button>
+    </div>
+  </div>
+
+  <div class="game-log" id="revLog"></div>
+</div>
+
+
+<div id="rankView">
+  <button class="backBtn" id="rankBackBtn">&larr; HOME</button>
+  <div class="sub-header">
+    <p class="eyebrow">KINGSMEN ACADEMY // RANK CALIBRATION</p>
+    <h1>Rank</h1>
+  </div>
+  <div class="rank-inner">
+    <div class="rank-current-card">
+      <div class="rc-eyebrow">OVERALL RANK</div>
+      <div class="rc-badge" id="overallRankBadge">UNRANKED</div>
+      <div class="rc-sub" id="overallRankSub">Play any workout to start building your overall rank.</div>
+    </div>
+
+    <div class="cat-rank-grid" id="categoryRanks"></div>
+
+    <div class="rank-current-card baseline">
+      <div class="rc-eyebrow">BASELINE RANK &middot; BASE REFLEX</div>
+      <div class="rc-badge" id="rankBadge">UNRANKED</div>
+      <div class="rc-sub" id="rankSub">Take the Base Reflex test to get placed.</div>
+      <button id="rankTestBtn">TAKE RANK TEST</button>
+    </div>
+
+    <div class="rank-section-title">Every Workout</div>
+    <div id="workoutRanks"></div>
+
+    <div class="rank-section-title">Baseline Thresholds — Average Reaction Time</div>
+    <div class="rank-ladder" id="rankLadder"></div>
+  </div>
+</div>
+
+<div id="bfx" class="game-view">
+  <button class="backBtn" id="bfxBackBtn">&larr; RANK</button>
+  <header>
+    <div>
+      <p class="eyebrow">KINGSMEN ACADEMY // RANK CALIBRATION</p>
+      <h1>BASE <span>REFLEX</span></h1>
+    </div>
+    <div class="game-hud">
+      <div class="hud-row active"><span class="lbl">TRIAL</span><span class="val" id="bfxTrialVal">0 / 20</span></div>
+      <div class="hud-row active"><span class="lbl">AVG RT</span><span class="val" id="bfxAvgVal">—</span></div>
+    </div>
+  </header>
+
+  <div class="game-playfield">
+    <div id="bfxZone" class="game-zone">WAIT</div>
+    <div class="game-feedback" id="bfxFeedback"></div>
+  </div>
+
+  <div class="game-start-panel" id="bfxStartPanel">
+    <div class="stage" id="bfxStageLabel">STANDBY</div>
+    <h1 style="font-size:15px; color:var(--dim); font-weight:400; letter-spacing:0.05em;">The purest test. Click the instant it turns green.</h1>
+    <div class="steps">
+      <div><b>Wait:</b> the zone stays red — don't click yet.</div>
+      <div><b>Go:</b> it flips to green without warning. Click it immediately.</div>
+      <div><b>Early clicks fail</b> the trial — patience matters as much as speed.</div>
+    </div>
+    <p>20 trials. Your average reaction time sets your rank.</p>
+    <button id="bfxStartBtn">START TEST</button>
+  </div>
+
+  <div class="game-result-card" id="bfxResultCard">
+    <div class="card">
+      <div class="title">TEST COMPLETE</div>
+      <div class="subtitle">20 TRIALS &middot; BASE REFLEX SUMMARY</div>
+      <div class="metric click"><span class="m-lbl">Average reaction time</span><span class="m-val" id="bfxRAvgRt">—</span></div>
+      <div class="metric game-bad-strong"><span class="m-lbl">Early / missed</span><span class="m-val" id="bfxRErrors">—</span></div>
+      <div class="metric game-highlight"><span class="m-lbl">Rank achieved</span><span class="m-val" id="bfxRRank">—</span></div>
+      <div class="metric record" id="bfxRBestRow"><span class="m-lbl">Best average (all-time)</span><span class="m-val" id="bfxRBest">—</span></div>
+      <button id="bfxNextBtn">RUN AGAIN</button>
+      <button class="btn-secondary" id="bfxReturnRankBtn">RETURN TO RANK</button>
+    </div>
+  </div>
+
+  <div class="game-log" id="bfxLog"></div>
+</div>
+
+
+<script src="js/core/shared.js"></script>
+<script src="js/games/colour-flick.js"></script>
+<script src="js/games/go-no-go.js"></script>
+<script src="js/games/flanker.js"></script>
+<script src="js/games/choice-reaction.js"></script>
+<script src="js/games/flash-reflex.js"></script>
+<script src="js/games/simon-sequence.js"></script>
+<script src="js/games/stroop.js"></script>
+<script src="js/games/math-sprint.js"></script>
+<script src="js/games/odd-one-out.js"></script>
+<script src="js/games/peripheral-ping.js"></script>
+<script src="js/games/parity-rush.js"></script>
+<script src="js/games/size-compare.js"></script>
+<script src="js/games/symbol-n-back.js"></script>
+<script src="js/games/anti-saccade.js"></script>
+<script src="js/games/trigger-discipline.js"></script>
+<script src="js/games/audio-reflex.js"></script>
+<script src="js/games/count-rush.js"></script>
+<script src="js/games/simon-effect.js"></script>
+<script src="js/games/feature-search.js"></script>
+<script src="js/games/split-focus.js"></script>
+<script src="js/games/grid-recall.js"></script>
+<script src="js/games/callout-recall.js"></script>
+<script src="js/games/loadout-recall.js"></script>
+<script src="js/games/sequence-reversal.js"></script>
+<script src="js/games/base-reflex.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>

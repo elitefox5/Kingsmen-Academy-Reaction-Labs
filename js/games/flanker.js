@@ -1,0 +1,246 @@
+(function(){
+  const EASY_DIRS = ['left', 'right'];
+  const FULL_DIRS = ['left', 'right', 'up', 'down'];
+  const TOTAL_TRIALS = 20;
+  const RESPONSE_WINDOW = 1000; // ms to complete the directional flick
+  const MOVE_THRESHOLD = 30; // cumulative px displacement that counts as a directional response
+  const ISI_MIN = 500, ISI_MAX = 1200;
+  const POST_TRIAL_PAUSE = 400;
+
+  const flkHud = document.getElementById('flkHud');
+  const flkModeVal = document.getElementById('flkModeVal');
+  const flkTrialVal = document.getElementById('flkTrialVal');
+  const flkScoreVal = document.getElementById('flkScoreVal');
+  const flkStreakVal = document.getElementById('flkStreakVal');
+  const flkArrows = document.getElementById('flkArrows');
+  const flkFeedback = document.getElementById('flkFeedback');
+  const flkStartPanel = document.getElementById('flkStartPanel');
+  const flkEasyBtn = document.getElementById('flkEasyBtn');
+  const flkFullBtn = document.getElementById('flkFullBtn');
+  const flkStartBtn = document.getElementById('flkStartBtn');
+  const flkResultCard = document.getElementById('flkResultCard');
+  const flkNextBtn = document.getElementById('flkNextBtn');
+  const flkLog = document.getElementById('flkLog');
+
+  let mode = 'easy';
+  let trialIndex, score, streak, results, runHistory = [];
+  let armed = false;
+  let appearTime = null;
+  let sumDX = 0, sumDY = 0;
+  let currentTrial = null;
+  let timers = {};
+
+  function axisOf(dir){ return (dir === 'left' || dir === 'right') ? 'horizontal' : 'vertical'; }
+  function oppositeOnAxis(dir){
+    if (dir === 'left') return 'right';
+    if (dir === 'right') return 'left';
+    if (dir === 'up') return 'down';
+    return 'up';
+  }
+
+  function fmtMs(ms){
+    if (ms === null || ms === undefined) return '—';
+    return ms.toFixed(0) + ' ms';
+  }
+
+  function clearTimers(){
+    clearTimeout(timers.isi);
+    clearTimeout(timers.response);
+    clearTimeout(timers.advance);
+  }
+
+  function setMode(m){
+    mode = m;
+    flkEasyBtn.classList.toggle('selected', m === 'easy');
+    flkFullBtn.classList.toggle('selected', m === 'full');
+  }
+
+  function updateHud(){
+    flkModeVal.textContent = mode.toUpperCase();
+    flkTrialVal.textContent = trialIndex + ' / ' + TOTAL_TRIALS;
+    flkScoreVal.textContent = score;
+    flkStreakVal.textContent = streak;
+  }
+
+  function clearFeedback(){
+    flkFeedback.textContent = '';
+    flkFeedback.className = 'flk-feedback';
+  }
+
+  function showFeedback(msg, kind){
+    flkFeedback.textContent = msg;
+    flkFeedback.className = 'flk-feedback ' + kind;
+  }
+
+  function hideArrows(){
+    flkArrows.style.display = 'none';
+    flkArrows.innerHTML = '';
+  }
+
+  function renderArrows(target, flankerDir){
+    const axis = axisOf(target);
+    flkArrows.className = axis === 'horizontal' ? 'horizontal' : 'vertical';
+    let html = '';
+    for (let i = 0; i < 5; i++){
+      const dir = (i === 2) ? target : flankerDir;
+      html += `<span class="flk-arrow">${window.KA_arrowIcon(dir)}</span>`;
+    }
+    flkArrows.innerHTML = html;
+    flkArrows.style.display = 'flex';
+  }
+
+  function startRun(){
+    trialIndex = 0;
+    score = 0;
+    streak = 0;
+    results = [];
+    armed = false;
+    clearTimers();
+    flkStartPanel.style.display = 'none';
+    flkResultCard.style.display = 'none';
+    flkHud.style.display = '';
+    clearFeedback();
+    hideArrows();
+    updateHud();
+    nextTrial();
+  }
+
+  function nextTrial(){
+    if (trialIndex >= TOTAL_TRIALS){
+      finishRun();
+      return;
+    }
+    trialIndex++;
+    updateHud();
+    clearFeedback();
+
+    const dirs = mode === 'easy' ? EASY_DIRS : FULL_DIRS;
+    const target = dirs[Math.floor(Math.random() * dirs.length)];
+    const congruent = Math.random() < 0.5;
+    const flankerDir = congruent ? target : oppositeOnAxis(target);
+    currentTrial = { trial: trialIndex, target, congruent, rt: null, outcome: null };
+
+    const isi = ISI_MIN + Math.random() * (ISI_MAX - ISI_MIN);
+    timers.isi = setTimeout(() => showArrows(target, flankerDir), isi);
+  }
+
+  function showArrows(target, flankerDir){
+    renderArrows(target, flankerDir);
+    sumDX = 0; sumDY = 0;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        appearTime = performance.now();
+        armed = true;
+        timers.response = setTimeout(handleTimeout, RESPONSE_WINDOW);
+      });
+    });
+  }
+
+  function resolveResponse(){
+    const rt = window.KA_applyGrace(performance.now() - appearTime);
+    armed = false;
+    clearTimeout(timers.response);
+    hideArrows();
+
+    const dir = Math.abs(sumDX) > Math.abs(sumDY)
+      ? (sumDX > 0 ? 'right' : 'left')
+      : (sumDY > 0 ? 'down' : 'up');
+    const correct = dir === currentTrial.target;
+
+    currentTrial.rt = rt;
+    currentTrial.outcome = correct ? 'correct' : 'incorrect';
+    if (correct){ score++; streak++; showFeedback('CORRECT — ' + fmtMs(rt), 'good'); }
+    else { streak = 0; showFeedback('WRONG DIRECTION', 'bad'); }
+    settleTrial();
+  }
+
+  function handleTimeout(){
+    if (!armed) return;
+    armed = false;
+    hideArrows();
+    currentTrial.outcome = 'timeout';
+    streak = 0;
+    showFeedback('NO RESPONSE', 'bad');
+    settleTrial();
+  }
+
+  function settleTrial(){
+    results.push(currentTrial);
+    updateHud();
+    timers.advance = setTimeout(nextTrial, POST_TRIAL_PAUSE);
+  }
+
+  function avg(arr){
+    if (!arr.length) return null;
+    return arr.reduce((a,b) => a+b, 0) / arr.length;
+  }
+
+  function finishRun(){
+    flkHud.style.display = '';
+    clearFeedback();
+    hideArrows();
+
+    const correctTrials = results.filter(r => r.outcome === 'correct');
+    const errors = results.filter(r => r.outcome === 'incorrect');
+    const timeouts = results.filter(r => r.outcome === 'timeout');
+
+    const avgRt = avg(correctTrials.map(r => r.rt));
+    const accuracy = results.length ? (correctTrials.length / results.length) * 100 : null;
+
+    const congruentAvg = avg(correctTrials.filter(r => r.congruent).map(r => r.rt));
+    const incongruentAvg = avg(correctTrials.filter(r => !r.congruent).map(r => r.rt));
+    const flankerEffect = (congruentAvg !== null && incongruentAvg !== null) ? incongruentAvg - congruentAvg : null;
+
+    document.getElementById('flkRHits').textContent = correctTrials.length + ' / ' + results.length;
+    document.getElementById('flkRAvgRt').textContent = fmtMs(avgRt);
+    document.getElementById('flkRErrors').textContent = errors.length;
+    document.getElementById('flkRMisses').textContent = timeouts.length;
+    document.getElementById('flkRAcc').textContent = accuracy === null ? '—' : accuracy.toFixed(0) + '%';
+    document.getElementById('flkRCost').textContent = flankerEffect === null ? '—' : (flankerEffect >= 0 ? '+' : '') + flankerEffect.toFixed(0) + ' ms';
+
+    const bestKey = 'flk_best_correct_' + mode;
+    const bestCorrect = window.KA_records.get(bestKey, null);
+    const isNewBest = bestCorrect === null || correctTrials.length > bestCorrect;
+    if (isNewBest) window.KA_records.set(bestKey, correctTrials.length);
+    document.getElementById('flkRBest').textContent = (isNewBest ? correctTrials.length : bestCorrect) + ' / ' + results.length;
+    document.getElementById('flkRBestRow').classList.toggle('is-new', isNewBest);
+
+    window.KA_scoreRun('flk', 'flkResultCard', { accuracyPct: accuracy, avgRt });
+    flkResultCard.style.display = 'flex';
+
+    runHistory.unshift({ mode, correct: correctTrials.length, errors: errors.length, timeouts: timeouts.length, avgRt, accuracy });
+    if (runHistory.length > 6) runHistory.pop();
+    renderLog();
+    window.KA_history.add('Flanker Task', `${mode} · correct ${correctTrials.length}/${results.length} · acc ${accuracy === null ? '—' : accuracy.toFixed(0) + '%'}`);
+  }
+
+  function renderLog(){
+    flkLog.innerHTML = runHistory.map((h, i) =>
+      `<span class="entry">Run ${runHistory.length - i} (${h.mode}) — correct <b>${h.correct}</b> &middot; wrong <b>${h.errors}</b> &middot; no-response <b>${h.timeouts}</b> &middot; avg RT <b>${fmtMs(h.avgRt)}</b> &middot; acc <b>${h.accuracy === null ? '—' : h.accuracy.toFixed(0) + '%'}</b></span>`
+    ).join('<span style="color:var(--grid)">|</span>');
+  }
+
+  window.addEventListener('mousemove', (e) => {
+    if (!armed) return;
+    sumDX += e.movementX || 0;
+    sumDY += e.movementY || 0;
+    if (Math.hypot(sumDX, sumDY) >= MOVE_THRESHOLD){
+      resolveResponse();
+    }
+  });
+
+  flkEasyBtn.addEventListener('click', () => setMode('easy'));
+  flkFullBtn.addEventListener('click', () => setMode('full'));
+  flkStartBtn.addEventListener('click', startRun);
+  flkNextBtn.addEventListener('click', startRun);
+
+  window.flkEnterHook = function(){
+    clearTimers();
+    armed = false;
+    hideArrows();
+    flkStartPanel.style.display = '';
+    flkResultCard.style.display = 'none';
+    flkHud.style.display = 'none';
+    clearFeedback();
+  };
+})();
