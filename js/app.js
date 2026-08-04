@@ -630,6 +630,18 @@
   function setAuthStatus(msg){ authStatus.textContent = msg; authStatus.className = 'auth-status'; }
   function setAuthError(msg){ authStatus.textContent = msg; authStatus.className = 'auth-status error'; }
 
+  // `err.message || fallback` looks safe but isn't — a cryptic-but-non-empty message (an
+  // empty JSON body stringified to "{}", "[object Object]" from a non-Error throw, a network
+  // failure with no useful text) is still truthy, so it slips past `||` and gets shown to the
+  // player verbatim instead of falling back. This filters those out before ever displaying one.
+  function authErrorMessage(err, fallback){
+    const raw = err && typeof err.message === 'string' ? err.message.trim() : '';
+    const useless = !raw || raw === '{}' || raw === '[object Object]' || raw.length < 3;
+    if (!useless) return raw;
+    console.error('auth error (showed fallback message to user):', err);
+    return fallback;
+  }
+
   function showAuthPanel(which){
     [authSignInPanel, authSignUpPanel, authForgotPanel, authRecoveryPanel].forEach(panel => {
       panel.style.display = (panel.id === which) ? '' : 'none';
@@ -694,7 +706,7 @@
     try {
       await window.KA_cloud.signInWithPassword(email, password);
     } catch (err){
-      setAuthError(err.message || 'Sign in failed.');
+      setAuthError(authErrorMessage(err, 'Sign in failed — check your connection and try again.'));
     } finally {
       authSignInBtn.disabled = false;
     }
@@ -713,7 +725,7 @@
       await window.KA_cloud.signUpWithPassword(email, password);
       setAuthStatus('Account created — check your email to verify it, then sign in.');
     } catch (err){
-      setAuthError(err.message || 'Could not create account.');
+      setAuthError(authErrorMessage(err, 'Could not create account — check your connection and try again.'));
     } finally {
       authSignUpBtn.disabled = false;
     }
@@ -728,7 +740,7 @@
       await window.KA_cloud.sendPasswordReset(email);
       setAuthStatus('Check your email for a reset link.');
     } catch (err){
-      setAuthError(err.message || 'Something went wrong.');
+      setAuthError(authErrorMessage(err, 'Something went wrong — check your connection and try again.'));
     } finally {
       authForgotSendBtn.disabled = false;
     }
@@ -747,7 +759,7 @@
       setAuthStatus("Password updated — you're signed in.");
       setTimeout(closeAuthModal, 1500);
     } catch (err){
-      setAuthError(err.message || 'Could not update password.');
+      setAuthError(authErrorMessage(err, 'Could not update password — check your connection and try again.'));
     } finally {
       authRecoverySetBtn.disabled = false;
     }
@@ -775,16 +787,70 @@
   });
 
   // ---- Global leaderboard ---------------------------------------------------------------
-  // Only games with a single flat KA_records key are eligible — dual-metric games (Flanker,
-  // Flash Reflex, Colour Flick) would need a pick-a-metric step this list doesn't have yet.
+  // Every active game gets a dropdown entry — two of them, accuracy and speed, for any game
+  // that actually tracks both (the same 18 games KA_scoreRun ranks locally). A game with only
+  // one tracked stat gets one entry. Grouped by category to keep ~40 options navigable.
+  const pctFmt = total => v => Math.round((v / total) * 100) + '%';
+  const msFmt = v => Math.round(v) + ' ms';
+  const roundsFmt = v => Math.round(v) + ' rounds';
+
   function globalLeaderboardOptions(){
-    const opts = window.KA_GAMES.filter(g => g.key).map(g => ({ label: g.name, key: g.key, higherIsBetter: true }));
-    opts.push({ label: 'Base Reflex — Baseline Avg', key: 'rank_best_avg_rt', higherIsBetter: false });
+    const opts = [];
+    window.KA_GAMES.forEach(g => {
+      if (g.key){
+        // Fixed-trial games: one flat accuracy key, plus a speed key if this game also
+        // tracks average reaction time (same games KA_scoreRun dual-ranks locally).
+        const isRounds = g.type === 'rounds';
+        opts.push({
+          category: g.category,
+          label: g.name + (g.speedMid ? ' — Accuracy' : ''),
+          key: g.key,
+          higherIsBetter: true,
+          format: isRounds ? roundsFmt : pctFmt(g.total)
+        });
+        if (g.speedMid){
+          opts.push({
+            category: g.category,
+            label: g.name + ' — Speed',
+            key: g.id + '_best_avg_rt',
+            higherIsBetter: false,
+            format: msFmt
+          });
+        }
+      } else if (g.metrics){
+        // Multi-metric games (Flanker's easy/full accuracy, Flash Reflex's rounds+flash time).
+        g.metrics.forEach(m => {
+          opts.push({
+            category: g.category,
+            label: g.name + ' — ' + m.label,
+            key: m.key,
+            higherIsBetter: !m.isTime,
+            format: m.isTime ? msFmt : (m.total ? pctFmt(m.total) : roundsFmt)
+          });
+        });
+        if (g.speedMid){
+          opts.push({
+            category: g.category,
+            label: g.name + ' — Speed',
+            key: g.id + '_best_avg_rt',
+            higherIsBetter: false,
+            format: msFmt
+          });
+        }
+      }
+    });
     return opts;
   }
 
   function renderGlobalGameOptions(){
-    lbGameSelect.innerHTML = globalLeaderboardOptions().map((o, i) => `<option value="${i}">${o.label}</option>`).join('');
+    const opts = globalLeaderboardOptions();
+    const categories = ['Reaction Speed', 'Processing Speed', 'Processing Complexity', 'Memory'];
+    lbGameSelect.innerHTML = categories.map(cat => {
+      const rows = opts.map((o, i) => ({ o, i })).filter(({ o }) => o.category === cat);
+      if (!rows.length) return '';
+      const options = rows.map(({ o, i }) => `<option value="${i}">${o.label}</option>`).join('');
+      return `<optgroup label="${cat}">${options}</optgroup>`;
+    }).join('');
   }
 
   async function loadGlobalLeaderboard(){
@@ -798,8 +864,7 @@
     }
     lbGlobalList.innerHTML = rows.map((r, i) => {
       const name = (r.profiles && r.profiles.username) || 'Unknown';
-      const val = opt.key === 'rank_best_avg_rt' ? r.value.toFixed(0) + ' ms' : Math.round(r.value);
-      return `<div class="leaderboard-row"><span class="lr-rank">#${i + 1}</span><span class="lr-game">${name}</span><span class="lr-val">${val}</span></div>`;
+      return `<div class="leaderboard-row"><span class="lr-rank">#${i + 1}</span><span class="lr-game">${name}</span><span class="lr-val">${opt.format(r.value)}</span></div>`;
     }).join('');
   }
 
