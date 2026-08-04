@@ -66,7 +66,7 @@
     if (value === null || value === undefined) return;
     const best = window.KA_records.get(key, null);
     const isNew = best === null || value < best;
-    if (isNew) window.KA_records.set(key, value);
+    if (isNew) window.KA_records.set(key, value, false);
     valEl.textContent = fmt(isNew ? value : best);
     rowEl.classList.toggle('is-new', isNew);
   }

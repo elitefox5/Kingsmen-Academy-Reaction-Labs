@@ -23,9 +23,15 @@
   <div class="home-inner">
     <p class="menu-lede">Instrumented drills for the split-second decisions that separate a member from the rest of the room.</p>
 
-    <div class="streak-strip" id="streakStrip">
-      <span class="streak-lbl">TRAINING STREAK</span>
-      <span class="streak-val" id="streakVal">0 DAYS</span>
+    <div class="strip-row">
+      <div class="streak-strip" id="streakStrip">
+        <span class="streak-lbl">TRAINING STREAK</span>
+        <span class="streak-val" id="streakVal">0 DAYS</span>
+      </div>
+      <div class="account-strip" id="accountStrip">
+        <span class="streak-lbl" id="accountLabel">OFFLINE</span>
+        <button id="accountActionBtn" class="account-btn">SIGN IN</button>
+      </div>
     </div>
 
     <div class="home-nav-grid">
@@ -332,17 +338,32 @@
 <div id="leaderboardsView">
   <button class="backBtn" id="leaderboardsBackBtn">&larr; HOME</button>
   <div class="sub-header">
-    <p class="eyebrow">KINGSMEN ACADEMY // PERSONAL RANKINGS</p>
+    <p class="eyebrow">KINGSMEN ACADEMY // RANKINGS</p>
     <h1>Leaderboards</h1>
   </div>
   <div class="leaderboard-inner">
-    <div class="leaderboard-section">
-      <div class="leaderboard-section-title">Accuracy — Fixed-Trial Drills</div>
-      <div class="leaderboard-list" id="lbAccuracyList"></div>
+    <div class="mode-toggle">
+      <button id="lbPersonalTabBtn" class="selected">PERSONAL</button>
+      <button id="lbGlobalTabBtn">GLOBAL</button>
     </div>
-    <div class="leaderboard-section">
-      <div class="leaderboard-section-title">Speed &amp; Special Records</div>
-      <div class="leaderboard-list" id="lbSpecialList"></div>
+
+    <div id="lbPersonalPanel">
+      <div class="leaderboard-section">
+        <div class="leaderboard-section-title">Accuracy — Fixed-Trial Drills</div>
+        <div class="leaderboard-list" id="lbAccuracyList"></div>
+      </div>
+      <div class="leaderboard-section">
+        <div class="leaderboard-section-title">Speed &amp; Special Records</div>
+        <div class="leaderboard-list" id="lbSpecialList"></div>
+      </div>
+    </div>
+
+    <div id="lbGlobalPanel" style="display:none;">
+      <div id="lbGlobalSignedOut" class="auth-blurb">Sign in from Home to see how you stack up against everyone else who trains here.</div>
+      <div id="lbGlobalSignedIn" style="display:none;">
+        <select id="lbGameSelect" class="auth-input lb-game-select"></select>
+        <div class="leaderboard-list" id="lbGlobalList"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -638,6 +659,52 @@
     <button class="rank-ref-close" id="rankRefClose">&times;</button>
     <div class="rank-ref-title" id="rankRefTitle">Ranks</div>
     <div class="rank-ladder" id="rankRefLadder"></div>
+  </div>
+</div>
+
+<div id="authModal">
+  <div class="rank-ref-card">
+    <button class="rank-ref-close" id="authClose">&times;</button>
+    <div class="rank-ref-title" id="authTitle">Account</div>
+
+    <div class="mode-toggle" id="authModeToggle">
+      <button id="authSignInTabBtn" class="selected">SIGN IN</button>
+      <button id="authSignUpTabBtn">CREATE ACCOUNT</button>
+    </div>
+
+    <div id="authSignInPanel">
+      <input type="email" id="authSignInEmail" class="auth-input" placeholder="you@email.com" autocomplete="email">
+      <input type="password" id="authSignInPassword" class="auth-input" placeholder="Password" autocomplete="current-password">
+      <button id="authSignInBtn" class="auth-submit">SIGN IN</button>
+      <button id="authForgotBtn" class="auth-link">Forgot password?</button>
+    </div>
+
+    <div id="authSignUpPanel" style="display:none;">
+      <p class="auth-blurb">Create an account to sync your bests and appear on the global leaderboard. We'll email you a verification link — your scores start syncing once you confirm it.</p>
+      <label class="auth-label" for="authSignUpEmail">Email</label>
+      <input type="email" id="authSignUpEmail" class="auth-input" placeholder="you@email.com" autocomplete="email">
+      <label class="auth-label" for="authSignUpPassword">Password</label>
+      <input type="password" id="authSignUpPassword" class="auth-input" placeholder="Min 6 characters" autocomplete="new-password">
+      <label class="auth-label" for="authSignUpConfirm">Confirm Password</label>
+      <input type="password" id="authSignUpConfirm" class="auth-input" placeholder="Re-enter your password" autocomplete="new-password">
+      <button id="authSignUpBtn" class="auth-submit">CREATE ACCOUNT</button>
+    </div>
+
+    <div id="authForgotPanel" style="display:none;">
+      <p class="auth-blurb">Enter your email and we'll send you a link to reset your password.</p>
+      <input type="email" id="authForgotEmail" class="auth-input" placeholder="you@email.com" autocomplete="email">
+      <button id="authForgotSendBtn" class="auth-submit">SEND RESET LINK</button>
+      <button id="authBackToSignInBtn" class="auth-link">&larr; Back to sign in</button>
+    </div>
+
+    <div id="authRecoveryPanel" style="display:none;">
+      <p class="auth-blurb">Enter a new password for your account.</p>
+      <input type="password" id="authRecoveryPassword" class="auth-input" placeholder="New password (min 6 characters)" autocomplete="new-password">
+      <input type="password" id="authRecoveryConfirm" class="auth-input" placeholder="Confirm new password" autocomplete="new-password">
+      <button id="authRecoverySetBtn" class="auth-submit">SET NEW PASSWORD</button>
+    </div>
+
+    <div class="auth-status" id="authStatus"></div>
   </div>
 </div>
 
@@ -2051,7 +2118,10 @@
 </div>
 
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="js/core/shared.js"></script>
+<script src="js/core/supabase-config.js"></script>
+<script src="js/core/cloud.js"></script>
 <script src="js/games/colour-flick.js"></script>
 <script src="js/games/go-no-go.js"></script>
 <script src="js/games/flanker.js"></script>

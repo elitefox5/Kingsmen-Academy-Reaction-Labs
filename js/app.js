@@ -25,6 +25,43 @@
   const bfxContainer = document.getElementById('bfx');
   const tileLab = document.getElementById('tileReactionLab');
 
+  const accountStrip = document.getElementById('accountStrip');
+  const accountLabel = document.getElementById('accountLabel');
+  const accountActionBtn = document.getElementById('accountActionBtn');
+  const authModal = document.getElementById('authModal');
+  const authClose = document.getElementById('authClose');
+  const authTitle = document.getElementById('authTitle');
+  const authModeToggle = document.getElementById('authModeToggle');
+  const authStatus = document.getElementById('authStatus');
+  const authSignInTabBtn = document.getElementById('authSignInTabBtn');
+  const authSignUpTabBtn = document.getElementById('authSignUpTabBtn');
+  const authSignInPanel = document.getElementById('authSignInPanel');
+  const authSignUpPanel = document.getElementById('authSignUpPanel');
+  const authForgotPanel = document.getElementById('authForgotPanel');
+  const authRecoveryPanel = document.getElementById('authRecoveryPanel');
+  const authSignInEmail = document.getElementById('authSignInEmail');
+  const authSignInPassword = document.getElementById('authSignInPassword');
+  const authSignInBtn = document.getElementById('authSignInBtn');
+  const authForgotBtn = document.getElementById('authForgotBtn');
+  const authSignUpEmail = document.getElementById('authSignUpEmail');
+  const authSignUpPassword = document.getElementById('authSignUpPassword');
+  const authSignUpConfirm = document.getElementById('authSignUpConfirm');
+  const authSignUpBtn = document.getElementById('authSignUpBtn');
+  const authForgotEmail = document.getElementById('authForgotEmail');
+  const authForgotSendBtn = document.getElementById('authForgotSendBtn');
+  const authBackToSignInBtn = document.getElementById('authBackToSignInBtn');
+  const authRecoveryPassword = document.getElementById('authRecoveryPassword');
+  const authRecoveryConfirm = document.getElementById('authRecoveryConfirm');
+  const authRecoverySetBtn = document.getElementById('authRecoverySetBtn');
+  const lbPersonalTabBtn = document.getElementById('lbPersonalTabBtn');
+  const lbGlobalTabBtn = document.getElementById('lbGlobalTabBtn');
+  const lbPersonalPanel = document.getElementById('lbPersonalPanel');
+  const lbGlobalPanel = document.getElementById('lbGlobalPanel');
+  const lbGlobalSignedOut = document.getElementById('lbGlobalSignedOut');
+  const lbGlobalSignedIn = document.getElementById('lbGlobalSignedIn');
+  const lbGameSelect = document.getElementById('lbGameSelect');
+  const lbGlobalList = document.getElementById('lbGlobalList');
+
   // Every module after Reaction Lab follows the same pattern: a container div,
   // a back button, a tile in the menu, and an optional window.<id>EnterHook
   // that resets it to its start panel each time it's entered.
@@ -584,6 +621,214 @@
     if (file) importStatsData(file);
     e.target.value = '';
   });
+
+  // ---- Account (Supabase auth) ---------------------------------------------------------
+  // Four panels sharing one modal: sign in, create account, forgot password, and set-new-
+  // password (the last one only ever shown after following a reset-password email link).
+  let showingRecovery = false;
+
+  function setAuthStatus(msg){ authStatus.textContent = msg; authStatus.className = 'auth-status'; }
+  function setAuthError(msg){ authStatus.textContent = msg; authStatus.className = 'auth-status error'; }
+
+  function showAuthPanel(which){
+    [authSignInPanel, authSignUpPanel, authForgotPanel, authRecoveryPanel].forEach(panel => {
+      panel.style.display = (panel.id === which) ? '' : 'none';
+    });
+    const onTabbedPanel = which === 'authSignInPanel' || which === 'authSignUpPanel';
+    authModeToggle.style.display = onTabbedPanel ? '' : 'none';
+    authSignInTabBtn.classList.toggle('selected', which === 'authSignInPanel');
+    authSignUpTabBtn.classList.toggle('selected', which === 'authSignUpPanel');
+    authTitle.textContent = which === 'authRecoveryPanel' ? 'Set New Password'
+      : which === 'authForgotPanel' ? 'Reset Password' : 'Account';
+    authStatus.textContent = '';
+    authStatus.className = 'auth-status';
+  }
+
+  function openAuthModal(){
+    showingRecovery = false;
+    showAuthPanel('authSignInPanel');
+    authModal.classList.add('show');
+    authSignInEmail.focus();
+  }
+  function closeAuthModal(){
+    authModal.classList.remove('show');
+    showingRecovery = false;
+  }
+
+  function renderAccountStrip(session){
+    if (session){
+      accountStrip.classList.add('signed-in');
+      accountLabel.textContent = session.user.email;
+      accountActionBtn.textContent = 'SIGN OUT';
+    } else {
+      accountStrip.classList.remove('signed-in');
+      accountLabel.textContent = 'OFFLINE';
+      accountActionBtn.textContent = 'SIGN IN';
+    }
+  }
+
+  accountActionBtn.addEventListener('click', () => {
+    if (window.KA_cloud.isSignedIn()) window.KA_cloud.signOut();
+    else openAuthModal();
+  });
+  authClose.addEventListener('click', closeAuthModal);
+  authModal.addEventListener('click', (e) => { if (e.target.id === 'authModal') closeAuthModal(); });
+
+  authSignInTabBtn.addEventListener('click', () => showAuthPanel('authSignInPanel'));
+  authSignUpTabBtn.addEventListener('click', () => showAuthPanel('authSignUpPanel'));
+  authForgotBtn.addEventListener('click', () => showAuthPanel('authForgotPanel'));
+  authBackToSignInBtn.addEventListener('click', () => showAuthPanel('authSignInPanel'));
+
+  [authSignInPassword, authSignUpConfirm, authForgotEmail, authRecoveryConfirm].forEach((el, i) => {
+    const submitBtns = [authSignInBtn, authSignUpBtn, authForgotSendBtn, authRecoverySetBtn];
+    el.addEventListener('keydown', (e) => { if (e.key === 'Enter') submitBtns[i].click(); });
+  });
+
+  authSignInBtn.addEventListener('click', async () => {
+    const email = authSignInEmail.value.trim();
+    const password = authSignInPassword.value;
+    if (!email || email.indexOf('@') === -1){ setAuthError('Enter a valid email.'); return; }
+    if (!password){ setAuthError('Enter your password.'); return; }
+    authSignInBtn.disabled = true;
+    setAuthStatus('Signing in…');
+    try {
+      await window.KA_cloud.signInWithPassword(email, password);
+    } catch (err){
+      setAuthError(err.message || 'Sign in failed.');
+    } finally {
+      authSignInBtn.disabled = false;
+    }
+  });
+
+  authSignUpBtn.addEventListener('click', async () => {
+    const email = authSignUpEmail.value.trim();
+    const password = authSignUpPassword.value;
+    const confirm = authSignUpConfirm.value;
+    if (!email || email.indexOf('@') === -1){ setAuthError('Enter a valid email.'); return; }
+    if (password.length < 6){ setAuthError('Password must be at least 6 characters.'); return; }
+    if (password !== confirm){ setAuthError("Passwords don't match."); return; }
+    authSignUpBtn.disabled = true;
+    setAuthStatus('Creating account…');
+    try {
+      await window.KA_cloud.signUpWithPassword(email, password);
+      setAuthStatus('Account created — check your email to verify it, then sign in.');
+    } catch (err){
+      setAuthError(err.message || 'Could not create account.');
+    } finally {
+      authSignUpBtn.disabled = false;
+    }
+  });
+
+  authForgotSendBtn.addEventListener('click', async () => {
+    const email = authForgotEmail.value.trim();
+    if (!email || email.indexOf('@') === -1){ setAuthError('Enter a valid email.'); return; }
+    authForgotSendBtn.disabled = true;
+    setAuthStatus('Sending…');
+    try {
+      await window.KA_cloud.sendPasswordReset(email);
+      setAuthStatus('Check your email for a reset link.');
+    } catch (err){
+      setAuthError(err.message || 'Something went wrong.');
+    } finally {
+      authForgotSendBtn.disabled = false;
+    }
+  });
+
+  authRecoverySetBtn.addEventListener('click', async () => {
+    const pw = authRecoveryPassword.value;
+    const confirm = authRecoveryConfirm.value;
+    if (pw.length < 6){ setAuthError('Password must be at least 6 characters.'); return; }
+    if (pw !== confirm){ setAuthError("Passwords don't match."); return; }
+    authRecoverySetBtn.disabled = true;
+    setAuthStatus('Updating…');
+    try {
+      await window.KA_cloud.updatePassword(pw);
+      showingRecovery = false;
+      setAuthStatus("Password updated — you're signed in.");
+      setTimeout(closeAuthModal, 1500);
+    } catch (err){
+      setAuthError(err.message || 'Could not update password.');
+    } finally {
+      authRecoverySetBtn.disabled = false;
+    }
+  });
+
+  // Reflects auth state on every load, including a silently-restored session — must not
+  // have side effects like a toast, or reloading the page while signed in would show one
+  // every time.
+  window.KA_cloud.onAuthChange(renderAccountStrip);
+
+  // Fires only for an actual sign-in moment (not a restored session on page load).
+  window.KA_cloud.onSignedIn(() => {
+    if (!showingRecovery){
+      closeAuthModal();
+      showToast('SIGNED IN');
+    }
+  });
+
+  // The reset-password email link lands back here with a recovery session already active —
+  // show the "set new password" panel instead of treating it like a normal sign-in.
+  window.KA_cloud.onPasswordRecovery(() => {
+    showingRecovery = true;
+    authModal.classList.add('show');
+    showAuthPanel('authRecoveryPanel');
+  });
+
+  // ---- Global leaderboard ---------------------------------------------------------------
+  // Only games with a single flat KA_records key are eligible — dual-metric games (Flanker,
+  // Flash Reflex, Colour Flick) would need a pick-a-metric step this list doesn't have yet.
+  function globalLeaderboardOptions(){
+    const opts = window.KA_GAMES.filter(g => g.key).map(g => ({ label: g.name, key: g.key, higherIsBetter: true }));
+    opts.push({ label: 'Base Reflex — Baseline Avg', key: 'rank_best_avg_rt', higherIsBetter: false });
+    return opts;
+  }
+
+  function renderGlobalGameOptions(){
+    lbGameSelect.innerHTML = globalLeaderboardOptions().map((o, i) => `<option value="${i}">${o.label}</option>`).join('');
+  }
+
+  async function loadGlobalLeaderboard(){
+    const opt = globalLeaderboardOptions()[parseInt(lbGameSelect.value, 10)];
+    if (!opt) return;
+    lbGlobalList.innerHTML = '<div class="leaderboard-row"><span class="lr-game">Loading…</span></div>';
+    const rows = await window.KA_cloud.fetchLeaderboard(opt.key, opt.higherIsBetter, 20);
+    if (!rows.length){
+      lbGlobalList.innerHTML = '<div class="leaderboard-row unplayed"><span class="lr-game">No scores yet — be the first.</span></div>';
+      return;
+    }
+    lbGlobalList.innerHTML = rows.map((r, i) => {
+      const name = (r.profiles && r.profiles.username) || 'Unknown';
+      const val = opt.key === 'rank_best_avg_rt' ? r.value.toFixed(0) + ' ms' : Math.round(r.value);
+      return `<div class="leaderboard-row"><span class="lr-rank">#${i + 1}</span><span class="lr-game">${name}</span><span class="lr-val">${val}</span></div>`;
+    }).join('');
+  }
+
+  function showGlobalPanelForAuthState(){
+    if (window.KA_cloud.isSignedIn()){
+      lbGlobalSignedOut.style.display = 'none';
+      lbGlobalSignedIn.style.display = '';
+      if (!lbGameSelect.options.length) renderGlobalGameOptions();
+      loadGlobalLeaderboard();
+    } else {
+      lbGlobalSignedOut.style.display = '';
+      lbGlobalSignedIn.style.display = 'none';
+    }
+  }
+
+  lbPersonalTabBtn.addEventListener('click', () => {
+    lbPersonalTabBtn.classList.add('selected');
+    lbGlobalTabBtn.classList.remove('selected');
+    lbPersonalPanel.style.display = '';
+    lbGlobalPanel.style.display = 'none';
+  });
+  lbGlobalTabBtn.addEventListener('click', () => {
+    lbGlobalTabBtn.classList.add('selected');
+    lbPersonalTabBtn.classList.remove('selected');
+    lbPersonalPanel.style.display = 'none';
+    lbGlobalPanel.style.display = '';
+    showGlobalPanelForAuthState();
+  });
+  lbGameSelect.addEventListener('change', loadGlobalLeaderboard);
 
   renderLastPlayedHero();
   renderStreak();
