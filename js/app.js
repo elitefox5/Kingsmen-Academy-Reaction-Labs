@@ -59,8 +59,7 @@
   const lbGlobalPanel = document.getElementById('lbGlobalPanel');
   const lbGlobalSignedOut = document.getElementById('lbGlobalSignedOut');
   const lbGlobalSignedIn = document.getElementById('lbGlobalSignedIn');
-  const lbGameSelect = document.getElementById('lbGameSelect');
-  const lbGlobalList = document.getElementById('lbGlobalList');
+  const lbGlobalSections = document.getElementById('lbGlobalSections');
 
   // Every module after Reaction Lab follows the same pattern: a container div,
   // a back button, a tile in the menu, and an optional window.<id>EnterHook
@@ -398,10 +397,17 @@
   }
 
   function renderLeaderboards(){
+    // Accuracy list also shows each game's best average reaction time alongside its
+    // accuracy, for any game that actually tracks both (same games KA_scoreRun dual-ranks).
     const accGames = window.KA_GAMES.filter(g => g.type === 'count');
     const accRows = accGames.map(g => {
       const v = window.KA_records.get(g.key, null);
-      return { name: g.name, val: v, pct: v === null ? null : (v / g.total * 100) };
+      const rt = g.speedMid ? window.KA_records.get(g.id + '_best_avg_rt', null) : null;
+      const pct = v === null ? null : (v / g.total * 100);
+      const valText = pct === null ? 'NOT PLAYED'
+        : rt !== null ? pct.toFixed(0) + '% · ' + rt.toFixed(0) + ' ms'
+        : pct.toFixed(0) + '%';
+      return { name: g.name, val: v, pct, valText };
     }).sort((a, b) => {
       if (a.pct === null && b.pct === null) return 0;
       if (a.pct === null) return 1;
@@ -409,7 +415,7 @@
       return b.pct - a.pct;
     });
     document.getElementById('lbAccuracyList').innerHTML = accRows.map((r, i) =>
-      `<div class="leaderboard-row ${r.val === null ? 'unplayed' : ''}"><span class="lr-rank">${r.val === null ? '—' : '#' + (i + 1)}</span><span class="lr-game">${r.name}</span><span class="lr-val">${r.val === null ? 'NOT PLAYED' : r.pct.toFixed(0) + '%'}</span></div>`
+      `<div class="leaderboard-row ${r.val === null ? 'unplayed' : ''}"><span class="lr-rank">${r.val === null ? '—' : '#' + (i + 1)}</span><span class="lr-game">${r.name}</span><span class="lr-val">${r.valText}</span></div>`
     ).join('');
 
     const specialGames = window.KA_GAMES.filter(g => g.type !== 'count');
@@ -787,14 +793,15 @@
   });
 
   // ---- Global leaderboard ---------------------------------------------------------------
-  // Every active game gets a dropdown entry — two of them, accuracy and speed, for any game
-  // that actually tracks both (the same 18 games KA_scoreRun ranks locally). A game with only
-  // one tracked stat gets one entry. Grouped by category to keep ~40 options navigable.
+  // Every active game shows up here — two rows for any game that tracks both accuracy and
+  // speed (the same 18 games KA_scoreRun dual-ranks locally), one row for a game with only
+  // one tracked stat. All ~44 rows render at once, grouped by category, rather than being
+  // hidden behind a game picker — the whole point is seeing everyone's bests at a glance.
   const pctFmt = total => v => Math.round((v / total) * 100) + '%';
   const msFmt = v => Math.round(v) + ' ms';
   const roundsFmt = v => Math.round(v) + ' rounds';
 
-  function globalLeaderboardOptions(){
+  function globalLeaderboardEntries(){
     const opts = [];
     window.KA_GAMES.forEach(g => {
       if (g.key){
@@ -842,38 +849,41 @@
     return opts;
   }
 
-  function renderGlobalGameOptions(){
-    const opts = globalLeaderboardOptions();
+  async function renderGlobalLeaderboard(){
+    const entries = globalLeaderboardEntries();
     const categories = ['Reaction Speed', 'Processing Speed', 'Processing Complexity', 'Memory'];
-    lbGameSelect.innerHTML = categories.map(cat => {
-      const rows = opts.map((o, i) => ({ o, i })).filter(({ o }) => o.category === cat);
-      if (!rows.length) return '';
-      const options = rows.map(({ o, i }) => `<option value="${i}">${o.label}</option>`).join('');
-      return `<optgroup label="${cat}">${options}</optgroup>`;
-    }).join('');
-  }
 
-  async function loadGlobalLeaderboard(){
-    const opt = globalLeaderboardOptions()[parseInt(lbGameSelect.value, 10)];
-    if (!opt) return;
-    lbGlobalList.innerHTML = '<div class="leaderboard-row"><span class="lr-game">Loading…</span></div>';
-    const rows = await window.KA_cloud.fetchLeaderboard(opt.key, opt.higherIsBetter, 20);
-    if (!rows.length){
-      lbGlobalList.innerHTML = '<div class="leaderboard-row unplayed"><span class="lr-game">No scores yet — be the first.</span></div>';
-      return;
-    }
-    lbGlobalList.innerHTML = rows.map((r, i) => {
-      const name = (r.profiles && r.profiles.username) || 'Unknown';
-      return `<div class="leaderboard-row"><span class="lr-rank">#${i + 1}</span><span class="lr-game">${name}</span><span class="lr-val">${opt.format(r.value)}</span></div>`;
+    // Render every row immediately in a loading state, then fill each in as its own query
+    // resolves — one game's slow request shouldn't hold up the other 43 rows.
+    lbGlobalSections.innerHTML = categories.map(cat => {
+      const rows = entries.filter(e => e.category === cat);
+      if (!rows.length) return '';
+      const rowsHtml = rows.map(e =>
+        `<div class="leaderboard-row unplayed" data-key="${e.key}"><span class="lr-rank">#1</span><span class="lr-game">${e.label}</span><span class="lr-val">Loading…</span></div>`
+      ).join('');
+      return `<div class="leaderboard-section"><div class="leaderboard-section-title">${cat}</div><div class="leaderboard-list">${rowsHtml}</div></div>`;
     }).join('');
+
+    entries.forEach(async (e) => {
+      const rows = await window.KA_cloud.fetchLeaderboard(e.key, e.higherIsBetter, 1);
+      const row = lbGlobalSections.querySelector(`[data-key="${CSS.escape(e.key)}"]`);
+      if (!row) return;
+      const top = rows[0];
+      if (!top){
+        row.querySelector('.lr-val').textContent = 'No scores yet';
+        return;
+      }
+      const name = (top.profiles && top.profiles.username) || 'Unknown';
+      row.classList.remove('unplayed');
+      row.querySelector('.lr-val').textContent = e.format(top.value) + ' — ' + name;
+    });
   }
 
   function showGlobalPanelForAuthState(){
     if (window.KA_cloud.isSignedIn()){
       lbGlobalSignedOut.style.display = 'none';
       lbGlobalSignedIn.style.display = '';
-      if (!lbGameSelect.options.length) renderGlobalGameOptions();
-      loadGlobalLeaderboard();
+      renderGlobalLeaderboard();
     } else {
       lbGlobalSignedOut.style.display = '';
       lbGlobalSignedIn.style.display = 'none';
@@ -893,7 +903,6 @@
     lbGlobalPanel.style.display = '';
     showGlobalPanelForAuthState();
   });
-  lbGameSelect.addEventListener('change', loadGlobalLeaderboard);
 
   renderLastPlayedHero();
   renderStreak();
