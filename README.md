@@ -22,18 +22,22 @@ Then visit <http://localhost:8000>.
 ## Layout
 
 ```
-index.html              markup for every view and all 24 drills
-css/styles.css          all styling, including the shared game-shell classes
+index.html                   markup for every view and all 24 drills
+css/styles.css               all styling, including the shared game-shell classes
 js/
-  core/shared.js        storage, rank ladders, staircase, the game registry
-  games/*.js            one self-contained module per drill
-  app.js                navigation, the rank dashboard, backup/restore
-assets/                 crest and banner artwork
+  core/shared.js             storage, rank ladders, staircase, the game registry
+  core/supabase-config.js    Supabase project URL + anon key (safe to commit — see below)
+  core/cloud.js               auth + sync layer; the only file that talks to Supabase
+  games/*.js                  one self-contained module per drill
+  app.js                       navigation, the rank dashboard, backup/restore
+assets/                       crest and banner artwork
+supabase/schema.sql           tables + RLS policies — run once in the Supabase SQL editor
 ```
 
-Scripts load in order at the end of `<body>`: `core/shared.js` first (it defines the
-`window.KA_*` helpers everything else uses), then the drills, then `app.js` last — it wires
-navigation and needs the drills' enter-hooks to already exist.
+Scripts load in order at the end of `<body>`: the Supabase client, then `core/shared.js`
+(defines the `window.KA_*` helpers everything else uses), then `supabase-config.js` and
+`cloud.js` (patch two of those helpers to also sync — see below), then the drills, then
+`app.js` last — it wires navigation and needs the drills' enter-hooks to already exist.
 
 ## Architecture
 
@@ -104,10 +108,61 @@ stay fixed-difficulty so they remain a fair benchmark.
 
 ## Data
 
-Everything lives in `localStorage` under `ka_`-prefixed keys — no accounts, no server, and
-nothing leaves the browser. Stats → Backup & Restore exports and re-imports it as JSON.
+Everything is written to `localStorage` under `ka_`-prefixed keys first — the app always
+works fully offline, with or without an account. Stats → Backup & Restore exports and
+re-imports that data as JSON.
 
-Leaderboards rank you against your own bests, not other people.
+Signing in additionally syncs it to Supabase and unlocks the Global leaderboard tab (see
+below). Signed out, Leaderboards only ever ranks you against your own bests.
+
+## Cloud sync (Supabase)
+
+Sign-in is magic-link (email only, no passwords). Signing in:
+
+- pulls your cloud bests down and merges them with what's in this browser — whichever value
+  is actually better wins, so playing offline between syncs never loses progress
+- pushes every new personal best up automatically from then on, through the exact same
+  `KA_records.set(...)` / `KA_history.add(...)` calls every game already makes — no game file
+  knows the network exists; `js/core/cloud.js` is the only thing that does
+- unlocks Leaderboards → **Global**, ranking you against everyone else who's signed in, per
+  drill
+
+**Nothing about ranking changes.** The cloud `records` table mirrors the local
+`ka_record_<key>` keyspace exactly — same flat key, same raw number (an accuracy %, a
+reaction time in ms). Rank tiers are still computed client-side from that raw number every
+time a badge renders, so recalibrating the ladders later needs no data migration, cloud or
+local — see [Ranking](#ranking) above.
+
+### First-time setup (once per Supabase project)
+
+1. **Run the schema.** Supabase dashboard → SQL Editor → New query → paste the contents of
+   [`supabase/schema.sql`](supabase/schema.sql) → Run. Creates `profiles`, `records`, `runs`,
+   their Row Level Security policies, and a trigger that creates a profile automatically on
+   sign-up. Safe to re-run.
+2. **Allow-list redirect URLs.** Supabase dashboard → Authentication → URL Configuration →
+   add every URL you'll actually open the app from (e.g. `http://localhost:8000` for local
+   testing, plus your GitHub Pages URL if you set one up). The magic link is rejected if the
+   page it's opened from isn't on this list.
+3. **Serve over http(s), not `file://`.** Magic-link sign-in redirects back to the exact URL
+   the app was opened from; mail clients won't follow a `file://` link, and it isn't on the
+   allow-list anyway. Use `python -m http.server` locally, or GitHub Pages, when testing
+   sign-in — double-clicking `index.html` is fine for everything else.
+
+`js/core/supabase-config.js` holds the project URL and anon key. The anon key is meant to be
+public and is safe to commit — it can only do what the RLS policies in `schema.sql` allow.
+The `service_role` key (which bypasses RLS) must never go in this file or anywhere
+client-side; this app never needs it.
+
+### Scope of the sync
+
+- Global leaderboard covers the 21 drills with a single flat record key (open Leaderboards →
+  Global to see the list) plus Base Reflex's baseline. Drills with multiple metrics (Flanker,
+  Flash Reflex, Colour Flick) aren't on it yet — would need a pick-a-metric step.
+- The activity feed (`runs` table) is written on every run but only ever read back for your
+  own Stats page — it isn't pulled/merged across devices yet, unlike `records`.
+- Any signed-in user's records and profile are readable by any other signed-in user (RLS
+  requires `auth.role() = 'authenticated'`, nothing more granular) — right for a small trusted
+  group, worth tightening before this goes properly public.
 
 ## Known gaps
 
@@ -118,3 +173,5 @@ Leaderboards rank you against your own bests, not other people.
   latency), so its numbers aren't directly comparable to the visual drills.
 - Colour Flick is shelved: its module and styles are still in the tree, commented out of the
   menu and `KA_GAMES`.
+- Global leaderboard doesn't cover multi-metric drills yet, and activity history doesn't sync
+  across devices — see "Scope of the sync" above.

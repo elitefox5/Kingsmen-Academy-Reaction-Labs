@@ -115,7 +115,7 @@
     if (avgRt !== null){
       const best = window.KA_records.get('rank_best_avg_rt', null);
       isNewBest = best === null || avgRt < best;
-      if (isNewBest) window.KA_records.set('rank_best_avg_rt', avgRt);
+      if (isNewBest) window.KA_records.set('rank_best_avg_rt', avgRt, false);
       document.getElementById('bfxRBest').textContent = fmtMs(isNewBest ? avgRt : best);
     } else {
       document.getElementById('bfxRBest').textContent = fmtMs(window.KA_records.get('rank_best_avg_rt', null));

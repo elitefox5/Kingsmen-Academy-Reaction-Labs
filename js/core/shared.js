@@ -80,7 +80,7 @@
       speedRank = window.KA_getSpeedRank(run.avgRt, game.speedMid);
       const key = gameId + '_best_avg_rt';
       const best = window.KA_records.get(key, null);
-      if (best === null || run.avgRt < best) window.KA_records.set(key, run.avgRt);
+      if (best === null || run.avgRt < best) window.KA_records.set(key, run.avgRt, false);
     }
 
     const combined = window.KA_combineRanks(accRank, speedRank);
@@ -303,9 +303,10 @@
   // result, but a longer sequence is.
   window.KA_recordThreshold = function(gameId, value, harderIs){
     const key = gameId + '_best_threshold';
+    const higherIsBetter = harderIs === 'higher';
     const best = window.KA_records.get(key, null);
-    const better = best === null || (harderIs === 'higher' ? value > best : value < best);
-    if (better) window.KA_records.set(key, value);
+    const better = best === null || (higherIsBetter ? value > best : value < best);
+    if (better) window.KA_records.set(key, value, higherIsBetter);
     return { best: better ? value : best, isNew: better };
   };
 
