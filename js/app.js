@@ -630,6 +630,18 @@
   function setAuthStatus(msg){ authStatus.textContent = msg; authStatus.className = 'auth-status'; }
   function setAuthError(msg){ authStatus.textContent = msg; authStatus.className = 'auth-status error'; }
 
+  // `err.message || fallback` looks safe but isn't — a cryptic-but-non-empty message (an
+  // empty JSON body stringified to "{}", "[object Object]" from a non-Error throw, a network
+  // failure with no useful text) is still truthy, so it slips past `||` and gets shown to the
+  // player verbatim instead of falling back. This filters those out before ever displaying one.
+  function authErrorMessage(err, fallback){
+    const raw = err && typeof err.message === 'string' ? err.message.trim() : '';
+    const useless = !raw || raw === '{}' || raw === '[object Object]' || raw.length < 3;
+    if (!useless) return raw;
+    console.error('auth error (showed fallback message to user):', err);
+    return fallback;
+  }
+
   function showAuthPanel(which){
     [authSignInPanel, authSignUpPanel, authForgotPanel, authRecoveryPanel].forEach(panel => {
       panel.style.display = (panel.id === which) ? '' : 'none';
@@ -694,7 +706,7 @@
     try {
       await window.KA_cloud.signInWithPassword(email, password);
     } catch (err){
-      setAuthError(err.message || 'Sign in failed.');
+      setAuthError(authErrorMessage(err, 'Sign in failed — check your connection and try again.'));
     } finally {
       authSignInBtn.disabled = false;
     }
@@ -713,7 +725,7 @@
       await window.KA_cloud.signUpWithPassword(email, password);
       setAuthStatus('Account created — check your email to verify it, then sign in.');
     } catch (err){
-      setAuthError(err.message || 'Could not create account.');
+      setAuthError(authErrorMessage(err, 'Could not create account — check your connection and try again.'));
     } finally {
       authSignUpBtn.disabled = false;
     }
@@ -728,7 +740,7 @@
       await window.KA_cloud.sendPasswordReset(email);
       setAuthStatus('Check your email for a reset link.');
     } catch (err){
-      setAuthError(err.message || 'Something went wrong.');
+      setAuthError(authErrorMessage(err, 'Something went wrong — check your connection and try again.'));
     } finally {
       authForgotSendBtn.disabled = false;
     }
@@ -747,7 +759,7 @@
       setAuthStatus("Password updated — you're signed in.");
       setTimeout(closeAuthModal, 1500);
     } catch (err){
-      setAuthError(err.message || 'Could not update password.');
+      setAuthError(authErrorMessage(err, 'Could not update password — check your connection and try again.'));
     } finally {
       authRecoverySetBtn.disabled = false;
     }
