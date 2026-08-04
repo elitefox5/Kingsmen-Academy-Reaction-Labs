@@ -585,6 +585,21 @@
     padding:11px 12px;
     margin-bottom:10px;
   }
+  .auth-password-wrap{ position:relative; }
+  .auth-password-wrap .auth-input{ padding-right:40px; }
+  .auth-eye-btn{
+    position:absolute;
+    top:0; right:0;
+    width:40px; height:100%;
+    padding:0;
+    display:flex; align-items:center; justify-content:center;
+    background:transparent;
+    border:none;
+    color:var(--dim);
+    cursor:pointer;
+  }
+  .auth-eye-btn:hover{ background:transparent; color:var(--gold-bright); }
+  .auth-eye-btn svg{ width:16px; height:16px; display:block; }
   .auth-input:focus{ outline:none; border-color:var(--gold); }
   .auth-submit{ width:100%; margin-top:2px; text-align:center; }
   .auth-link{

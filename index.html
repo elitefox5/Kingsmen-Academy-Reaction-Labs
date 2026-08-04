@@ -673,7 +673,10 @@
 
     <div id="authSignInPanel">
       <input type="email" id="authSignInEmail" class="auth-input" placeholder="you@email.com" autocomplete="email">
-      <input type="password" id="authSignInPassword" class="auth-input" placeholder="Password" autocomplete="current-password">
+      <div class="auth-password-wrap">
+        <input type="password" id="authSignInPassword" class="auth-input" placeholder="Password" autocomplete="current-password">
+        <button type="button" class="auth-eye-btn" data-target="authSignInPassword" aria-label="Show password"></button>
+      </div>
       <button id="authSignInBtn" class="auth-submit">SIGN IN</button>
       <button id="authForgotBtn" class="auth-link">Forgot password?</button>
     </div>
@@ -683,9 +686,15 @@
       <label class="auth-label" for="authSignUpEmail">Email</label>
       <input type="email" id="authSignUpEmail" class="auth-input" placeholder="you@email.com" autocomplete="email">
       <label class="auth-label" for="authSignUpPassword">Password</label>
-      <input type="password" id="authSignUpPassword" class="auth-input" placeholder="Min 6 characters" autocomplete="new-password">
+      <div class="auth-password-wrap">
+        <input type="password" id="authSignUpPassword" class="auth-input" placeholder="Min 6 characters" autocomplete="new-password">
+        <button type="button" class="auth-eye-btn" data-target="authSignUpPassword" aria-label="Show password"></button>
+      </div>
       <label class="auth-label" for="authSignUpConfirm">Confirm Password</label>
-      <input type="password" id="authSignUpConfirm" class="auth-input" placeholder="Re-enter your password" autocomplete="new-password">
+      <div class="auth-password-wrap">
+        <input type="password" id="authSignUpConfirm" class="auth-input" placeholder="Re-enter your password" autocomplete="new-password">
+        <button type="button" class="auth-eye-btn" data-target="authSignUpConfirm" aria-label="Show password"></button>
+      </div>
       <button id="authSignUpBtn" class="auth-submit">CREATE ACCOUNT</button>
     </div>
 
@@ -698,8 +707,14 @@
 
     <div id="authRecoveryPanel" style="display:none;">
       <p class="auth-blurb">Enter a new password for your account.</p>
-      <input type="password" id="authRecoveryPassword" class="auth-input" placeholder="New password (min 6 characters)" autocomplete="new-password">
-      <input type="password" id="authRecoveryConfirm" class="auth-input" placeholder="Confirm new password" autocomplete="new-password">
+      <div class="auth-password-wrap">
+        <input type="password" id="authRecoveryPassword" class="auth-input" placeholder="New password (min 6 characters)" autocomplete="new-password">
+        <button type="button" class="auth-eye-btn" data-target="authRecoveryPassword" aria-label="Show password"></button>
+      </div>
+      <div class="auth-password-wrap">
+        <input type="password" id="authRecoveryConfirm" class="auth-input" placeholder="Confirm new password" autocomplete="new-password">
+        <button type="button" class="auth-eye-btn" data-target="authRecoveryConfirm" aria-label="Show password"></button>
+      </div>
       <button id="authRecoverySetBtn" class="auth-submit">SET NEW PASSWORD</button>
     </div>
 
