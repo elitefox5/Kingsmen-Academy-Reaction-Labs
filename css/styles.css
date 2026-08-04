@@ -613,13 +613,6 @@
   }
   .auth-status.error{ color:#ff6b6b; }
 
-  .lb-game-select{
-    width:100%;
-    margin-bottom:16px;
-    appearance:none;
-    cursor:pointer;
-  }
-
   .rank-current-card.baseline{ padding:22px 28px; }
   .rank-current-card.baseline .rc-badge{ font-size:28px; }
 
