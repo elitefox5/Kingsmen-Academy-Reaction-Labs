@@ -20,7 +20,7 @@
   const splScoreVal = document.getElementById('splScoreVal');
 
   let trialIndex, score, results, runHistory = [];
-  let armed = false, appearTime = null, currentTrial = null, timers = {};
+  let armed = false, waiting = false, appearTime = null, currentTrial = null, timers = {};
 
   function fmtMs(ms){ if (ms === null || ms === undefined) return '—'; return ms.toFixed(0) + ' ms'; }
   function clearTimers(){ clearTimeout(timers.isi); clearTimeout(timers.response); clearTimeout(timers.advance); }
@@ -55,7 +55,7 @@
   }
 
   function startRun(){
-    trialIndex = 0; score = 0; results = []; armed = false; clearTimers();
+    trialIndex = 0; score = 0; results = []; armed = false; waiting = false; clearTimers();
     splStartPanel.style.display = 'none'; splResultCard.style.display = 'none';
     clearFeedback(); splCenter.classList.remove('lit'); splDecoy.style.display = 'none';
     updateHud();
@@ -70,11 +70,13 @@
     repositionCenter();
     const hasDecoy = Math.random() < DECOY_PROB;
     currentTrial = { trial: trialIndex, hasDecoy, rt: null, outcome: null };
+    waiting = true;
     const isi = ISI_MIN + Math.random() * (ISI_MAX - ISI_MIN);
     timers.isi = setTimeout(showTrial, isi);
   }
 
   function showTrial(){
+    waiting = false;
     splCenter.classList.add('lit');
     if (currentTrial.hasDecoy){
       const pos = randomEdgePos();
@@ -91,7 +93,20 @@
     });
   }
 
+  // Clicking before the center target lights up used to be a silent no-op — that let a
+  // player spam-click through the whole wait and get "correct" purely by timing luck
+  // rather than actually reacting. An early click now fails the trial outright instead.
+  function handleEarlyClick(){
+    clearTimeout(timers.isi);
+    waiting = false;
+    splCenter.classList.remove('lit'); splDecoy.style.display = 'none';
+    currentTrial.outcome = 'early';
+    showFeedback('TOO EARLY', 'bad');
+    settleTrial();
+  }
+
   function handleCenterClick(){
+    if (waiting){ handleEarlyClick(); return; }
     if (!armed) return;
     const rt = window.KA_applyGrace(performance.now() - appearTime);
     armed = false; clearTimeout(timers.response);
@@ -131,6 +146,7 @@
     const correct = results.filter(r => r.outcome === 'correct');
     const wrong = results.filter(r => r.outcome === 'distracted');
     const timeouts = results.filter(r => r.outcome === 'timeout');
+    const early = results.filter(r => r.outcome === 'early');
     const avgRt = avg(correct.map(r => r.rt));
     const accuracy = results.length ? (correct.length / results.length) * 100 : null;
 
@@ -138,6 +154,7 @@
     document.getElementById('splRAvgRt').textContent = fmtMs(avgRt);
     document.getElementById('splRWrong').textContent = wrong.length;
     document.getElementById('splRTimeout').textContent = timeouts.length;
+    document.getElementById('splREarly').textContent = early.length;
     document.getElementById('splRAcc').textContent = accuracy === null ? '—' : accuracy.toFixed(0) + '%';
 
     const bestCorrect = window.KA_records.get('spl_best_correct', null);
@@ -149,7 +166,7 @@
 
     window.KA_scoreRun('spl', 'splResultCard', { accuracyPct: accuracy, avgRt });
     splResultCard.style.display = 'flex';
-    runHistory.unshift({ correct: correct.length, wrong: wrong.length, timeouts: timeouts.length, avgRt, accuracy });
+    runHistory.unshift({ correct: correct.length, wrong: wrong.length, timeouts: timeouts.length, early: early.length, avgRt, accuracy });
     if (runHistory.length > 6) runHistory.pop();
     renderLog();
     window.KA_history.add('Split Focus', `correct ${correct.length}/${results.length} · acc ${accuracy === null ? '—' : accuracy.toFixed(0) + '%'}`);
@@ -157,7 +174,7 @@
 
   function renderLog(){
     splLog.innerHTML = runHistory.map((h, i) =>
-      `<span class="entry">Run ${runHistory.length - i} — correct <b>${h.correct}</b> &middot; distracted <b>${h.wrong}</b> &middot; timeout <b>${h.timeouts}</b> &middot; avg RT <b>${fmtMs(h.avgRt)}</b></span>`
+      `<span class="entry">Run ${runHistory.length - i} — correct <b>${h.correct}</b> &middot; distracted <b>${h.wrong}</b> &middot; timeout <b>${h.timeouts}</b> &middot; early <b>${h.early}</b> &middot; avg RT <b>${fmtMs(h.avgRt)}</b></span>`
     ).join('<span style="color:var(--grid)">|</span>');
   }
 
@@ -167,7 +184,7 @@
   splNextBtn.addEventListener('click', startRun);
 
   window.splEnterHook = function(){
-    clearTimers(); armed = false; splCenter.classList.remove('lit'); splDecoy.style.display = 'none';
+    clearTimers(); armed = false; waiting = false; splCenter.classList.remove('lit'); splDecoy.style.display = 'none';
     resetCenterPos();
     splStartPanel.style.display = ''; splResultCard.style.display = 'none';
     clearFeedback();
