@@ -14,10 +14,13 @@
       onAuthChange(fn){ fn(null); },
       onPasswordRecovery(){},
       onSignedIn(){},
+      async checkUsernameAvailable(){ throw new Error('Cloud sync is not configured.'); },
       async signUpWithPassword(){ throw new Error('Cloud sync is not configured.'); },
-      async signInWithPassword(){ throw new Error('Cloud sync is not configured.'); },
+      async signInWithIdentifier(){ throw new Error('Cloud sync is not configured.'); },
       async sendPasswordReset(){ throw new Error('Cloud sync is not configured.'); },
       async updatePassword(){ throw new Error('Cloud sync is not configured.'); },
+      async getMyProfile(){ return null; },
+      async updateUsername(){ throw new Error('Cloud sync is not configured.'); },
       async signOut(){}
     };
     return;
@@ -122,15 +125,33 @@
     onSignedIn(fn){
       signedInListeners.push(fn);
     },
-    async signUpWithPassword(email, password){
+    // Checked client-side before ever submitting the sign-up form, so a taken name gets
+    // caught immediately rather than surfacing as a confusing failure from the trigger's
+    // unique-constraint backstop after the fact.
+    async checkUsernameAvailable(username){
+      const { data, error } = await sb.rpc('username_available', { check_username: username });
+      if (error){ console.error('username availability check failed:', error.message); throw error; }
+      return !!data;
+    },
+    async signUpWithPassword(email, password, username){
       const { error } = await sb.auth.signUp({
         email,
         password,
-        options: { emailRedirectTo: window.location.href }
+        options: { emailRedirectTo: window.location.href, data: { username } }
       });
       if (error) throw error;
     },
-    async signInWithPassword(email, password){
+    // Accepts either an email or a username. Supabase's own sign-in only understands email
+    // (or phone) — a username has to be resolved to its email first via a narrow lookup
+    // function, then handed to the normal password sign-in.
+    async signInWithIdentifier(identifier, password){
+      let email = identifier;
+      if (identifier.indexOf('@') === -1){
+        const { data, error } = await sb.rpc('email_for_username', { check_username: identifier });
+        if (error){ console.error('username lookup failed:', error.message); throw new Error('Could not sign in — check your connection and try again.'); }
+        if (!data) throw new Error('No account found with that username.');
+        email = data;
+      }
       const { error } = await sb.auth.signInWithPassword({ email, password });
       if (error) throw error;
     },
@@ -142,6 +163,17 @@
     // reset-password email link).
     async updatePassword(newPassword){
       const { error } = await sb.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+    },
+    async getMyProfile(){
+      if (!state.session) return null;
+      const { data, error } = await sb.from('profiles').select('username').eq('id', state.session.user.id).single();
+      if (error){ console.error('profile fetch failed:', error.message); return null; }
+      return data;
+    },
+    async updateUsername(newUsername){
+      if (!state.session) throw new Error('Not signed in.');
+      const { error } = await sb.from('profiles').update({ username: newUsername }).eq('id', state.session.user.id);
       if (error) throw error;
     },
     async signOut(){

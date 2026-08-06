@@ -30,6 +30,7 @@
       </div>
       <div class="account-strip" id="accountStrip">
         <span class="streak-lbl" id="accountLabel">OFFLINE</span>
+        <button id="accountUsernameBtn" class="account-btn" style="display:none;">CHANGE USERNAME</button>
         <button id="accountActionBtn" class="account-btn">SIGN IN</button>
       </div>
     </div>
@@ -672,7 +673,7 @@
     </div>
 
     <div id="authSignInPanel">
-      <input type="email" id="authSignInEmail" class="auth-input" placeholder="you@email.com" autocomplete="email">
+      <input type="text" id="authSignInEmail" class="auth-input" placeholder="Email or username" autocomplete="username">
       <div class="auth-password-wrap">
         <input type="password" id="authSignInPassword" class="auth-input" placeholder="Password" autocomplete="current-password">
         <button type="button" class="auth-eye-btn" data-target="authSignInPassword" aria-label="Show password"></button>
@@ -685,6 +686,9 @@
       <p class="auth-blurb">Create an account to sync your bests and appear on the global leaderboard. We'll email you a verification link — your scores start syncing once you confirm it.</p>
       <label class="auth-label" for="authSignUpEmail">Email</label>
       <input type="email" id="authSignUpEmail" class="auth-input" placeholder="you@email.com" autocomplete="email">
+      <label class="auth-label" for="authSignUpUsername">Username</label>
+      <input type="text" id="authSignUpUsername" class="auth-input" placeholder="What shows on the leaderboard" autocomplete="username" maxlength="20">
+      <div class="auth-status" id="authUsernameStatus"></div>
       <label class="auth-label" for="authSignUpPassword">Password</label>
       <div class="auth-password-wrap">
         <input type="password" id="authSignUpPassword" class="auth-input" placeholder="Min 6 characters" autocomplete="new-password">
@@ -716,6 +720,14 @@
         <button type="button" class="auth-eye-btn" data-target="authRecoveryConfirm" aria-label="Show password"></button>
       </div>
       <button id="authRecoverySetBtn" class="auth-submit">SET NEW PASSWORD</button>
+    </div>
+
+    <div id="authAccountPanel" style="display:none;">
+      <p class="auth-blurb">Signed in as <strong id="authAccountEmail">—</strong>. This is what shows on the global leaderboard.</p>
+      <label class="auth-label" for="authAccountUsername">Username</label>
+      <input type="text" id="authAccountUsername" class="auth-input" placeholder="Loading…" autocomplete="username" maxlength="20">
+      <div class="auth-status" id="authAccountUsernameStatus"></div>
+      <button id="authAccountSaveBtn" class="auth-submit">SAVE USERNAME</button>
     </div>
 
     <div class="auth-status" id="authStatus"></div>
