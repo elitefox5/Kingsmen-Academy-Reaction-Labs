@@ -28,6 +28,7 @@
   const accountStrip = document.getElementById('accountStrip');
   const accountLabel = document.getElementById('accountLabel');
   const accountActionBtn = document.getElementById('accountActionBtn');
+  const accountUsernameBtn = document.getElementById('accountUsernameBtn');
   const authModal = document.getElementById('authModal');
   const authClose = document.getElementById('authClose');
   const authTitle = document.getElementById('authTitle');
@@ -44,6 +45,8 @@
   const authSignInBtn = document.getElementById('authSignInBtn');
   const authForgotBtn = document.getElementById('authForgotBtn');
   const authSignUpEmail = document.getElementById('authSignUpEmail');
+  const authSignUpUsername = document.getElementById('authSignUpUsername');
+  const authUsernameStatus = document.getElementById('authUsernameStatus');
   const authSignUpPassword = document.getElementById('authSignUpPassword');
   const authSignUpConfirm = document.getElementById('authSignUpConfirm');
   const authSignUpBtn = document.getElementById('authSignUpBtn');
@@ -53,6 +56,11 @@
   const authRecoveryPassword = document.getElementById('authRecoveryPassword');
   const authRecoveryConfirm = document.getElementById('authRecoveryConfirm');
   const authRecoverySetBtn = document.getElementById('authRecoverySetBtn');
+  const authAccountPanel = document.getElementById('authAccountPanel');
+  const authAccountEmail = document.getElementById('authAccountEmail');
+  const authAccountUsername = document.getElementById('authAccountUsername');
+  const authAccountUsernameStatus = document.getElementById('authAccountUsernameStatus');
+  const authAccountSaveBtn = document.getElementById('authAccountSaveBtn');
   const lbPersonalTabBtn = document.getElementById('lbPersonalTabBtn');
   const lbGlobalTabBtn = document.getElementById('lbGlobalTabBtn');
   const lbPersonalPanel = document.getElementById('lbPersonalPanel');
@@ -664,7 +672,7 @@
   });
 
   function showAuthPanel(which){
-    [authSignInPanel, authSignUpPanel, authForgotPanel, authRecoveryPanel].forEach(panel => {
+    [authSignInPanel, authSignUpPanel, authForgotPanel, authRecoveryPanel, authAccountPanel].forEach(panel => {
       panel.style.display = (panel.id === which) ? '' : 'none';
     });
     const onTabbedPanel = which === 'authSignInPanel' || which === 'authSignUpPanel';
@@ -672,9 +680,12 @@
     authSignInTabBtn.classList.toggle('selected', which === 'authSignInPanel');
     authSignUpTabBtn.classList.toggle('selected', which === 'authSignUpPanel');
     authTitle.textContent = which === 'authRecoveryPanel' ? 'Set New Password'
-      : which === 'authForgotPanel' ? 'Reset Password' : 'Account';
+      : which === 'authForgotPanel' ? 'Reset Password'
+      : which === 'authAccountPanel' ? 'Change Username' : 'Account';
     authStatus.textContent = '';
     authStatus.className = 'auth-status';
+    authUsernameStatus.textContent = '';
+    authUsernameStatus.className = 'auth-status';
   }
 
   function openAuthModal(){
@@ -688,22 +699,50 @@
     showingRecovery = false;
   }
 
+  // Opened instead of an immediate sign-out when an already-signed-in player clicks the
+  // account strip — lets them rename themselves before deciding whether to sign out.
+  async function openAccountPanel(){
+    showAuthPanel('authAccountPanel');
+    authModal.classList.add('show');
+    const session = window.KA_cloud.session;
+    authAccountEmail.textContent = session ? session.user.email : '—';
+    authAccountUsername.value = '';
+    authAccountUsername.placeholder = 'Loading…';
+    authAccountUsername.disabled = true;
+    try {
+      const profile = await window.KA_cloud.getMyProfile();
+      authAccountUsername.value = profile ? profile.username : '';
+      authAccountUsername.placeholder = 'Username';
+    } catch(e){
+      authAccountUsername.placeholder = 'Could not load';
+    } finally {
+      authAccountUsername.disabled = false;
+    }
+  }
+
   function renderAccountStrip(session){
     if (session){
       accountStrip.classList.add('signed-in');
       accountLabel.textContent = session.user.email;
       accountActionBtn.textContent = 'SIGN OUT';
+      accountUsernameBtn.style.display = '';
     } else {
       accountStrip.classList.remove('signed-in');
       accountLabel.textContent = 'OFFLINE';
       accountActionBtn.textContent = 'SIGN IN';
+      accountUsernameBtn.style.display = 'none';
     }
   }
 
   accountActionBtn.addEventListener('click', () => {
-    if (window.KA_cloud.isSignedIn()) window.KA_cloud.signOut();
-    else openAuthModal();
+    if (window.KA_cloud.isSignedIn()){
+      window.KA_cloud.signOut();
+      closeAuthModal();
+    } else {
+      openAuthModal();
+    }
   });
+  accountUsernameBtn.addEventListener('click', openAccountPanel);
   authClose.addEventListener('click', closeAuthModal);
   authModal.addEventListener('click', (e) => { if (e.target.id === 'authModal') closeAuthModal(); });
 
@@ -718,14 +757,14 @@
   });
 
   authSignInBtn.addEventListener('click', async () => {
-    const email = authSignInEmail.value.trim();
+    const identifier = authSignInEmail.value.trim();
     const password = authSignInPassword.value;
-    if (!email || email.indexOf('@') === -1){ setAuthError('Enter a valid email.'); return; }
+    if (!identifier){ setAuthError('Enter your email or username.'); return; }
     if (!password){ setAuthError('Enter your password.'); return; }
     authSignInBtn.disabled = true;
     setAuthStatus('Signing in…');
     try {
-      await window.KA_cloud.signInWithPassword(email, password);
+      await window.KA_cloud.signInWithIdentifier(identifier, password);
     } catch (err){
       setAuthError(authErrorMessage(err, 'Sign in failed — check your connection and try again.'));
     } finally {
@@ -733,17 +772,84 @@
     }
   });
 
+  authAccountSaveBtn.addEventListener('click', async () => {
+    const newUsername = authAccountUsername.value.trim();
+    const fmtErr = usernameFormatError(newUsername);
+    if (fmtErr){
+      authAccountUsernameStatus.textContent = fmtErr;
+      authAccountUsernameStatus.className = 'auth-status error';
+      return;
+    }
+    authAccountSaveBtn.disabled = true;
+    authAccountUsernameStatus.textContent = 'Saving…';
+    authAccountUsernameStatus.className = 'auth-status';
+    try {
+      const available = await window.KA_cloud.checkUsernameAvailable(newUsername);
+      if (!available){
+        authAccountUsernameStatus.textContent = 'That username is taken.';
+        authAccountUsernameStatus.className = 'auth-status error';
+        return;
+      }
+      await window.KA_cloud.updateUsername(newUsername);
+      authAccountUsernameStatus.textContent = '✓ Username updated.';
+      authAccountUsernameStatus.className = 'auth-status';
+    } catch (err){
+      authAccountUsernameStatus.textContent = authErrorMessage(err, 'Could not update username — check your connection and try again.');
+      authAccountUsernameStatus.className = 'auth-status error';
+    } finally {
+      authAccountSaveBtn.disabled = false;
+    }
+  });
+
+  // ---- Username: format check, then a live "is it taken" check as they type -------------
+  const USERNAME_RE = /^[a-zA-Z0-9_-]{3,20}$/;
+  function usernameFormatError(username){
+    if (!username) return 'Enter a username.';
+    if (!USERNAME_RE.test(username)) return '3-20 characters: letters, numbers, _ and - only.';
+    return null;
+  }
+  let usernameCheckToken = 0;
+  authSignUpUsername.addEventListener('input', () => {
+    const username = authSignUpUsername.value.trim();
+    const myToken = ++usernameCheckToken;
+    const fmtErr = usernameFormatError(username);
+    if (fmtErr){
+      authUsernameStatus.textContent = username ? fmtErr : '';
+      authUsernameStatus.className = 'auth-status' + (username ? ' error' : '');
+      return;
+    }
+    authUsernameStatus.textContent = 'Checking…';
+    authUsernameStatus.className = 'auth-status';
+    window.KA_cloud.checkUsernameAvailable(username).then(available => {
+      if (myToken !== usernameCheckToken) return; // a newer keystroke already superseded this check
+      authUsernameStatus.textContent = available ? '✓ Available' : 'Already taken.';
+      authUsernameStatus.className = 'auth-status' + (available ? '' : ' error');
+    }).catch(() => {
+      if (myToken !== usernameCheckToken) return;
+      authUsernameStatus.textContent = '';
+    });
+  });
+
   authSignUpBtn.addEventListener('click', async () => {
     const email = authSignUpEmail.value.trim();
+    const username = authSignUpUsername.value.trim();
     const password = authSignUpPassword.value;
     const confirm = authSignUpConfirm.value;
     if (!email || email.indexOf('@') === -1){ setAuthError('Enter a valid email.'); return; }
+    const fmtErr = usernameFormatError(username);
+    if (fmtErr){ setAuthError(fmtErr); return; }
     if (password.length < 6){ setAuthError('Password must be at least 6 characters.'); return; }
     if (password !== confirm){ setAuthError("Passwords don't match."); return; }
     authSignUpBtn.disabled = true;
-    setAuthStatus('Creating account…');
+    setAuthStatus('Checking username…');
     try {
-      await window.KA_cloud.signUpWithPassword(email, password);
+      const available = await window.KA_cloud.checkUsernameAvailable(username);
+      if (!available){
+        setAuthError('That username is taken — pick another.');
+        return;
+      }
+      setAuthStatus('Creating account…');
+      await window.KA_cloud.signUpWithPassword(email, password, username);
       setAuthStatus('Account created — check your email to verify it, then sign in.');
     } catch (err){
       setAuthError(authErrorMessage(err, 'Could not create account — check your connection and try again.'));
@@ -864,9 +970,14 @@
     return opts;
   }
 
+  // Top-10 lists are fetched lazily (only once a row's actually clicked open) and cached
+  // here so re-toggling the same row doesn't re-hit the network every time.
+  const globalTop10Cache = new Map();
+
   async function renderGlobalLeaderboard(){
     const entries = globalLeaderboardEntries();
     const categories = ['Reaction Speed', 'Processing Speed', 'Processing Complexity', 'Memory'];
+    globalTop10Cache.clear();
 
     // Render every row immediately in a loading state, then fill each in as its own query
     // resolves — one game's slow request shouldn't hold up the other 43 rows.
@@ -874,7 +985,8 @@
       const rows = entries.filter(e => e.category === cat);
       if (!rows.length) return '';
       const rowsHtml = rows.map(e =>
-        `<div class="leaderboard-row unplayed" data-key="${e.key}"><span class="lr-rank">#1</span><span class="lr-game">${e.label}</span><span class="lr-val">Loading…</span></div>`
+        `<div class="leaderboard-row unplayed" data-key="${e.key}"><span class="lr-rank">#1</span><span class="lr-game">${e.label}</span><span class="lr-val">Loading…</span><span class="lr-chevron">&#9656;</span></div>` +
+        `<div class="leaderboard-expand" data-expand="${e.key}"></div>`
       ).join('');
       return `<div class="leaderboard-section"><div class="leaderboard-section-title">${cat}</div><div class="leaderboard-list">${rowsHtml}</div></div>`;
     }).join('');
@@ -886,13 +998,45 @@
       const top = rows[0];
       if (!top){
         row.querySelector('.lr-val').textContent = 'No scores yet';
+        row.querySelector('.lr-chevron').style.visibility = 'hidden';
         return;
       }
       const name = (top.profiles && top.profiles.username) || 'Unknown';
       row.classList.remove('unplayed');
+      row.classList.add('expandable');
       row.querySelector('.lr-val').textContent = e.format(top.value) + ' — ' + name;
     });
   }
+
+  // Clicking a played row expands/collapses its top 10 — fetched once per render, on demand,
+  // rather than pulling 10 rows for all ~44 entries up front when most will never be opened.
+  lbGlobalSections.addEventListener('click', async (e) => {
+    const row = e.target.closest('.leaderboard-row.expandable');
+    if (!row) return;
+    const key = row.getAttribute('data-key');
+    const panel = lbGlobalSections.querySelector(`[data-expand="${CSS.escape(key)}"]`);
+    if (!panel) return;
+
+    const isOpen = row.classList.contains('open');
+    row.classList.toggle('open', !isOpen);
+    panel.style.display = isOpen ? 'none' : '';
+    if (isOpen || globalTop10Cache.has(key)){
+      if (!isOpen) panel.innerHTML = globalTop10Cache.get(key);
+      return;
+    }
+
+    panel.innerHTML = '<div class="leaderboard-row unplayed"><span class="lr-game">Loading top 10…</span></div>';
+    const entry = globalLeaderboardEntries().find(x => x.key === key);
+    const top10 = await window.KA_cloud.fetchLeaderboard(key, entry.higherIsBetter, 10);
+    const html = top10.length
+      ? top10.map((r, i) => {
+          const name = (r.profiles && r.profiles.username) || 'Unknown';
+          return `<div class="leaderboard-row"><span class="lr-rank">#${i + 1}</span><span class="lr-game">${name}</span><span class="lr-val">${entry.format(r.value)}</span></div>`;
+        }).join('')
+      : '<div class="leaderboard-row unplayed"><span class="lr-game">No scores yet</span></div>';
+    panel.innerHTML = html;
+    globalTop10Cache.set(key, html);
+  });
 
   function showGlobalPanelForAuthState(){
     if (window.KA_cloud.isSignedIn()){

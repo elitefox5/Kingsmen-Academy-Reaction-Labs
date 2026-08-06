@@ -15,8 +15,10 @@
 --     foreign key (user_id) references public.profiles(id) on delete cascade;
 --
 -- Then run the rest of this file as normal — the policy sections below also replace the
--- old "viewable by everyone" (anonymous-readable) policies with signed-in-only ones, so
--- re-running them takes care of that too. No separate step needed for that part.
+-- old "viewable by everyone" (anonymous-readable) policies with signed-in-only ones, add
+-- player-chosen usernames (a unique constraint, an updated sign-up trigger, and a new
+-- username_available() check), and add sign-in-by-username support (email_for_username()),
+-- so re-running the whole file takes care of all of that too. No separate step needed.
 --
 -- Design note: `records` mirrors the app's local `ka_record_<key>` keyspace exactly —
 -- same flat key/value shape, one row per (user, key). The rank tiers themselves are never
@@ -24,14 +26,20 @@
 -- (see js/core/shared.js), so recalibrating the rank ladders later needs no migration here.
 
 -- ---------------------------------------------------------------------------------------
--- profiles — one row per signed-up user. Username defaults to the email's local part and
--- is public (needed to label rows on the global leaderboard).
+-- profiles — one row per signed-up user. username is player-chosen at sign-up (passed
+-- through as auth metadata — see js/core/cloud.js) and is what the leaderboard displays.
+-- Falls back to the email's local part only if it somehow arrives without one.
 -- ---------------------------------------------------------------------------------------
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   username text not null,
   created_at timestamptz not null default now()
 );
+
+-- Two players can't hold the same displayed name — the leaderboard couldn't tell them
+-- apart. Drop-then-add keeps this safe to re-run.
+alter table public.profiles drop constraint if exists profiles_username_key;
+alter table public.profiles add constraint profiles_username_key unique (username);
 
 alter table public.profiles enable row level security;
 
@@ -57,6 +65,10 @@ create policy "users can update own profile"
   using (auth.uid() = id);
 
 -- Auto-creates a profile row the moment someone signs up, so the app never has to.
+-- The username comes from auth metadata (signUp's `options.data.username`) — the app
+-- already checked it was free via username_available() before ever submitting the form,
+-- so this should never collide in normal use; the unique constraint is the hard backstop
+-- for the rare race (two people claiming the same name in the same instant).
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
@@ -64,7 +76,7 @@ security definer set search_path = public
 as $$
 begin
   insert into public.profiles (id, username)
-  values (new.id, split_part(new.email, '@', 1));
+  values (new.id, coalesce(new.raw_user_meta_data->>'username', split_part(new.email, '@', 1)));
   return new;
 end;
 $$;
@@ -73,6 +85,48 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
+
+-- Lets an anonymous visitor (mid sign-up, not authenticated yet) check whether a username
+-- is free without exposing anything else — the profiles SELECT policy above deliberately
+-- requires being signed in, so this is the one narrow, safe exception carved out for it.
+-- Also used when an already-signed-in player renames themselves — `id is distinct from
+-- auth.uid()` excludes their own current row so their unchanged name doesn't read as taken
+-- (auth.uid() is null for the anonymous sign-up case, where this exclusion is simply a
+-- no-op — nobody is signed in yet to exclude).
+create or replace function public.username_available(check_username text)
+returns boolean
+language sql
+security definer set search_path = public
+stable
+as $$
+  select not exists (
+    select 1 from public.profiles
+    where username = check_username
+      and id is distinct from auth.uid()
+  );
+$$;
+
+grant execute on function public.username_available(text) to anon, authenticated;
+
+-- Lets someone sign in with their username instead of their email: the app looks up the
+-- matching email here first, then calls the normal password sign-in with it. This is the
+-- one deliberate, narrow privacy tradeoff in this schema — anyone can pair a public
+-- username (already visible on the leaderboard) with the account's email address this way.
+-- Acceptable for a small trusted group; worth reconsidering before this ever goes public.
+create or replace function public.email_for_username(check_username text)
+returns text
+language sql
+security definer set search_path = public
+stable
+as $$
+  select au.email::text
+  from auth.users au
+  join public.profiles p on p.id = au.id
+  where p.username = check_username
+  limit 1;
+$$;
+
+grant execute on function public.email_for_username(text) to anon, authenticated;
 
 -- ---------------------------------------------------------------------------------------
 -- records — the cloud mirror of KA_records. One row per (user, key); upserted on every
