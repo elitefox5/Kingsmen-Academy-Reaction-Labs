@@ -749,6 +749,9 @@
     font-family:var(--mono);
     font-size:12px;
     border-bottom:1px solid var(--grid);
+    /* Solid, not translucent — a translucent fill still lets the page's background grid
+       lines bleed through and cut across the text, which reads as visual noise. */
+    background:linear-gradient(135deg, #0b1520 0%, #05070a 100%);
   }
   .leaderboard-row:last-child{ border-bottom:none; }
   .leaderboard-row .lr-rank{
@@ -762,7 +765,11 @@
   .leaderboard-row.unplayed .lr-val{ color:var(--dim); }
 
   .leaderboard-row.expandable{ cursor:pointer; }
-  .leaderboard-row.expandable:hover{ background:rgba(255,176,0,0.06); }
+  /* Layered on top of the solid fill (not a bare translucent background) so hovering
+     doesn't reintroduce the grid-bleed-through problem this fill exists to prevent. */
+  .leaderboard-row.expandable:hover{
+    background:linear-gradient(rgba(255,176,0,0.08), rgba(255,176,0,0.08)), linear-gradient(135deg, #0b1520 0%, #05070a 100%);
+  }
   .leaderboard-row .lr-chevron{
     width:14px;
     text-align:right;
@@ -772,12 +779,13 @@
   .leaderboard-row.open .lr-chevron{ transform:rotate(90deg); color:var(--gold-bright); }
   .leaderboard-expand{
     display:none;
-    background:rgba(255,255,255,0.015);
+    background:#04070a;
     border-bottom:1px solid var(--grid);
   }
   .leaderboard-expand .leaderboard-row{
     padding-left:39px;
     font-size:11px;
+    background:linear-gradient(135deg, #081019 0%, #030405 100%);
     border-bottom:1px solid rgba(255,255,255,0.04);
   }
   .leaderboard-expand .leaderboard-row:last-child{ border-bottom:none; }

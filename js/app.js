@@ -1010,12 +1010,23 @@
 
   // Clicking a played row expands/collapses its top 10 — fetched once per render, on demand,
   // rather than pulling 10 rows for all ~44 entries up front when most will never be opened.
+  //
+  // A per-key token guards against a real race: click once (opens, starts fetching), click
+  // again quickly (closes it again) — without this, the first click's fetch can still resolve
+  // afterward and write real, correct content into a panel that's since been closed, which
+  // looks exactly like "nothing happened" since the content is there but hidden. The token
+  // has to advance on every click for the key — including ones that just close it — since a
+  // close is exactly what needs to invalidate a fetch already in flight from the open before it.
+  const globalTop10Tokens = new Map();
   lbGlobalSections.addEventListener('click', async (e) => {
     const row = e.target.closest('.leaderboard-row.expandable');
     if (!row) return;
     const key = row.getAttribute('data-key');
     const panel = lbGlobalSections.querySelector(`[data-expand="${CSS.escape(key)}"]`);
     if (!panel) return;
+
+    const myToken = (globalTop10Tokens.get(key) || 0) + 1;
+    globalTop10Tokens.set(key, myToken);
 
     const isOpen = row.classList.contains('open');
     row.classList.toggle('open', !isOpen);
@@ -1028,6 +1039,7 @@
     panel.innerHTML = '<div class="leaderboard-row unplayed"><span class="lr-game">Loading top 10…</span></div>';
     const entry = globalLeaderboardEntries().find(x => x.key === key);
     const top10 = await window.KA_cloud.fetchLeaderboard(key, entry.higherIsBetter, 10);
+    if (globalTop10Tokens.get(key) !== myToken) return; // superseded by a later click on this row
     const html = top10.length
       ? top10.map((r, i) => {
           const name = (r.profiles && r.profiles.username) || 'Unknown';
