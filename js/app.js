@@ -1030,7 +1030,7 @@
 
     const isOpen = row.classList.contains('open');
     row.classList.toggle('open', !isOpen);
-    panel.style.display = isOpen ? 'none' : '';
+    panel.style.display = isOpen ? 'none' : 'block';
     if (isOpen || globalTop10Cache.has(key)){
       if (!isOpen) panel.innerHTML = globalTop10Cache.get(key);
       return;
