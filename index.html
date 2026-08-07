@@ -375,29 +375,31 @@
     <h1>Theory</h1>
   </div>
   <div class="theory-inner">
-    <p class="menu-lede">Reaction time isn't one skill — it's detection, decision, movement, and prediction, stacked together. A 160&nbsp;ms player who predicts well will beat a 130&nbsp;ms player who doesn't. Here's what actually moves the needle, and what doesn't.</p>
+    <p class="menu-lede">Reaction time isn't one skill — it's detection, decision, movement, and prediction, stacked together. A 170&nbsp;ms player who predicts well will beat a 150&nbsp;ms player who doesn't. Here's what actually moves the needle, and what doesn't.</p>
 
     <div class="theory-callout">
-      <div class="theory-callout-title">The Four-Part Model</div>
+      <div class="theory-callout-title">A Four-Part Model</div>
       <div class="theory-callout-grid">
-        <div><b>Detection</b> — spotting the stimulus. Trained by Colour Flick, Peripheral Ping, Flash Reflex.</div>
+        <div><b>Detection</b> — spotting the stimulus. Trained by Base Reflex, Peripheral Ping, Flash Reflex.</div>
         <div><b>Decision</b> — picking the right response among options. Trained by Choice Reaction, Go/No-Go, Parity Rush.</div>
         <div><b>Movement</b> — executing the click cleanly. Trained by Trigger Discipline, Flanker Task.</div>
         <div><b>Prediction</b> — recognizing a pattern so the decision is already made. Trained by Simon Sequence, Symbol 1-Back.</div>
       </div>
-      <p>Shaving 10&nbsp;ms off raw detection is genuinely hard. Shaving 30–80&nbsp;ms off decision time through pattern recognition and experience is often realistic — and matters more in a real game than a faster raw reflex.</p>
+      <p>The first three are the actual processing chain, in order. Prediction isn't a fourth step in that chain — it's what lets you skip most of it, which is exactly why it's worth training separately. Shaving 10&nbsp;ms off raw detection is genuinely hard. Shaving 30–80&nbsp;ms off decision time through pattern recognition and experience is often realistic — and matters more in a real game than a faster raw reflex.</p>
     </div>
 
     <div class="theory-callout">
       <div class="theory-callout-title">How Fast Can a Human Get?</div>
       <table class="theory-table">
         <tr><th>Level</th><th>Visual reaction</th></tr>
-        <tr><td>Average adult</td><td>220–270 ms</td></tr>
-        <tr><td>Competitive gamer</td><td>170–220 ms</td></tr>
-        <tr><td>Excellent</td><td>150–170 ms</td></tr>
+        <tr><td>Average adult</td><td>245–280 ms</td></tr>
+        <tr><td>Above average</td><td>220–245 ms</td></tr>
+        <tr><td>Competitive gamer</td><td>180–220 ms</td></tr>
+        <tr><td>Excellent</td><td>150–180 ms</td></tr>
         <tr><td>Elite</td><td>130–150 ms</td></tr>
-        <tr><td>Exceptional, consistently repeatable</td><td>120–130 ms</td></tr>
+        <tr><td>Exceptional, consistently repeatable</td><td>Under 130 ms</td></tr>
       </table>
+      <p>These are click-measured numbers, which run slower than lab studies using a button box — the click itself costs you time. That's deliberate: it's the same way this app measures, so the bands above line up with the rank tiers you'll actually be given (Silver sits on the population average, Gold just above it).</p>
       <p>Below ~120&nbsp;ms as a sustained average is extraordinarily rare — you're pushing against nerve conduction and muscle activation limits, not just skill. Isolated sub-110&nbsp;ms trials happen; holding that average over many trials essentially doesn't. Watch for anticipation: a predictable rhythm or a narrow random interval lets people unconsciously guess. A test measuring genuine reaction needs wide, unpredictable timing and should penalize early clicks.</p>
     </div>
 
@@ -412,7 +414,7 @@
             <li>Muscle fiber composition</li>
             <li>Baseline dopamine levels</li>
             <li>Visual processing speed &amp; brain structure</li>
-            <li>Age — reaction speed typically peaks in the early-to-mid 20s</li>
+            <li>Age — peaks in the early-to-mid 20s, but the drop-off is gentle: simple reaction barely slows until around 50, while choice reaction (picking between options) declines steadily right through adulthood</li>
           </ul>
         </div>
       </details>
@@ -427,7 +429,7 @@
             <li>Eliminate accumulated sleep debt</li>
             <li>Treat sleep apnea if present</li>
             <li>Avoid alcohol before bed</li>
-            <li>Reduce blue light before sleeping</li>
+            <li>Dim screens and lights before bed — overall brightness and what you're doing matter more than blue light specifically</li>
             <li>Keep the room cool</li>
           </ul>
         </div>
@@ -464,6 +466,8 @@
             <tr><td>360 Hz</td><td>2.8 ms</td></tr>
             <tr><td>540 Hz</td><td>1.85 ms</td></tr>
           </table>
+          <p>Read those as granularity, not as a straight saving. An enemy can appear at any moment within a frame, so on average you wait about <em>half</em> an interval for the screen to show it — going 60&nbsp;Hz to 240&nbsp;Hz buys you roughly 6&nbsp;ms on average, not 12.5.</p>
+          <p>And when researchers held latency constant and varied <em>only</em> refresh rate, the refresh rate itself mattered surprisingly little above 60&nbsp;Hz — most of what a high-Hz monitor gives you is the lower latency that comes packaged with it. Chasing end-to-end latency is the better spend; going from 240&nbsp;Hz to 360&nbsp;Hz on its own is near the bottom of this list.</p>
           <ul>
             <li>Low-persistence display</li>
             <li>Fast pixel response</li>
@@ -507,7 +511,7 @@
           <ul>
             <li>Creatine — small cognitive benefits, particularly under sleep deprivation</li>
             <li>Beetroot nitrates — may improve cerebral blood flow, though evidence is mixed</li>
-            <li>L-theanine + caffeine — well supported for smoother focus and less jitter than caffeine alone</li>
+            <li>L-theanine + caffeine — reasonably supported for smoother focus and less jitter than caffeine alone</li>
           </ul>
         </div>
       </details>
@@ -519,7 +523,7 @@
           <ul>
             <li>Cardio: running, cycling, swimming, rowing</li>
             <li>Strength training — improves motor unit recruitment, movement speed, and fatigue resistance</li>
-            <li>Neck strength — some evidence for better head stability and less fatigue over long sessions</li>
+            <li>Neck &amp; postural strength — helps comfort and fatigue over long sessions; the head-stability research behind it comes from contact sports, not gaming</li>
           </ul>
         </div>
       </details>
@@ -551,6 +555,9 @@
           </ul>
           <p class="ti-note">Prediction training</p>
           <p>The biggest gap between professionals and average players. Pros rarely react to a raw stimulus — they predict it (a rotate about to open, a common re-peek timing), so the reaction effectively starts before the event happens.</p>
+          <p class="ti-note">What this kind of training can and can't do</p>
+          <p>Worth being straight about: reaction training transfers narrowly. You mostly get better at the specific task you trained, and the gains shrink the further the drill sits from the real thing. That's the actual reason the generic "brain training" apps listed further down don't work — not that training is useless, but that training something unrelated to what you do buys you nothing at the thing you care about.</p>
+          <p>It's also the standard these modules are built to: Siege-shaped cues, go/no-go on teammates, vertical directional bias, wide unpredictable timing that punishes guessing. The honest expectation is sharper individual components and a clear, tracked picture of your own numbers and weak spots — not a global reaction upgrade that follows you into every game you play.</p>
         </div>
       </details>
 
@@ -571,8 +578,8 @@
           </ul>
           <p>The goal isn't to be as calm as possible — there's a sweet spot between too relaxed (slow) and too stressed (inaccurate) where reactions are both fast and consistent. That's the Yerkes–Dodson relationship, if you want the term for it.</p>
           <p>This is the exact gap between a player who plays clean in ranked or scrims and one who tunnel-visions
-            and whiffs the read in a 1v1 for match point — same mechanical skill, different arousal level.
-            The stakes spike pushes them past the peak of the curve:
+            and whiffs the read in a 1v1 for match point — same mechanical skill, different arousal level.</p>
+          <p>The stakes spike pushes them past the peak of the curve:
             heart rate climbs, attention narrows onto whatever feels most threatening instead of what's actually relevant,
             and reflexes that were automatic a minute earlier start needing conscious effort, which is both slower and more error-prone.
             It's also why scrims don't fully prepare you for that moment either; scrim pressure is real, but it rarely matches the arousal
@@ -599,7 +606,7 @@
             <li>Audio cues — footsteps through soft walls, drone/cam beeps, gadget deploy sounds (Kaid claw, Jäger ADS, Bandit battery hum), breach charges</li>
             <li>Utility usage — knowing what a sound or a destroyed gadget tells you about intent</li>
           </ul>
-          <p>A player with a 170&nbsp;ms simple reaction who's acting on expectation will often beat a 120&nbsp;ms player reacting to genuine surprise — this is most of what separates a ranked grinder from a pro in Siege specifically, since so much of the game is pre-fight information, not raw aim.</p>
+          <p>A player with a 170&nbsp;ms simple reaction who's acting on expectation will often beat a 150&nbsp;ms player reacting to genuine surprise — this is most of what separates a ranked grinder from a pro in Siege specifically, since so much of the game is pre-fight information, not raw aim.</p>
           <p class="ti-note">Measure the right things</p>
           <ul>
             <li>Average reaction time</li>
@@ -640,6 +647,48 @@
             <li>Binaural beats</li>
             <li>Colored room lighting</li>
           </ul>
+        </div>
+      </details>
+
+      <details class="theory-item">
+        <summary>References</summary>
+        <div class="ti-body">
+          <p>The claims above lean on the sources below. Where this page says evidence is thin, that's usually because a source like the Cochrane review or the brain-training paper says so directly — not because we're hedging.</p>
+
+          <p class="ti-note">Reaction time &amp; ageing</p>
+          <ul class="ti-refs">
+            <li>Hick, W. E. (1952). On the rate of gain of information. <i>Quarterly Journal of Experimental Psychology</i>, 4(1), 11–26. <a href="https://www.tandfonline.com/doi/abs/10.1080/17470215208416600" target="_blank" rel="noopener">Link</a><span class="ref-for">Choice reaction slows as the number of options grows — the basis of the Decision stage.</span></li>
+            <li>Der, G., &amp; Deary, I. J. (2006). Age and sex differences in reaction time in adulthood. <i>Psychology and Aging</i>, 21(1), 62–73. <a href="https://pubmed.ncbi.nlm.nih.gov/16594792/" target="_blank" rel="noopener">Link</a><span class="ref-for">7,130 adults. Simple reaction holds up until roughly 50; choice reaction declines throughout adulthood.</span></li>
+          </ul>
+
+          <p class="ti-note">Sleep, stress &amp; arousal</p>
+          <ul class="ti-refs">
+            <li>Van Dongen, H. P. A., Maislin, G., Mullington, J. M., &amp; Dinges, D. F. (2003). The cumulative cost of additional wakefulness. <i>Sleep</i>, 26(2), 117–126. <a href="https://academic.oup.com/sleep/article-abstract/26/2/117/2709164" target="_blank" rel="noopener">Link</a><span class="ref-for">Even moderate sleep restriction seriously degrades reaction performance, and the cost accumulates night over night.</span></li>
+            <li>Yerkes, R. M., &amp; Dodson, J. D. (1908). The relation of strength of stimulus to rapidity of habit-formation. <i>Journal of Comparative Neurology and Psychology</i>, 18, 459–482. <a href="https://psychclassics.yorku.ca/Yerkes/Law/" target="_blank" rel="noopener">Link</a><span class="ref-for">The original arousal curve. Worth knowing it's a century-old animal study — the shape is a useful model, not a precise law.</span></li>
+          </ul>
+
+          <p class="ti-note">Nutrition &amp; fitness</p>
+          <ul class="ti-refs">
+            <li>Ganio, M. S., et al. (2011). Mild dehydration impairs cognitive performance and mood of men. <i>British Journal of Nutrition</i>, 106(10), 1535–1543. <a href="https://pubmed.ncbi.nlm.nih.gov/21736786/" target="_blank" rel="noopener">Link</a><span class="ref-for">Mild dehydration alone measurably degrades attention and vigilance.</span></li>
+            <li>McLellan, T. M., Caldwell, J. A., &amp; Lieberman, H. R. (2016). A review of caffeine's effects on cognitive, physical and occupational performance. <i>Neuroscience &amp; Biobehavioral Reviews</i>, 71, 294–312. <a href="https://pubmed.ncbi.nlm.nih.gov/27612937/" target="_blank" rel="noopener">Link</a><span class="ref-for">Doses around 0.5–4 mg/kg improve cognition, and caffeine partly offsets sleep loss.</span></li>
+            <li>Haskell, C. F., Kennedy, D. O., Milne, A. L., Wesnes, K. A., &amp; Scholey, A. B. (2008). The effects of L-theanine, caffeine and their combination on cognition and mood. <i>Biological Psychology</i>, 77(2), 113–122. <a href="https://www.sciencedirect.com/science/article/abs/pii/S0301051107001573" target="_blank" rel="noopener">Link</a><span class="ref-for">The combination beats either alone — note L-theanine on its own did not help here.</span></li>
+            <li>McMorris, T., et al. (2006). Effect of creatine supplementation and sleep deprivation on cognitive and psychomotor performance. <i>Psychopharmacology</i>, 185(1), 93–103. <a href="https://link.springer.com/article/10.1007/s00213-005-0269-z" target="_blank" rel="noopener">Link</a><span class="ref-for">Creatine reduced the decline on a choice reaction task under sleep deprivation. Its benefit in rested people is much less clear.</span></li>
+            <li>Chang, Y. K., Labban, J. D., Gapin, J. I., &amp; Etnier, J. L. (2012). The effects of acute exercise on cognitive performance: a meta-analysis. <i>Brain Research</i>, 1453, 87–101. <a href="https://pubmed.ncbi.nlm.nih.gov/22480735/" target="_blank" rel="noopener">Link</a><span class="ref-for">A real but small positive effect — worth doing, not a shortcut.</span></li>
+          </ul>
+
+          <p class="ti-note">Prediction, training &amp; transfer</p>
+          <ul class="ti-refs">
+            <li>Mann, D. T. Y., Williams, A. M., Ward, P., &amp; Janelle, C. M. (2007). Perceptual-cognitive expertise in sport: a meta-analysis. <i>Journal of Sport &amp; Exercise Psychology</i>, 29(4), 457–478. <a href="https://pubmed.ncbi.nlm.nih.gov/17968048/" target="_blank" rel="noopener">Link</a><span class="ref-for">42 studies. Experts read cues faster and more accurately, and search the scene differently — the evidence behind the prediction section.</span></li>
+            <li>Simons, D. J., et al. (2016). Do "brain-training" programs work? <i>Psychological Science in the Public Interest</i>, 17(3), 103–186. <a href="https://pubmed.ncbi.nlm.nih.gov/27697851/" target="_blank" rel="noopener">Link</a><span class="ref-for">The source for the transfer warning. Gains are largely limited to the trained task — which is why these drills are shaped like the real thing rather than generic puzzles.</span></li>
+          </ul>
+
+          <p class="ti-note">Hardware &amp; eyewear</p>
+          <ul class="ti-refs">
+            <li>Spjut, J., Boudaoud, B., Binaee, K., Kim, J., Majercik, A., McGuire, M., Luebke, D., &amp; Kim, J. (2019). Latency of 30 ms benefits first person targeting tasks more than refresh rate above 60 Hz. <i>SIGGRAPH Asia 2019 Technical Briefs</i>. <a href="https://dl.acm.org/doi/10.1145/3355088.3365170" target="_blank" rel="noopener">Link</a><span class="ref-for">With latency held constant, refresh rate above 60 Hz mattered relatively little — most of a high-Hz monitor's benefit is the latency reduction bundled with it.</span></li>
+            <li>Singh, S., et al. (2023). Blue-light filtering spectacle lenses for visual performance, sleep, and macular health in adults. <i>Cochrane Database of Systematic Reviews</i>. <a href="https://www.cochranelibrary.com/cdsr/doi/10.1002/14651858.CD013244.pub2/full" target="_blank" rel="noopener">Link</a><span class="ref-for">17 trials: probably no effect on eye strain or visual performance, and sleep effects indeterminate. This is why blue-light glasses sit in the weak-claims list.</span></li>
+          </ul>
+
+          <p>Everything else on this page — the Siege-specific material especially — is practitioner knowledge and reasoning from the above, not a citable finding. It's flagged as such where it matters.</p>
         </div>
       </details>
     </div>

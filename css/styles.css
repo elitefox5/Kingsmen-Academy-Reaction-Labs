@@ -987,6 +987,42 @@
   }
   .ti-body .ti-weak{ color:var(--miss); }
 
+  /* Reference list — serif rather than the mono used by the other theory lists, since these
+     are citations to read rather than scannable bullet points. */
+  .ti-body ul.ti-refs{
+    font-family:var(--body-serif);
+    font-size:13px;
+    line-height:1.6;
+    color:#c2c3ba;
+    list-style:none;
+    padding-left:0;
+  }
+  .ti-body ul.ti-refs li{
+    margin:0 0 12px;
+    padding-left:14px;
+    border-left:2px solid var(--gold-dim);
+  }
+  .ti-body ul.ti-refs li:last-child{ margin-bottom:0; }
+  .ti-body ul.ti-refs i{ color:var(--text); font-style:italic; }
+  .ti-body ul.ti-refs a{
+    font-family:var(--mono);
+    font-size:10px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--cyan);
+    text-decoration:none;
+    border-bottom:1px solid transparent;
+    white-space:nowrap;
+  }
+  .ti-body ul.ti-refs a:hover{ color:var(--gold-bright); border-bottom-color:var(--gold-dim); }
+  .ti-body ul.ti-refs a:focus-visible{ outline:2px solid var(--cyan); outline-offset:2px; }
+  .ti-body ul.ti-refs .ref-for{
+    display:block;
+    margin-top:4px;
+    font-size:12px;
+    color:var(--dim);
+  }
+
   .hairline{
     display:flex; align-items:center; justify-content:center; gap:14px;
     padding:0 24px;
