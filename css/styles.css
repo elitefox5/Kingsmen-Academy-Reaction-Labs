@@ -894,9 +894,9 @@
   .theory-callout p{
     font-family:var(--body-serif);
     font-style:italic;
-    font-size:13px;
-    line-height:1.7;
-    color:var(--dim);
+    font-size:14px;
+    line-height:1.75;
+    color:#c2c3ba;
     margin:0;
   }
 
@@ -961,9 +961,9 @@
   .ti-body{ padding:4px 18px 18px; }
   .ti-body p{
     font-family:var(--body-serif);
-    font-size:13px;
-    line-height:1.7;
-    color:var(--dim);
+    font-size:14px;
+    line-height:1.75;
+    color:#c2c3ba;
     margin:0 0 10px;
   }
   .ti-body p:last-child{ margin-bottom:0; }
