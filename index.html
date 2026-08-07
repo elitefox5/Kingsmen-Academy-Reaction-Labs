@@ -467,7 +467,11 @@
             <tr><td>540 Hz</td><td>1.85 ms</td></tr>
           </table>
           <p>Read those as granularity, not as a straight saving. An enemy can appear at any moment within a frame, so on average you wait about <em>half</em> an interval for the screen to show it — going 60&nbsp;Hz to 240&nbsp;Hz buys you roughly 6&nbsp;ms on average, not 12.5.</p>
-          <p>And when researchers held latency constant and varied <em>only</em> refresh rate, the refresh rate itself mattered surprisingly little above 60&nbsp;Hz — most of what a high-Hz monitor gives you is the lower latency that comes packaged with it. Chasing end-to-end latency is the better spend; going from 240&nbsp;Hz to 360&nbsp;Hz on its own is near the bottom of this list.</p>
+          <p class="ti-note">End-to-end latency</p>
+          <p>Worth pinning this term down, because it's the number that actually matters here. End-to-end latency is the total delay between something happening in the game and the light for it reaching your eyes — the whole journey, not any single piece of kit.</p>
+          <p>And that journey has a lot of stops. The game works out that an enemy stepped out. Your graphics card draws the frame. The frame waits its turn to be sent. The monitor does its own processing on it. Finally the pixels physically change colour. Each stop costs a few milliseconds, and together they add up to far more than most people expect. You'll sometimes see the same idea called "click-to-photon" — same journey, just timed from your mouse instead.</p>
+          <p>Refresh rate is only <em>one</em> of those stops, which is the catch with the table above. A 240&nbsp;Hz monitor running V-Sync with recording software in the background can genuinely lose to a well set-up 60&nbsp;Hz one, because the other stops swallowed more time than the faster panel ever saved. A sloppy setup can run north of 50&nbsp;ms end to end; a tuned one lands nearer 10–25&nbsp;ms. That gap dwarfs anything the Hz number decides by itself.</p>
+          <p>It shows up in the research too: when researchers held everything else steady and varied <em>only</em> refresh rate, the refresh rate itself mattered surprisingly little above 60&nbsp;Hz. Most of what a high-Hz monitor gives you is the lower latency bundled in alongside it. So cutting total latency is the better spend — going from 240&nbsp;Hz to 360&nbsp;Hz on its own sits near the bottom of this list.</p>
           <ul>
             <li>Low-persistence display</li>
             <li>Fast pixel response</li>
