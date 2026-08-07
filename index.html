@@ -473,14 +473,17 @@
           <p>Refresh rate is only <em>one</em> of those stops, which is the catch with the table above. A 240&nbsp;Hz monitor running V-Sync with recording software in the background can genuinely lose to a well set-up 60&nbsp;Hz one, because the other stops swallowed more time than the faster panel ever saved. A sloppy setup can run north of 50&nbsp;ms end to end; a tuned one lands nearer 10–25&nbsp;ms. That gap dwarfs anything the Hz number decides by itself.</p>
           <p>It shows up in the research too: when researchers held everything else steady and varied <em>only</em> refresh rate, the refresh rate itself mattered surprisingly little above 60&nbsp;Hz. Most of what a high-Hz monitor gives you is the lower latency bundled in alongside it. So cutting total latency is the better spend — going from 240&nbsp;Hz to 360&nbsp;Hz on its own sits near the bottom of this list.</p>
           <ul>
-            <li>Low-persistence display</li>
+            <li>Low-persistence display — mostly motion clarity rather than latency, but it makes moving targets easier to read</li>
             <li>Fast pixel response</li>
-            <li>Low input-lag monitor (check response time, not just Hz)</li>
-            <li>High polling-rate mouse &amp; keyboard</li>
+            <li>Low input-lag monitor — check measured processing lag, not just the Hz number</li>
+            <li>1000&nbsp;Hz polling on mouse and keyboard — one report every millisecond, and roughly where the returns flatten out</li>
             <li>Stable high FPS — dips hurt more than a lower average helps</li>
-            <li>NVIDIA Reflex / AMD Anti-Lag</li>
-            <li>Strip out unnecessary latency sources (wireless dongles, overlays, V-Sync where it adds lag)</li>
+            <li>NVIDIA Reflex / AMD Anti-Lag — these target the render queue, usually the single biggest stop on the journey</li>
+            <li>Cut the real offenders: V-Sync where it adds lag, and overlays or capture software sitting in the render path</li>
           </ul>
+          <p class="ti-note">Two myths worth killing</p>
+          <p><b>Wireless isn't the penalty it used to be.</b> Independent lab testing is clear on this: gaming mice using their own USB receiver now match or even beat wired models, so the 2.4&nbsp;GHz link itself is no longer the bottleneck. Two caveats though. It's per-model rather than automatic — some wireless mice still measure genuinely badly, so check a real review of the exact model instead of assuming. And keep the receiver near the mouse; that little USB extender in the box isn't padding, measured latency climbs the further away it sits. Bluetooth is the real offender, consistently the worst of any connection type — fine for browsing, not for playing.</p>
+          <p><b>Polling rate above 1000&nbsp;Hz barely moves.</b> 1000&nbsp;Hz already means one report every millisecond, so even in perfect theory 8000&nbsp;Hz can only save another 0.875&nbsp;ms — eight times the polling for a fraction of the return. Set against a chain measured in tens of milliseconds, that's noise. It isn't free, either: the extra interrupts raise CPU load, and on a system already CPU-bound that can cost you more in frame pacing than the polling gives back. Buy the sensor and the shape, not the headline number.</p>
         </div>
       </details>
 
@@ -690,7 +693,10 @@
           <ul class="ti-refs">
             <li>Spjut, J., Boudaoud, B., Binaee, K., Kim, J., Majercik, A., McGuire, M., Luebke, D., &amp; Kim, J. (2019). Latency of 30 ms benefits first person targeting tasks more than refresh rate above 60 Hz. <i>SIGGRAPH Asia 2019 Technical Briefs</i>. <a href="https://dl.acm.org/doi/10.1145/3355088.3365170" target="_blank" rel="noopener">Link</a><span class="ref-for">With latency held constant, refresh rate above 60 Hz mattered relatively little — most of a high-Hz monitor's benefit is the latency reduction bundled with it.</span></li>
             <li>Singh, S., et al. (2023). Blue-light filtering spectacle lenses for visual performance, sleep, and macular health in adults. <i>Cochrane Database of Systematic Reviews</i>. <a href="https://www.cochranelibrary.com/cdsr/doi/10.1002/14651858.CD013244.pub2/full" target="_blank" rel="noopener">Link</a><span class="ref-for">17 trials: probably no effect on eye strain or visual performance, and sleep effects indeterminate. This is why blue-light glasses sit in the weak-claims list.</span></li>
+            <li>NVIDIA. <i>Understanding and Measuring PC Latency</i>. <a href="https://developer.nvidia.com/blog/understanding-and-measuring-pc-latency/" target="_blank" rel="noopener">Link</a><span class="ref-for">The five stages used above — peripheral, CPU, render queue, GPU, display — from the people who built the hardware that measures them.</span></li>
+            <li>RTINGS. <i>Mouse click latency: test methodology and results</i> (USB protocol analyzer, averaged over 205 clicks per mouse). <a href="https://www.rtings.com/mouse/tests/control/latency" target="_blank" rel="noopener">Link</a><span class="ref-for">Independent measurement with published method: mice using their own USB receiver now match or surpass wired, Bluetooth is consistently the worst, and receiver distance measurably matters.</span></li>
           </ul>
+          <p>The hardware entries are measurement resources rather than peer-reviewed papers — that's the best evidence that exists for this kind of claim, so they're flagged as what they are. Manufacturer figures (Logitech's 1&nbsp;ms report rate, Razer's own CPU-cost numbers for 8&nbsp;kHz polling) were read as interested parties and only used where independent testing agreed.</p>
 
           <p>Everything else on this page — the Siege-specific material especially — is practitioner knowledge and reasoning from the above, not a citable finding. It's flagged as such where it matters.</p>
         </div>
