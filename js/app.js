@@ -490,9 +490,12 @@
   document.getElementById('bfxReturnRankBtn').addEventListener('click', exitBfx);
   document.getElementById('rankTestBtn').addEventListener('click', enterBfx);
 
-  // "RANKS" reference button — sits next to every game's back button so players can check
-  // tier thresholds without leaving. Wraps the existing back button in a flex row rather
-  // than repositioning it, so it works regardless of how long each game's label is.
+  // RETRY + "RANKS" buttons — sit next to every game's back button so players can restart
+  // a run or check tier thresholds without leaving. Wraps the existing back button in a
+  // flex row rather than repositioning it, so it works regardless of how long each game's
+  // label is. RETRY just clicks that module's own NextBtn — every game wires its Start and
+  // Next buttons to the exact same startRun handler, so this restarts cleanly whether a run
+  // is mid-flight, finished, or hasn't started yet.
   function addRankRefButton(container, gameId){
     if (!container) return;
     const back = container.querySelector('.backBtn');
@@ -501,6 +504,14 @@
     wrap.className = 'back-btn-row';
     back.parentNode.insertBefore(wrap, back);
     wrap.appendChild(back);
+    const nextBtn = document.getElementById(gameId + 'NextBtn');
+    if (nextBtn){
+      const retry = document.createElement('button');
+      retry.className = 'ranksRefBtn';
+      retry.textContent = 'RETRY';
+      retry.addEventListener('click', () => nextBtn.click());
+      wrap.appendChild(retry);
+    }
     const btn = document.createElement('button');
     btn.className = 'ranksRefBtn';
     btn.textContent = 'RANKS';
