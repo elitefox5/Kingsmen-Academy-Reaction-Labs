@@ -4,7 +4,16 @@
   const TOTAL_TRIALS = 20;
   const RESPONSE_WINDOW = 1000; // ms to complete the directional flick
   const MOVE_THRESHOLD = 30; // cumulative px displacement that counts as a directional response
-  const ISI_MIN = 500, ISI_MAX = 1200;
+  // The old version only ignored movement before `armed` became true — which did nothing
+  // to stop a player continuously swinging their mouse through the whole wait and simply
+  // being mid-swing when the arrows appeared, banking a near-zero "reaction time" on pure
+  // luck regardless of the target. RECENTER_MS gives an explicit, movement-allowed window
+  // right after a trial to return the mouse to a neutral position; STILL_THRESHOLD then
+  // requires genuine stillness for the remainder of the wait, with any real movement in
+  // that window failing the trial outright as a false start.
+  const RECENTER_MS = 500;
+  const STILL_THRESHOLD = 8; // cumulative px allowed during the required-still window (sensor jitter tolerance)
+  const ISI_MIN = 1100, ISI_MAX = 2000; // total wait; RECENTER_MS of this is movement-free, the rest requires stillness
   const POST_TRIAL_PAUSE = 400;
 
   const flkHud = document.getElementById('flkHud');
@@ -24,9 +33,10 @@
 
   let mode = 'easy';
   let trialIndex, score, streak, results, runHistory = [];
-  let armed = false;
+  let armed = false, waiting = false;
   let appearTime = null;
   let sumDX = 0, sumDY = 0;
+  let stillDX = 0, stillDY = 0;
   let currentTrial = null;
   let timers = {};
 
@@ -45,6 +55,7 @@
 
   function clearTimers(){
     clearTimeout(timers.isi);
+    clearTimeout(timers.recenter);
     clearTimeout(timers.response);
     clearTimeout(timers.advance);
   }
@@ -95,6 +106,7 @@
     streak = 0;
     results = [];
     armed = false;
+    waiting = false;
     clearTimers();
     flkStartPanel.style.display = 'none';
     flkResultCard.style.display = 'none';
@@ -121,10 +133,28 @@
     currentTrial = { trial: trialIndex, target, congruent, rt: null, outcome: null };
 
     const isi = ISI_MIN + Math.random() * (ISI_MAX - ISI_MIN);
+    // First RECENTER_MS of the wait: movement is free, so a flick response on the previous
+    // trial can be walked back to a neutral position. After that, `waiting` goes true and
+    // any real movement before the arrows actually appear fails the trial as a false start.
+    timers.recenter = setTimeout(() => {
+      waiting = true;
+      stillDX = 0; stillDY = 0;
+    }, RECENTER_MS);
     timers.isi = setTimeout(() => showArrows(target, flankerDir), isi);
   }
 
+  function handleFalseStart(){
+    clearTimeout(timers.isi);
+    waiting = false;
+    hideArrows();
+    currentTrial.outcome = 'early';
+    streak = 0;
+    showFeedback('TOO EARLY — HOLD STILL', 'bad');
+    settleTrial();
+  }
+
   function showArrows(target, flankerDir){
+    waiting = false;
     renderArrows(target, flankerDir);
     sumDX = 0; sumDY = 0;
     requestAnimationFrame(() => {
@@ -183,6 +213,7 @@
     const correctTrials = results.filter(r => r.outcome === 'correct');
     const errors = results.filter(r => r.outcome === 'incorrect');
     const timeouts = results.filter(r => r.outcome === 'timeout');
+    const early = results.filter(r => r.outcome === 'early');
 
     const avgRt = avg(correctTrials.map(r => r.rt));
     const accuracy = results.length ? (correctTrials.length / results.length) * 100 : null;
@@ -195,6 +226,7 @@
     document.getElementById('flkRAvgRt').textContent = fmtMs(avgRt);
     document.getElementById('flkRErrors').textContent = errors.length;
     document.getElementById('flkRMisses').textContent = timeouts.length;
+    document.getElementById('flkREarly').textContent = early.length;
     document.getElementById('flkRAcc').textContent = accuracy === null ? '—' : accuracy.toFixed(0) + '%';
     document.getElementById('flkRCost').textContent = flankerEffect === null ? '—' : (flankerEffect >= 0 ? '+' : '') + flankerEffect.toFixed(0) + ' ms';
 
@@ -221,6 +253,14 @@
   }
 
   window.addEventListener('mousemove', (e) => {
+    if (waiting){
+      stillDX += e.movementX || 0;
+      stillDY += e.movementY || 0;
+      if (Math.hypot(stillDX, stillDY) >= STILL_THRESHOLD){
+        handleFalseStart();
+      }
+      return;
+    }
     if (!armed) return;
     sumDX += e.movementX || 0;
     sumDY += e.movementY || 0;
@@ -237,6 +277,7 @@
   window.flkEnterHook = function(){
     clearTimers();
     armed = false;
+    waiting = false;
     hideArrows();
     flkStartPanel.style.display = '';
     flkResultCard.style.display = 'none';

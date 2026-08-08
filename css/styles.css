@@ -1278,7 +1278,10 @@
   header{
     position:absolute; top:0; left:0; right:0;
     display:flex; justify-content:space-between; align-items:flex-start;
-    padding:66px 28px 22px;
+    /* The back-btn-row (ACADEMY MENU / RETRY / RANKS) bottoms out at 65px — this used to
+       start the eyebrow text at 66px, a 1px gap that read as clipping. 75px gives it a
+       clean 10px of clearance without pushing the title down further than needed. */
+    padding:75px 28px 22px;
     z-index:5;
     pointer-events:none;
   }
