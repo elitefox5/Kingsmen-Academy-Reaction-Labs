@@ -1,7 +1,7 @@
 (function(){
   const ZONE_COLORS = {
     yellow:'#ffe066',
-    pink:'#ff6b9d',
+    cyan:'#2fd8e6',
     green:'#3ddc6f',
     red:'#ff5a5a',
     white:'#f2f2ea',
