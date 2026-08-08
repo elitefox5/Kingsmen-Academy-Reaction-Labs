@@ -77,7 +77,7 @@
 
     let speedRank = null;
     if (game && game.speedMid && run.avgRt !== null && run.avgRt !== undefined){
-      speedRank = window.KA_getSpeedRank(run.avgRt, game.speedMid);
+      speedRank = window.KA_getSpeedRank(run.avgRt, game);
       const key = gameId + '_best_avg_rt';
       const best = window.KA_records.get(key, null);
       if (best === null || run.avgRt < best) window.KA_records.set(key, run.avgRt, false);
@@ -236,13 +236,31 @@
   // Silver's cut sits just ABOVE speedMid so a dead-average time lands in Silver rather
   // than tipping into Bronze on the boundary.
   window.KA_SPEED_FACTORS = [Infinity, 1.35, 1.05, 0.92, 0.85, 0.78, 0.72, 0.66, 0.58];
-  window.KA_getSpeedRank = function(avgRt, speedMid){
-    if (avgRt === null || avgRt === undefined || !speedMid) return null;
-    for (let i = window.KA_SPEED_FACTORS.length - 1; i >= 0; i--){
-      const limit = window.KA_SPEED_FACTORS[i] === Infinity ? Infinity : speedMid * window.KA_SPEED_FACTORS[i];
-      if (avgRt < limit) return { name: window.KA_RANK_NAMES[i], color: window.KA_RANK_COLORS[i], max: limit };
+
+  // A game's speed tiers as absolute ms cuts. Nearly all of them derive from speedMid
+  // times the factors above, which span a fixed 2.33x from the Copper cut down to Legend.
+  // A game whose real spread is wider than that can pin its own cuts with `speedLadder`
+  // instead — Peripheral Ping needs it, because the cursor has to physically cross the
+  // screen, so its slow and fast ends sit further apart than one midpoint can express.
+  // Games carrying an explicit ladder keep speedMid too: it still marks the realistic
+  // average, and it's what everything else keys off to know the game is speed-ranked.
+  window.KA_speedLadderFor = function(game){
+    if (!game) return null;
+    const cuts = game.speedLadder || (game.speedMid
+      ? window.KA_SPEED_FACTORS.map(f => f === Infinity ? Infinity : Math.round(game.speedMid * f))
+      : null);
+    if (!cuts) return null;
+    return cuts.map((max, i) => ({ name: window.KA_RANK_NAMES[i], color: window.KA_RANK_COLORS[i], max }));
+  };
+
+  window.KA_getSpeedRank = function(avgRt, game){
+    if (avgRt === null || avgRt === undefined) return null;
+    const ladder = window.KA_speedLadderFor(game);
+    if (!ladder) return null;
+    for (let i = ladder.length - 1; i >= 0; i--){
+      if (avgRt < ladder[i].max) return ladder[i];
     }
-    return { name: window.KA_RANK_NAMES[0], color: window.KA_RANK_COLORS[0], max: Infinity };
+    return ladder[0];
   };
 
   // Overall tier for a dual-ranked game: the midpoint of its accuracy and speed tiers, so
@@ -351,7 +369,11 @@
     { id:'gng', name:'Go / No-Go', category:'Reaction Speed', tile:'tileGoNoGo', type:'count', total:20, key:'gng_best_correct', speedMid:400 },
     { id:'frx', name:'Flash Reflex', category:'Reaction Speed', tile:'tileFlashReflex', type:'mixed',
       metrics:[ {key:'frx_best_rounds', label:'Rounds survived', isTime:false}, {key:'frx_best_flash', label:'Fastest flash', isTime:true} ] },
-    { id:'per', name:'Peripheral Ping', category:'Reaction Speed', tile:'tilePeripheralPing', type:'count', total:20, key:'per_best_correct', speedMid:550 },
+    // Explicit cuts rather than speedMid multipliers: this drill is dominated by cursor
+    // travel to a random edge, so its spread from a fumbled run to a clean one is wider
+    // than the shared factors can express. speedMid stays as the realistic average (Silver).
+    { id:'per', name:'Peripheral Ping', category:'Reaction Speed', tile:'tilePeripheralPing', type:'count', total:20, key:'per_best_correct',
+      speedMid:780, speedLadder:[Infinity, 900, 820, 740, 660, 580, 500, 425, 350] },
     { id:'cr', name:'Choice Reaction', category:'Reaction Speed', tile:'tileChoiceReaction', type:'count', total:20, key:'cr_best_correct', speedMid:750 },
     { id:'aud', name:'Audio Reflex', category:'Reaction Speed', tile:'tileAudioReflex', type:'count', total:15, key:'aud_best_correct', speedMid:380 },
     { id:'bfx', name:'Base Reflex', category:'Reaction Speed', tile:'tileBaseReflex', type:'time-multi',
@@ -385,7 +407,7 @@
     function accPlusSpeed(pct){
       const accRank = window.KA_getAccRank(pct);
       const bestRt = game.speedMid ? window.KA_records.get(game.id + '_best_avg_rt', null) : null;
-      const speedRank = window.KA_getSpeedRank(bestRt, game.speedMid);
+      const speedRank = window.KA_getSpeedRank(bestRt, game);
       return {
         rank: window.KA_combineRanks(accRank, speedRank),
         value: speedRank ? pct.toFixed(0) + '% · ' + bestRt.toFixed(0) + ' ms' : pct.toFixed(0) + '%'

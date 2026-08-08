@@ -536,11 +536,7 @@
       sections.push({
         heading: 'Speed (average response)',
         kind: 'ms',
-        ladder: window.KA_SPEED_FACTORS.map((f, i) => ({
-          name: window.KA_RANK_NAMES[i],
-          color: window.KA_RANK_COLORS[i],
-          max: f === Infinity ? Infinity : Math.round(game.speedMid * f)
-        }))
+        ladder: window.KA_speedLadderFor(game)
       });
       sections.push({ note: 'Your overall rank for this drill is the midpoint of these two.' });
     }
