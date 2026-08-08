@@ -138,7 +138,7 @@
     document.getElementById('nbkRBest').textContent = (isNewBest ? overallCorrect : bestCorrect) + ' / ' + results.length;
     document.getElementById('nbkRBestRow').classList.toggle('is-new', isNewBest);
 
-    window.KA_scoreRun('nbk', 'nbkResultCard', { accuracyPct: accuracy, avgRt });
+    window.KA_scoreRun('nbk', 'nbkResultCard', { accuracyPct: accuracy, avgRt, mode });
     nbkResultCard.style.display = 'flex';
     runHistory.unshift({ hits: hits.length, misses: misses.length, falseAlarms: falseAlarms.length, avgRt, accuracy });
     if (runHistory.length > 6) runHistory.pop();

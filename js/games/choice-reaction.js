@@ -253,7 +253,7 @@
       window.KA_weekly.record('cr', hits.length);
       document.getElementById('crRBest').textContent = (isNewBest ? hits.length : bestCorrect) + ' / ' + results.length;
       document.getElementById('crRBestRow').classList.toggle('is-new', isNewBest);
-      window.KA_scoreRun('cr', 'crResultCard', { accuracyPct: accuracy, avgRt });
+      window.KA_scoreRun('cr', 'crResultCard', { accuracyPct: accuracy, avgRt, mode });
       window.KA_setResultMode('crResultCard', false);
       window.KA_history.add('Choice Reaction', `correct ${hits.length}/${results.length} · acc ${accuracy === null ? '—' : accuracy.toFixed(0) + '%'}`);
     }

@@ -767,7 +767,11 @@
     color:var(--gold-dim);
     font-weight:700;
   }
-  .leaderboard-row:nth-child(1) .lr-rank{ color:var(--gold-bright); }
+  /* In the expanded top-10 panel, position truly is rank, so the first child is #1. In the
+     collapsed row it shows the viewer's own (varying) rank instead, so that has to be driven
+     explicitly by .lr-first rather than position — see renderGlobalLeaderboard in app.js. */
+  .leaderboard-expand .leaderboard-row:nth-child(1) .lr-rank{ color:var(--gold-bright); }
+  .leaderboard-row.lr-first .lr-rank{ color:var(--gold-bright); }
   .leaderboard-row .lr-game{ flex:1; color:var(--text); }
   .leaderboard-row .lr-val{ color:var(--green); min-width:70px; text-align:right; }
   .leaderboard-row.unplayed .lr-val{ color:var(--dim); }
