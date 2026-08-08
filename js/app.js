@@ -928,49 +928,87 @@
   const pctFmt = total => v => Math.round((v / total) * 100) + '%';
   const msFmt = v => Math.round(v) + ' ms';
   const roundsFmt = v => Math.round(v) + ' rounds';
+  const pxFmt = v => Math.round(v) + ' px';
+  const calloutsFmt = v => v.toFixed(1) + ' callouts';
+  const ADAPTIVE_UNIT_FMT = { ms: msFmt, px: pxFmt, callouts: calloutsFmt };
+  function titleCase(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
+
+  // Builds one "combo" entry: sorted by a hidden composite score, but the row shows the
+  // real stats (accuracy% + speed ms, or rounds + flash time) that produced it — never the
+  // score itself. Key construction has to match KA_scoreRun's exactly (gameId + '_rank_score'
+  // + suffix, not gameId + suffix + '_rank_score') or this silently reads the wrong records.
+  function comboEntry(category, label, scoreKey, extraKeys, higherIsBetter, formatCombo){
+    return { category, label, kind: 'combo', dataKey: scoreKey, scoreKey, extraKeys, higherIsBetter, formatCombo };
+  }
 
   function globalLeaderboardEntries(){
     const opts = [];
     window.KA_GAMES.forEach(g => {
       if (g.key){
-        // Fixed-trial games: one flat accuracy key, plus a speed key if this game also
-        // tracks average reaction time (same games KA_scoreRun dual-ranks locally).
         const isRounds = g.type === 'rounds';
-        opts.push({
-          category: g.category,
-          label: g.name + (g.speedMid ? ' — Accuracy' : ''),
-          key: g.key,
-          higherIsBetter: true,
-          format: isRounds ? roundsFmt : pctFmt(g.total)
-        });
-        if (g.speedMid){
+        if (g.speedMid && !isRounds){
+          // Fixed-trial accuracy+speed game: one combo row per difficulty mode (or just one,
+          // for games with no mode toggle), sorted by KA_scoreRun's hidden rank score.
+          const modes = g.modes || [null];
+          modes.forEach(mode => {
+            const suffix = mode ? '_' + mode : '';
+            const label = g.name + (mode ? ' — ' + titleCase(mode) : '');
+            const accKey = g.id + '_rank_acc' + suffix;
+            const speedKey = g.id + '_rank_speed' + suffix;
+            opts.push(comboEntry(g.category, label, g.id + '_rank_score' + suffix, [accKey, speedKey], true,
+              (score, extra) => {
+                const acc = extra[accKey], speed = extra[speedKey];
+                return (acc === null || acc === undefined || speed === null || speed === undefined)
+                  ? '—' : Math.round(acc) + '% · ' + Math.round(speed) + ' ms';
+              }));
+          });
+        } else {
+          // Accuracy-only or rounds-only (no speed component) — single value, unchanged.
           opts.push({
-            category: g.category,
-            label: g.name + ' — Speed',
-            key: g.id + '_best_avg_rt',
-            higherIsBetter: false,
-            format: msFmt
+            category: g.category, label: g.name, kind: 'simple', dataKey: g.key,
+            key: g.key, higherIsBetter: true,
+            format: isRounds ? roundsFmt : pctFmt(g.total)
+          });
+        }
+        if (g.adaptiveKey){
+          // Adaptive-difficulty runs (Choice Reaction, Size Compare, Callout Recall) report a
+          // single threshold instead of accuracy+speed — no composite needed, it's already
+          // one number. These previously had no leaderboard entry at all.
+          opts.push({
+            category: g.category, label: g.name + ' — Adaptive', kind: 'simple', dataKey: g.adaptiveKey,
+            key: g.adaptiveKey, higherIsBetter: g.adaptiveHigherIsBetter,
+            format: ADAPTIVE_UNIT_FMT[g.adaptiveUnit] || msFmt
           });
         }
       } else if (g.metrics){
-        // Multi-metric games (Flanker's easy/full accuracy, Flash Reflex's rounds+flash time).
-        g.metrics.forEach(m => {
-          opts.push({
-            category: g.category,
-            label: g.name + ' — ' + m.label,
-            key: m.key,
-            higherIsBetter: !m.isTime,
-            format: m.isTime ? msFmt : (m.total ? pctFmt(m.total) : roundsFmt)
+        if (g.id === 'flk'){
+          // Flanker: metrics ARE its difficulty modes (Easy/Full), each dual-ranked with the
+          // same speedMid — one combo row per mode, same as the Normal/Hard games above.
+          (g.modes || ['easy', 'full']).forEach(mode => {
+            const suffix = '_' + mode;
+            const label = g.name + ' — ' + titleCase(mode);
+            const accKey = g.id + '_rank_acc' + suffix;
+            const speedKey = g.id + '_rank_speed' + suffix;
+            opts.push(comboEntry(g.category, label, g.id + '_rank_score' + suffix, [accKey, speedKey], true,
+              (score, extra) => {
+                const acc = extra[accKey], speed = extra[speedKey];
+                return (acc === null || acc === undefined || speed === null || speed === undefined)
+                  ? '—' : Math.round(acc) + '% · ' + Math.round(speed) + ' ms';
+              }));
           });
-        });
-        if (g.speedMid){
-          opts.push({
-            category: g.category,
-            label: g.name + ' — Speed',
-            key: g.id + '_best_avg_rt',
-            higherIsBetter: false,
-            format: msFmt
-          });
+        } else {
+          // Flash Reflex: rounds survived is the real, visible score (not hidden) — sort by
+          // it directly and show the fastest-flash time from the same player alongside it,
+          // rather than inventing a composite for a game with no accuracy% concept at all.
+          const roundsMetric = g.metrics.find(m => !m.isTime);
+          const timeMetric = g.metrics.find(m => m.isTime);
+          if (roundsMetric && timeMetric){
+            opts.push(comboEntry(g.category, g.name, roundsMetric.key, [timeMetric.key], true,
+              (score, extra) => {
+                const flash = extra[timeMetric.key];
+                return Math.round(score) + ' rounds' + (flash === null || flash === undefined ? '' : ' · ' + Math.round(flash) + ' ms');
+              }));
+          }
         }
       }
     });
@@ -987,36 +1025,51 @@
     globalTop10Cache.clear();
 
     // Render every row immediately in a loading state, then fill each in as its own query
-    // resolves — one game's slow request shouldn't hold up the other 43 rows.
+    // resolves — one game's slow request shouldn't hold up the other rows.
     lbGlobalSections.innerHTML = categories.map(cat => {
       const rows = entries.filter(e => e.category === cat);
       if (!rows.length) return '';
       const rowsHtml = rows.map(e =>
-        `<div class="leaderboard-row unplayed" data-key="${e.key}"><span class="lr-rank">#1</span><span class="lr-game">${e.label}</span><span class="lr-val">Loading…</span><span class="lr-chevron">&#9656;</span></div>` +
-        `<div class="leaderboard-expand" data-expand="${e.key}"></div>`
+        `<div class="leaderboard-row unplayed" data-key="${e.dataKey}"><span class="lr-rank">—</span><span class="lr-game">${e.label}</span><span class="lr-val">Loading…</span><span class="lr-chevron">&#9656;</span></div>` +
+        `<div class="leaderboard-expand" data-expand="${e.dataKey}"></div>`
       ).join('');
       return `<div class="leaderboard-section"><div class="leaderboard-section-title">${cat}</div><div class="leaderboard-list">${rowsHtml}</div></div>`;
     }).join('');
 
+    // The collapsed row shows the signed-in player's own rank and score, not the #1 score —
+    // that only appears once they expand it to the top 10.
     entries.forEach(async (e) => {
-      const rows = await window.KA_cloud.fetchLeaderboard(e.key, e.higherIsBetter, 1);
-      const row = lbGlobalSections.querySelector(`[data-key="${CSS.escape(e.key)}"]`);
+      const isCombo = e.kind === 'combo';
+      const [topRows, mine] = await Promise.all([
+        isCombo
+          ? window.KA_cloud.fetchComboTop(e.scoreKey, e.extraKeys, e.higherIsBetter, 1)
+          : window.KA_cloud.fetchLeaderboard(e.key, e.higherIsBetter, 1),
+        isCombo
+          ? window.KA_cloud.fetchMyCombo(e.scoreKey, e.extraKeys, e.higherIsBetter)
+          : window.KA_cloud.fetchMyRank(e.key, e.higherIsBetter)
+      ]);
+      const row = lbGlobalSections.querySelector(`[data-key="${CSS.escape(e.dataKey)}"]`);
       if (!row) return;
-      const top = rows[0];
-      if (!top){
+      if (!topRows.length){
         row.querySelector('.lr-val').textContent = 'No scores yet';
         row.querySelector('.lr-chevron').style.visibility = 'hidden';
         return;
       }
-      const name = (top.profiles && top.profiles.username) || 'Unknown';
       row.classList.remove('unplayed');
       row.classList.add('expandable');
-      row.querySelector('.lr-val').textContent = e.format(top.value) + ' — ' + name;
+      if (!mine || !mine.played){
+        row.querySelector('.lr-rank').textContent = '—';
+        row.querySelector('.lr-val').textContent = "You haven't played";
+      } else {
+        row.querySelector('.lr-rank').textContent = '#' + (mine.rank || '—');
+        row.querySelector('.lr-val').textContent = isCombo ? e.formatCombo(mine.value, mine.extra) : e.format(mine.value);
+        row.classList.toggle('lr-first', mine.rank === 1);
+      }
     });
   }
 
   // Clicking a played row expands/collapses its top 10 — fetched once per render, on demand,
-  // rather than pulling 10 rows for all ~44 entries up front when most will never be opened.
+  // rather than pulling 10 rows for every entry up front when most will never be opened.
   //
   // A per-key token guards against a real race: click once (opens, starts fetching), click
   // again quickly (closes it again) — without this, the first click's fetch can still resolve
@@ -1044,13 +1097,17 @@
     }
 
     panel.innerHTML = '<div class="leaderboard-row unplayed"><span class="lr-game">Loading top 10…</span></div>';
-    const entry = globalLeaderboardEntries().find(x => x.key === key);
-    const top10 = await window.KA_cloud.fetchLeaderboard(key, entry.higherIsBetter, 10);
+    const entry = globalLeaderboardEntries().find(x => x.dataKey === key);
+    const isCombo = entry.kind === 'combo';
+    const top10 = isCombo
+      ? await window.KA_cloud.fetchComboTop(entry.scoreKey, entry.extraKeys, entry.higherIsBetter, 10)
+      : await window.KA_cloud.fetchLeaderboard(entry.key, entry.higherIsBetter, 10);
     if (globalTop10Tokens.get(key) !== myToken) return; // superseded by a later click on this row
     const html = top10.length
       ? top10.map((r, i) => {
-          const name = (r.profiles && r.profiles.username) || 'Unknown';
-          return `<div class="leaderboard-row"><span class="lr-rank">#${i + 1}</span><span class="lr-game">${name}</span><span class="lr-val">${entry.format(r.value)}</span></div>`;
+          const name = isCombo ? r.username : ((r.profiles && r.profiles.username) || 'Unknown');
+          const val = isCombo ? entry.formatCombo(r.score, r.extra) : entry.format(r.value);
+          return `<div class="leaderboard-row"><span class="lr-rank">#${i + 1}</span><span class="lr-game">${name}</span><span class="lr-val">${val}</span></div>`;
         }).join('')
       : '<div class="leaderboard-row unplayed"><span class="lr-game">No scores yet</span></div>';
     panel.innerHTML = html;

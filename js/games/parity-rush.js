@@ -133,7 +133,7 @@
     document.getElementById('parRBest').textContent = (isNewBest ? correct.length : bestCorrect) + ' / ' + results.length;
     document.getElementById('parRBestRow').classList.toggle('is-new', isNewBest);
 
-    window.KA_scoreRun('par', 'parResultCard', { accuracyPct: accuracy, avgRt });
+    window.KA_scoreRun('par', 'parResultCard', { accuracyPct: accuracy, avgRt, mode });
     parResultCard.style.display = 'flex';
     runHistory.unshift({ correct: correct.length, wrong: wrong.length, timeouts: timeouts.length, avgRt, accuracy });
     if (runHistory.length > 6) runHistory.pop();

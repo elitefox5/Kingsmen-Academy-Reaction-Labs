@@ -137,7 +137,7 @@
     document.getElementById('strRBest').textContent = (isNewBest ? correct.length : bestCorrect) + ' / ' + results.length;
     document.getElementById('strRBestRow').classList.toggle('is-new', isNewBest);
 
-    window.KA_scoreRun('str', 'strResultCard', { accuracyPct: accuracy, avgRt });
+    window.KA_scoreRun('str', 'strResultCard', { accuracyPct: accuracy, avgRt, mode });
     strResultCard.style.display = 'flex';
     runHistory.unshift({ correct: correct.length, wrong: wrong.length, timeouts: timeouts.length, avgRt, accuracy });
     if (runHistory.length > 6) runHistory.pop();

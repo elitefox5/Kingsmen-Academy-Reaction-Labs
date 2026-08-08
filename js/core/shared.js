@@ -68,19 +68,64 @@
     KA_setRankRow(KA_rankRow(card, 'run-rank-row', 'Overall rank'), ranks.combined);
   };
 
+  // A run only counts toward the shared/global leaderboard once its accuracy clears this —
+  // below it, personal bests and your own rank tier still update as normal, the run just
+  // never posts (or overwrites) anything on the board everyone else sees.
+  window.KA_GLOBAL_ACCURACY_GATE = 80;
+
+  // Hidden composite used only to decide leaderboard order — never shown to players. Speed
+  // alone would let a fast-but-sloppy run outrank a clean one; scaling the speed component
+  // by this run's own accuracy fraction means a 95%-accurate run beats an 80%-accurate run
+  // at the same speed, without needing a second displayed number. 2000ms is comfortably
+  // above every game's realistic slow end, so the speed component stays positive in
+  // practice; clamped at 0 as a floor regardless.
+  window.KA_computeRankScore = function(avgRt, accuracyPct){
+    if (avgRt === null || avgRt === undefined || accuracyPct === null || accuracyPct === undefined) return null;
+    const speedComponent = Math.max(0, 2000 - avgRt);
+    return speedComponent * (accuracyPct / 100);
+  };
+
   // One call per game at the end of a run: works out the accuracy and speed tiers, keeps
   // the best-ever average response time for that game, and paints the result card.
+  // run.mode (optional) suffixes every key this writes — games with Normal/Hard/Easy/Full
+  // variants need their bests and leaderboard bundle kept separate per mode, since a Hard
+  // score and a Normal score aren't comparable. Adaptive-mode runs should never reach here
+  // with a mode at all — those games route Adaptive through their own threshold-recording
+  // path instead, deliberately outside ranking altogether.
   window.KA_scoreRun = function(gameId, resultCardId, run){
     const game = window.KA_GAMES.find(g => g.id === gameId);
     const accRank = (run.accuracyPct === null || run.accuracyPct === undefined)
       ? null : window.KA_getAccRank(run.accuracyPct);
+    const suffix = run.mode ? '_' + run.mode : '';
 
     let speedRank = null;
     if (game && game.speedMid && run.avgRt !== null && run.avgRt !== undefined){
       speedRank = window.KA_getSpeedRank(run.avgRt, game);
+      // Deliberately NOT mode-suffixed: KA_getGameRank, the Personal leaderboard, and
+      // KA_WEEKLY_META all read this key unsuffixed, so splitting it per mode would
+      // silently freeze those displays rather than actually separating them. Your
+      // personal best/rank tier stays "best across any difficulty", same as before —
+      // only the new global-leaderboard bundle below is mode-specific.
       const key = gameId + '_best_avg_rt';
       const best = window.KA_records.get(key, null);
       if (best === null || run.avgRt < best) window.KA_records.set(key, run.avgRt, false);
+
+      // Global bundle: accuracy, speed, and the score they produce together all come from
+      // this exact run, not three independently-optimized bests — that's what makes "the
+      // combo that provides the highest overall score" meaningful rather than three numbers
+      // that never actually happened together.
+      if (run.accuracyPct !== null && run.accuracyPct !== undefined && run.accuracyPct >= window.KA_GLOBAL_ACCURACY_GATE){
+        const scoreKey = gameId + '_rank_score' + suffix;
+        const accKey = gameId + '_rank_acc' + suffix;
+        const speedKey = gameId + '_rank_speed' + suffix;
+        const rankScore = window.KA_computeRankScore(run.avgRt, run.accuracyPct);
+        const bestScore = window.KA_records.get(scoreKey, null);
+        if (bestScore === null || rankScore > bestScore){
+          window.KA_records.set(scoreKey, rankScore);
+          window.KA_records.set(accKey, run.accuracyPct);
+          window.KA_records.set(speedKey, run.avgRt, false);
+        }
+      }
     }
 
     const combined = window.KA_combineRanks(accRank, speedRank);
@@ -374,27 +419,30 @@
     // than the shared factors can express. speedMid stays as the realistic average (Silver).
     { id:'per', name:'Peripheral Ping', category:'Reaction Speed', tile:'tilePeripheralPing', type:'count', total:20, key:'per_best_correct',
       speedMid:780, speedLadder:[Infinity, 900, 820, 740, 660, 580, 500, 425, 350] },
-    { id:'cr', name:'Choice Reaction', category:'Reaction Speed', tile:'tileChoiceReaction', type:'count', total:20, key:'cr_best_correct', speedMid:750 },
+    { id:'cr', name:'Choice Reaction', category:'Reaction Speed', tile:'tileChoiceReaction', type:'count', total:20, key:'cr_best_correct', speedMid:750,
+      modes:['normal','hard'], adaptiveKey:'cr_best_threshold', adaptiveHigherIsBetter:false, adaptiveUnit:'ms' },
     { id:'aud', name:'Audio Reflex', category:'Reaction Speed', tile:'tileAudioReflex', type:'count', total:15, key:'aud_best_correct', speedMid:380 },
     { id:'bfx', name:'Base Reflex', category:'Reaction Speed', tile:'tileBaseReflex', type:'time-multi',
       metrics:[ {key:'rank_best_avg_rt', label:'Best average', isTime:true} ] },
     { id:'flk', name:'Flanker Task', category:'Processing Speed', tile:'tileFlanker', type:'count-multi', speedMid:480,
       metrics:[ {key:'flk_best_correct_easy', label:'Easy', total:20}, {key:'flk_best_correct_full', label:'Full', total:20} ] },
-    { id:'par', name:'Parity Rush', category:'Processing Speed', tile:'tileParityRush', type:'count', total:20, key:'par_best_correct', speedMid:560 },
-    { id:'siz', name:'Size Compare', category:'Processing Speed', tile:'tileSizeCompare', type:'count', total:20, key:'siz_best_correct', speedMid:520 },
+    { id:'par', name:'Parity Rush', category:'Processing Speed', tile:'tileParityRush', type:'count', total:20, key:'par_best_correct', speedMid:560, modes:['normal','hard'] },
+    { id:'siz', name:'Size Compare', category:'Processing Speed', tile:'tileSizeCompare', type:'count', total:20, key:'siz_best_correct', speedMid:520,
+      modes:['normal','hard'], adaptiveKey:'siz_best_threshold', adaptiveHigherIsBetter:false, adaptiveUnit:'px' },
     { id:'odd', name:'Odd One Out', category:'Processing Speed', tile:'tileOddOneOut', type:'count', total:20, key:'odd_best_correct', speedMid:700 },
     { id:'mth', name:'Math Sprint', category:'Processing Speed', tile:'tileMathSprint', type:'count', total:20, key:'mth_best_correct', speedMid:850 },
     { id:'cnt', name:'Count Rush', category:'Processing Speed', tile:'tileCountRush', type:'count', total:20, key:'cnt_best_correct', speedMid:620 },
-    { id:'str', name:'Stroop Test', category:'Processing Complexity', tile:'tileStroop', type:'count', total:20, key:'str_best_correct', speedMid:720 },
+    { id:'str', name:'Stroop Test', category:'Processing Complexity', tile:'tileStroop', type:'count', total:20, key:'str_best_correct', speedMid:720, modes:['normal','hard'] },
     { id:'ant', name:'Anti-Saccade', category:'Processing Complexity', tile:'tileAntiSaccade', type:'count', total:20, key:'ant_best_correct', speedMid:560 },
     { id:'trg', name:'Trigger Discipline', category:'Processing Complexity', tile:'tileTriggerDiscipline', type:'count', total:20, key:'trg_best_correct', speedMid:480 },
     { id:'sme', name:'Simon Effect', category:'Processing Complexity', tile:'tileSimonEffect', type:'count', total:20, key:'sme_best_correct', speedMid:520 },
     { id:'fsr', name:'Feature Search', category:'Processing Complexity', tile:'tileFeatureSearch', type:'count', total:20, key:'fsr_best_correct', speedMid:850 },
     { id:'spl', name:'Split Focus', category:'Processing Complexity', tile:'tileSplitFocus', type:'count', total:20, key:'spl_best_correct', speedMid:420 },
     { id:'sim', name:'Simon Sequence', category:'Memory', tile:'tileSimon', type:'rounds', key:'sim_best_rounds' },
-    { id:'nbk', name:'Symbol 1-Back', category:'Memory', tile:'tileSymbolMatch', type:'count', total:20, key:'nbk_best_correct', speedMid:560 },
+    { id:'nbk', name:'Symbol 1-Back', category:'Memory', tile:'tileSymbolMatch', type:'count', total:20, key:'nbk_best_correct', speedMid:560, modes:['easy','hard'] },
     { id:'grd', name:'Grid Recall', category:'Memory', tile:'tileGridRecall', type:'rounds', key:'grd_best_rounds' },
-    { id:'clo', name:'Callout Recall', category:'Memory', tile:'tileCalloutRecall', type:'count', total:12, key:'clo_best_correct' },
+    { id:'clo', name:'Callout Recall', category:'Memory', tile:'tileCalloutRecall', type:'count', total:12, key:'clo_best_correct',
+      adaptiveKey:'clo_best_threshold', adaptiveHigherIsBetter:true, adaptiveUnit:'callouts' },
     { id:'ldr', name:'Loadout Recall', category:'Memory', tile:'tileLoadoutRecall', type:'count', total:12, key:'ldr_best_correct', speedMid:2600 },
     { id:'rev', name:'Sequence Reversal', category:'Memory', tile:'tileSequenceReversal', type:'count', total:12, key:'rev_best_correct' }
   ];

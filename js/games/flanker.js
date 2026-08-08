@@ -237,7 +237,7 @@
     document.getElementById('flkRBest').textContent = (isNewBest ? correctTrials.length : bestCorrect) + ' / ' + results.length;
     document.getElementById('flkRBestRow').classList.toggle('is-new', isNewBest);
 
-    window.KA_scoreRun('flk', 'flkResultCard', { accuracyPct: accuracy, avgRt });
+    window.KA_scoreRun('flk', 'flkResultCard', { accuracyPct: accuracy, avgRt, mode });
     flkResultCard.style.display = 'flex';
 
     runHistory.unshift({ mode, correct: correctTrials.length, errors: errors.length, timeouts: timeouts.length, avgRt, accuracy });

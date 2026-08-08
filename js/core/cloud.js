@@ -189,6 +189,70 @@
         .limit(limit || 20);
       if (error){ console.error('leaderboard fetch failed:', error.message); return []; }
       return data;
+    },
+    // The signed-in player's own position on a leaderboard, without pulling every row —
+    // just their value, then a count of how many players beat it. { played:false } if they
+    // have no record for this key yet; null if signed out or the fetch failed outright.
+    async fetchMyRank(key, higherIsBetter){
+      if (!state.session) return null;
+      const { data: mine, error: mineErr } = await sb
+        .from('records')
+        .select('value')
+        .eq('key', key)
+        .eq('user_id', state.session.user.id)
+        .maybeSingle();
+      if (mineErr){ console.error('my-rank fetch failed:', mineErr.message); return null; }
+      if (!mine) return { played: false };
+
+      let q = sb.from('records').select('user_id', { count: 'exact', head: true }).eq('key', key);
+      q = higherIsBetter ? q.gt('value', mine.value) : q.lt('value', mine.value);
+      const { count, error: countErr } = await q;
+      if (countErr){ console.error('my-rank count failed:', countErr.message); return { played: true, value: mine.value, rank: null }; }
+      return { played: true, value: mine.value, rank: (count || 0) + 1 };
+    },
+    // Combo rows: the leaderboard sorts by one key (scoreKey) but displays value(s) from
+    // other key(s) belonging to the same players — e.g. a hidden composite rank score
+    // alongside the accuracy% and speed(ms) that produced it, or Flash Reflex's rounds
+    // survived alongside its fastest-flash time. The `records` table has one row per
+    // (user, key), so there's no single query that joins these — fetch the ranked key,
+    // then fetch the extra keys filtered to just those user_ids, and stitch by user_id.
+    async fetchComboTop(scoreKey, extraKeys, higherIsBetter, limit){
+      const { data: scores, error } = await sb
+        .from('records')
+        .select('user_id, value, profiles(username)')
+        .eq('key', scoreKey)
+        .order('value', { ascending: !higherIsBetter })
+        .limit(limit || 20);
+      if (error){ console.error('combo leaderboard fetch failed:', error.message); return []; }
+      if (!scores.length) return [];
+
+      const ids = scores.map(s => s.user_id);
+      const extraMaps = {};
+      await Promise.all(extraKeys.map(async (k) => {
+        const { data, error: exErr } = await sb.from('records').select('user_id, value').eq('key', k).in('user_id', ids);
+        if (exErr){ console.error('combo extra-key fetch failed:', exErr.message); extraMaps[k] = {}; return; }
+        extraMaps[k] = Object.fromEntries(data.map(r => [r.user_id, r.value]));
+      }));
+
+      return scores.map(s => ({
+        username: (s.profiles && s.profiles.username) || 'Unknown',
+        score: s.value,
+        extra: Object.fromEntries(extraKeys.map(k => [k, extraMaps[k][s.user_id]]))
+      }));
+    },
+    // Same idea as fetchMyRank, but also pulls the signed-in player's own values for the
+    // extra keys so their collapsed row can show the full combo, not just the score.
+    async fetchMyCombo(scoreKey, extraKeys, higherIsBetter){
+      const mine = await this.fetchMyRank(scoreKey, higherIsBetter);
+      if (!mine || !mine.played) return mine;
+
+      const extra = {};
+      await Promise.all(extraKeys.map(async (k) => {
+        const { data, error } = await sb.from('records').select('value').eq('key', k).eq('user_id', state.session.user.id).maybeSingle();
+        if (error){ console.error('my-combo extra-key fetch failed:', error.message); extra[k] = null; return; }
+        extra[k] = data ? data.value : null;
+      }));
+      return { ...mine, extra };
     }
   };
 

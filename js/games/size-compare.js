@@ -172,7 +172,7 @@
       window.KA_weekly.record('siz', correct.length);
       document.getElementById('sizRBest').textContent = (isNewBest ? correct.length : bestCorrect) + ' / ' + results.length;
       document.getElementById('sizRBestRow').classList.toggle('is-new', isNewBest);
-      window.KA_scoreRun('siz', 'sizResultCard', { accuracyPct: accuracy, avgRt });
+      window.KA_scoreRun('siz', 'sizResultCard', { accuracyPct: accuracy, avgRt, mode });
       window.KA_setResultMode('sizResultCard', false);
       window.KA_history.add('Size Compare', `correct ${correct.length}/${results.length} · acc ${accuracy === null ? '—' : accuracy.toFixed(0) + '%'}`);
     }
