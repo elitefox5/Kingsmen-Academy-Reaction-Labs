@@ -162,7 +162,15 @@
     color:var(--dim);
     min-width:230px;
   }
-  .game-playfield{ position:absolute; inset:0; }
+  /* Reserves a hard top strip no game content may occupy. The back-btn-row (ACADEMY MENU /
+     RETRY / RANKS) sits at top:34px and always measures 65px to its bottom edge, confirmed
+     identical across every game and breakpoint — it doesn't wrap or resize. Every game reads
+     its playfield's own clientWidth/clientHeight to place stimuli (edge pings, decoys, grid
+     cells), so without this, math that lands near the top edge renders those elements BEHIND
+     the buttons (which sit at a higher z-index) — invisible and effectively unreachable.
+     102px (34px x 3, matching the app's spacing grid) leaves 37px of clearance beyond the
+     buttons' actual 65px, so this holds even if button padding or copy changes slightly later. */
+  .game-playfield{ position:absolute; top:102px; left:0; right:0; bottom:0; }
   .game-start-panel{
     position:absolute; inset:0;
     display:flex; align-items:center; justify-content:center;
@@ -1318,8 +1326,10 @@
   .hud-row.stageC-click .val{ color:var(--amber); }
   .hud-row.stageC-dev .val{ color:#ff8fb1; }
 
+  /* Same reserved top strip as .game-playfield above, for the five games still on their own
+     ID rather than the shared class. */
   #playfield, #gngPlayfield, #flkPlayfield, #crPlayfield, #frxPlayfield{
-    position:absolute; inset:0;
+    position:absolute; top:102px; left:0; right:0; bottom:0;
   }
 
   #startPanel, #gngStartPanel, #flkStartPanel, #crStartPanel, #frxStartPanel{
