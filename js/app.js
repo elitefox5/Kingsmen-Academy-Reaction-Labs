@@ -525,6 +525,17 @@
     return r.min === 0 ? 'Starting rank' : r.min + '+ rounds';
   }
 
+  // What each adaptive game's score actually means — shown instead of a tier ladder, since
+  // Adaptive never gets a Copper-through-Legend tier at all (KA_setResultMode hides that row
+  // for adaptive runs). Keyed by adaptiveUnit so one line of text covers every game sharing
+  // that unit rather than hand-writing one per game.
+  const ADAPTIVE_DESC = {
+    rounds: 'your score is rounds survived — difficulty escalates automatically and keeps climbing until you make a mistake.',
+    ms: 'your score is the response window (in ms) you’d shrunk down to right before you missed — lower is harder, and better.',
+    callouts: 'your score is the longest sequence you held before a mistake.',
+    px: 'your score is the smallest gap you could still tell apart before you missed — lower is harder, and better.'
+  };
+
   // Returns one or two ladder sections — dual-ranked games show accuracy and speed,
   // with the speed thresholds derived from that game's own speedMid baseline.
   function rankRefInfo(gameId){
@@ -533,6 +544,19 @@
     }
     const game = window.KA_GAMES.find(g => g.id === gameId);
     if (!game) return null;
+
+    // Adaptive mode has no tier ladder — explain what the score means instead of showing
+    // the Normal/Hard accuracy+speed ladder, which has nothing to do with an adaptive run.
+    const adaptiveBtn = document.getElementById(gameId + 'AdaptiveBtn');
+    if (game.adaptiveKey && adaptiveBtn && adaptiveBtn.classList.contains('selected')){
+      const desc = ADAPTIVE_DESC[game.adaptiveUnit] || 'your score climbs as difficulty escalates automatically, until you make a mistake.';
+      return {
+        title: game.name + ' — Adaptive',
+        sections: [{ note: 'Adaptive mode doesn’t use the tier ladder below — ' + desc +
+          ' It has its own separate leaderboard entry (labeled “— Adaptive”), not the tiers shown for this game’s other modes.' }]
+      };
+    }
+
     if (game.type === 'rounds'){
       return { title: game.name, sections: [{ heading: 'Longest sequence reached', ladder: window.KA_ROUNDS_RANKS, kind: 'rounds' }] };
     }
