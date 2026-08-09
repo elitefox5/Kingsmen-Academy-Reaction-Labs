@@ -930,7 +930,7 @@
   const roundsFmt = v => Math.round(v) + ' rounds';
   const pxFmt = v => Math.round(v) + ' px';
   const calloutsFmt = v => v.toFixed(1) + ' callouts';
-  const ADAPTIVE_UNIT_FMT = { ms: msFmt, px: pxFmt, callouts: calloutsFmt };
+  const ADAPTIVE_UNIT_FMT = { ms: msFmt, px: pxFmt, callouts: calloutsFmt, rounds: roundsFmt };
   function titleCase(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
 
   // Builds one "combo" entry: sorted by a hidden composite score, but the row shows the
@@ -944,6 +944,17 @@
   function globalLeaderboardEntries(){
     const opts = [];
     window.KA_GAMES.forEach(g => {
+      if (g.adaptiveKey){
+        // Adaptive-difficulty runs (Choice Reaction, Size Compare, Callout Recall, Flanker)
+        // report a single threshold instead of accuracy+speed — no composite needed, it's
+        // already one number. Checked before the key/metrics branch below since a game can
+        // have both a normal leaderboard entry AND an adaptive one.
+        opts.push({
+          category: g.category, label: g.name + ' — Adaptive', kind: 'simple', dataKey: g.adaptiveKey,
+          key: g.adaptiveKey, higherIsBetter: g.adaptiveHigherIsBetter,
+          format: ADAPTIVE_UNIT_FMT[g.adaptiveUnit] || msFmt
+        });
+      }
       if (g.key){
         const isRounds = g.type === 'rounds';
         if (g.speedMid && !isRounds){
@@ -968,16 +979,6 @@
             category: g.category, label: g.name, kind: 'simple', dataKey: g.key,
             key: g.key, higherIsBetter: true,
             format: isRounds ? roundsFmt : pctFmt(g.total)
-          });
-        }
-        if (g.adaptiveKey){
-          // Adaptive-difficulty runs (Choice Reaction, Size Compare, Callout Recall) report a
-          // single threshold instead of accuracy+speed — no composite needed, it's already
-          // one number. These previously had no leaderboard entry at all.
-          opts.push({
-            category: g.category, label: g.name + ' — Adaptive', kind: 'simple', dataKey: g.adaptiveKey,
-            key: g.adaptiveKey, higherIsBetter: g.adaptiveHigherIsBetter,
-            format: ADAPTIVE_UNIT_FMT[g.adaptiveUnit] || msFmt
           });
         }
       } else if (g.metrics){

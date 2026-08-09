@@ -978,10 +978,12 @@
     <div class="difficulty-note">
       <div><b>Easy</b> — arrows only ever point left or right.</div>
       <div><b>Full</b> — arrows can point in all 4 directions, testing broader discrimination.</div>
+      <div><b>Adaptive</b> — never-ending, one mistake ends it. The arrows flash for less and less time each success, down to a single frame, so you're reacting from a near-instant glimpse. Once that maxes out, the response window itself starts closing in. Reports how many rounds you survive.</div>
     </div>
     <div class="mode-toggle">
       <button id="flkEasyBtn" class="selected">EASY — LEFT / RIGHT</button>
       <button id="flkFullBtn">FULL — 4 DIRECTION</button>
+      <button id="flkAdaptiveBtn">ADAPTIVE</button>
     </div>
     <button id="flkStartBtn">START RUN</button>
   </div>
@@ -1488,7 +1490,7 @@
     <div class="difficulty-note">
       <div><b>Normal</b> — always click the bigger circle.</div>
       <div><b>Hard</b> — the rule flips to SMALLER twice mid-run. Watch the RULE readout.</div>
-      <div><b>Adaptive</b> — 30 trials, and the two circles get closer in size as you get it right. Reports the smallest difference you can still see.</div>
+      <div><b>Adaptive</b> — never-ending, one mistake ends it. The circles get closer in size, then once they're a hair apart you'll get pushed toward tiny or huge circles at random, and once that maxes out the clock starts closing in too. Reports how many rounds you survive.</div>
     </div>
     <div class="mode-toggle">
       <button id="sizNormalBtn" class="selected">NORMAL</button>

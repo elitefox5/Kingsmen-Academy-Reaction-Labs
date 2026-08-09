@@ -16,6 +16,15 @@
   const ISI_MIN = 1100, ISI_MAX = 2000; // total wait; RECENTER_MS of this is movement-free, the rest requires stillness
   const POST_TRIAL_PAUSE = 400;
 
+  // Adaptive is never-ending: one wrong answer, timeout, or false start ends the run outright.
+  // Phase 1: the arrows flash then vanish, for less time each success, down to a single
+  // frame — you're completing the flick from a near-instant glimpse rather than a held view.
+  // Phase 2: once the flash bottoms out, the response window itself starts closing in, 5%
+  // tighter per success, same escalation as Size Compare's final phase. Score is total
+  // rounds survived across both phases.
+  const ADAPTIVE_FLASH_START = 600, ADAPTIVE_FLASH_STEP = 30, ADAPTIVE_FLASH_FLOOR = 17;
+  const ADAPTIVE_TIME_FACTOR = 0.95;
+
   const flkHud = document.getElementById('flkHud');
   const flkModeVal = document.getElementById('flkModeVal');
   const flkTrialVal = document.getElementById('flkTrialVal');
@@ -26,6 +35,7 @@
   const flkStartPanel = document.getElementById('flkStartPanel');
   const flkEasyBtn = document.getElementById('flkEasyBtn');
   const flkFullBtn = document.getElementById('flkFullBtn');
+  const flkAdaptiveBtn = document.getElementById('flkAdaptiveBtn');
   const flkStartBtn = document.getElementById('flkStartBtn');
   const flkResultCard = document.getElementById('flkResultCard');
   const flkNextBtn = document.getElementById('flkNextBtn');
@@ -39,6 +49,9 @@
   let stillDX = 0, stillDY = 0;
   let currentTrial = null;
   let timers = {};
+
+  // Adaptive-only state — reset in startRun, advanced in settleTrial, read in showArrows.
+  let adPhase = 1, adFlash = ADAPTIVE_FLASH_START, adWindow = RESPONSE_WINDOW, adRounds = 0;
 
   function axisOf(dir){ return (dir === 'left' || dir === 'right') ? 'horizontal' : 'vertical'; }
   function oppositeOnAxis(dir){
@@ -57,6 +70,7 @@
     clearTimeout(timers.isi);
     clearTimeout(timers.recenter);
     clearTimeout(timers.response);
+    clearTimeout(timers.flashHide);
     clearTimeout(timers.advance);
   }
 
@@ -64,13 +78,17 @@
     mode = m;
     flkEasyBtn.classList.toggle('selected', m === 'easy');
     flkFullBtn.classList.toggle('selected', m === 'full');
+    flkAdaptiveBtn.classList.toggle('selected', m === 'adaptive');
   }
 
+  function adaptivePhaseLabel(){
+    return adPhase === 1 ? Math.round(adFlash) + 'ms flash' : Math.round(adWindow) + 'ms window';
+  }
   function updateHud(){
     flkModeVal.textContent = mode.toUpperCase();
-    flkTrialVal.textContent = trialIndex + ' / ' + TOTAL_TRIALS;
+    flkTrialVal.textContent = mode === 'adaptive' ? String(adRounds) : (trialIndex + ' / ' + TOTAL_TRIALS);
     flkScoreVal.textContent = score;
-    flkStreakVal.textContent = streak;
+    flkStreakVal.textContent = mode === 'adaptive' ? adaptivePhaseLabel() : streak;
   }
 
   function clearFeedback(){
@@ -107,10 +125,12 @@
     results = [];
     armed = false;
     waiting = false;
+    adPhase = 1; adFlash = ADAPTIVE_FLASH_START; adWindow = RESPONSE_WINDOW; adRounds = 0;
     clearTimers();
     flkStartPanel.style.display = 'none';
     flkResultCard.style.display = 'none';
     flkHud.style.display = '';
+    flkStreakVal.previousElementSibling.textContent = mode === 'adaptive' ? 'PHASE' : 'STREAK';
     clearFeedback();
     hideArrows();
     updateHud();
@@ -118,7 +138,8 @@
   }
 
   function nextTrial(){
-    if (trialIndex >= TOTAL_TRIALS){
+    // Adaptive has no trial cap — it only ever stops on a failure, handled in settleTrial.
+    if (mode !== 'adaptive' && trialIndex >= TOTAL_TRIALS){
       finishRun();
       return;
     }
@@ -161,7 +182,14 @@
       requestAnimationFrame(() => {
         appearTime = performance.now();
         armed = true;
-        timers.response = setTimeout(handleTimeout, RESPONSE_WINDOW);
+        const respWindow = mode === 'adaptive' ? adWindow : RESPONSE_WINDOW;
+        timers.response = setTimeout(handleTimeout, respWindow);
+        if (mode === 'adaptive'){
+          // Arrows vanish after the flash duration regardless of whether the player has
+          // responded yet — armed stays true and the response window keeps running, so the
+          // flick has to be completed from what they already saw, not what's still on screen.
+          timers.flashHide = setTimeout(() => { if (armed) hideArrows(); }, adFlash);
+        }
       });
     });
   }
@@ -170,6 +198,7 @@
     const rt = window.KA_applyGrace(performance.now() - appearTime);
     armed = false;
     clearTimeout(timers.response);
+    clearTimeout(timers.flashHide);
     hideArrows();
 
     const dir = Math.abs(sumDX) > Math.abs(sumDY)
@@ -187,6 +216,7 @@
   function handleTimeout(){
     if (!armed) return;
     armed = false;
+    clearTimeout(timers.flashHide);
     hideArrows();
     currentTrial.outcome = 'timeout';
     streak = 0;
@@ -196,6 +226,21 @@
 
   function settleTrial(){
     results.push(currentTrial);
+    if (mode === 'adaptive'){
+      if (currentTrial.outcome !== 'correct'){
+        // One mistake ends a never-ending run — no next trial to schedule.
+        updateHud();
+        timers.advance = setTimeout(finishRun, POST_TRIAL_PAUSE);
+        return;
+      }
+      adRounds++;
+      if (adPhase === 1){
+        adFlash -= ADAPTIVE_FLASH_STEP;
+        if (adFlash <= ADAPTIVE_FLASH_FLOOR){ adFlash = ADAPTIVE_FLASH_FLOOR; adPhase = 2; }
+      } else {
+        adWindow *= ADAPTIVE_TIME_FACTOR;
+      }
+    }
     updateHud();
     timers.advance = setTimeout(nextTrial, POST_TRIAL_PAUSE);
   }
@@ -230,20 +275,31 @@
     document.getElementById('flkRAcc').textContent = accuracy === null ? '—' : accuracy.toFixed(0) + '%';
     document.getElementById('flkRCost').textContent = flankerEffect === null ? '—' : (flankerEffect >= 0 ? '+' : '') + flankerEffect.toFixed(0) + ' ms';
 
-    const bestKey = 'flk_best_correct_' + mode;
-    const bestCorrect = window.KA_records.get(bestKey, null);
-    const isNewBest = bestCorrect === null || correctTrials.length > bestCorrect;
-    if (isNewBest) window.KA_records.set(bestKey, correctTrials.length);
-    document.getElementById('flkRBest').textContent = (isNewBest ? correctTrials.length : bestCorrect) + ' / ' + results.length;
-    document.getElementById('flkRBestRow').classList.toggle('is-new', isNewBest);
+    if (mode === 'adaptive'){
+      const { best, isNew } = window.KA_recordThreshold('flk', adRounds, 'higher');
+      document.getElementById('flkRBest').textContent = Math.round(best) + ' rounds';
+      document.getElementById('flkRBestRow').classList.toggle('is-new', isNew);
+      window.KA_renderThreshold('flkResultCard', 'Rounds survived',
+        adRounds + ' rounds  (reached phase ' + adPhase + ')', isNew);
+      window.KA_setResultMode('flkResultCard', true);
+      window.KA_history.add('Flanker Task', `adaptive · ${adRounds} rounds (phase ${adPhase})`);
+    } else {
+      const bestKey = 'flk_best_correct_' + mode;
+      const bestCorrect = window.KA_records.get(bestKey, null);
+      const isNewBest = bestCorrect === null || correctTrials.length > bestCorrect;
+      if (isNewBest) window.KA_records.set(bestKey, correctTrials.length);
+      document.getElementById('flkRBest').textContent = (isNewBest ? correctTrials.length : bestCorrect) + ' / ' + results.length;
+      document.getElementById('flkRBestRow').classList.toggle('is-new', isNewBest);
 
-    window.KA_scoreRun('flk', 'flkResultCard', { accuracyPct: accuracy, avgRt, mode });
+      window.KA_scoreRun('flk', 'flkResultCard', { accuracyPct: accuracy, avgRt, mode });
+      window.KA_setResultMode('flkResultCard', false);
+      window.KA_history.add('Flanker Task', `${mode} · correct ${correctTrials.length}/${results.length} · acc ${accuracy === null ? '—' : accuracy.toFixed(0) + '%'}`);
+    }
     flkResultCard.style.display = 'flex';
 
     runHistory.unshift({ mode, correct: correctTrials.length, errors: errors.length, timeouts: timeouts.length, avgRt, accuracy });
     if (runHistory.length > 6) runHistory.pop();
     renderLog();
-    window.KA_history.add('Flanker Task', `${mode} · correct ${correctTrials.length}/${results.length} · acc ${accuracy === null ? '—' : accuracy.toFixed(0) + '%'}`);
   }
 
   function renderLog(){
@@ -271,6 +327,7 @@
 
   flkEasyBtn.addEventListener('click', () => setMode('easy'));
   flkFullBtn.addEventListener('click', () => setMode('full'));
+  flkAdaptiveBtn.addEventListener('click', () => setMode('adaptive'));
   flkStartBtn.addEventListener('click', startRun);
   flkNextBtn.addEventListener('click', startRun);
 
