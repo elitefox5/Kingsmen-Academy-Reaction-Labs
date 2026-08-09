@@ -236,15 +236,17 @@
     document.getElementById('crRAcc').textContent = accuracy === null ? '—' : accuracy.toFixed(0) + '%';
 
     if (mode === 'adaptive'){
-      // Difficulty varied per player, so accuracy here isn't comparable — this run reports
-      // a threshold and deliberately stays out of records, weekly and rank.
+      // Difficulty varied per player, so accuracy here isn't comparable to the fixed-trial
+      // accuracy+speed rank — this run reports a threshold instead and deliberately stays
+      // out of records/weekly, but does get its own ladder (KA_ADAPTIVE_RANKS).
       const threshold = stair.result();
       const { best, isNew } = window.KA_recordThreshold('cr', threshold, 'lower');
       document.getElementById('crRBest').textContent = Math.round(best) + ' ms window';
       document.getElementById('crRBestRow').classList.toggle('is-new', isNew);
       window.KA_renderThreshold('crResultCard', 'Response window held',
         Math.round(threshold) + ' ms  (' + stair.reversalCount() + ' reversals)', isNew);
-      window.KA_setResultMode('crResultCard', true);
+      window.KA_renderRunRank('crResultCard', { combined: window.KA_getAdaptiveRank('cr', threshold) });
+      window.KA_setResultModeRanked('crResultCard');
       window.KA_history.add('Choice Reaction', `adaptive · window ${Math.round(threshold)} ms`);
     } else {
       const bestCorrect = window.KA_records.get('cr_best_correct', null);

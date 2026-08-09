@@ -126,7 +126,8 @@
       document.getElementById('cloRBestRow').classList.toggle('is-new', isNew);
       window.KA_renderThreshold('cloResultCard', 'Span held',
         threshold.toFixed(1) + ' callouts  (' + stair.reversalCount() + ' reversals)', isNew);
-      window.KA_setResultMode('cloResultCard', true);
+      window.KA_renderRunRank('cloResultCard', { combined: window.KA_getAdaptiveRank('clo', threshold) });
+      window.KA_setResultModeRanked('cloResultCard');
       window.KA_history.add('Callout Recall', `adaptive · span ${threshold.toFixed(1)}`);
     } else {
       const bestCorrect = window.KA_records.get('clo_best_correct', null);

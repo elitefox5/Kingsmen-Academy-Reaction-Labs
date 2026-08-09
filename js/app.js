@@ -522,6 +522,7 @@
   function formatRankReq(r, kind){
     if (kind === 'ms') return r.max === Infinity ? 'Starting rank' : 'Under ' + r.max + ' ms';
     if (kind === 'acc') return r.min === 0 ? 'Starting rank' : r.min + '%+';
+    if (kind === 'callouts') return r.min <= 2 ? 'Starting rank' : r.min + '+ callouts';
     return r.min === 0 ? 'Starting rank' : r.min + '+ rounds';
   }
 
@@ -550,10 +551,17 @@
     const adaptiveBtn = document.getElementById(gameId + 'AdaptiveBtn');
     if (game.adaptiveKey && adaptiveBtn && adaptiveBtn.classList.contains('selected')){
       const desc = ADAPTIVE_DESC[game.adaptiveUnit] || 'your score climbs as difficulty escalates automatically, until you make a mistake.';
+      const heading = game.adaptiveUnit === 'ms' ? 'Response window held'
+        : game.adaptiveUnit === 'callouts' ? 'Longest sequence held'
+        : 'Rounds survived';
+      const kind = game.adaptiveUnit === 'ms' ? 'ms' : game.adaptiveUnit === 'callouts' ? 'callouts' : 'rounds';
       return {
         title: game.name + ' — Adaptive',
-        sections: [{ note: 'Adaptive mode doesn’t use the tier ladder below — ' + desc +
-          ' It has its own separate leaderboard entry (labeled “— Adaptive”), not the tiers shown for this game’s other modes.' }]
+        sections: [
+          { heading, ladder: window.KA_adaptiveLadderFor(gameId), kind },
+          { note: 'Adaptive has its own separate leaderboard entry (labeled “— Adaptive”), not the tiers shown for this game’s other modes — ' + desc +
+            ' First-pass numbers, not yet tuned against real play.' }
+        ]
       };
     }
 

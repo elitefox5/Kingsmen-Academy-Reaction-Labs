@@ -205,7 +205,8 @@
       document.getElementById('sizRBestRow').classList.toggle('is-new', isNew);
       window.KA_renderThreshold('sizResultCard', 'Rounds survived',
         adRounds + ' rounds  (reached phase ' + adPhase + ')', isNew);
-      window.KA_setResultMode('sizResultCard', true);
+      window.KA_renderRunRank('sizResultCard', { combined: window.KA_getAdaptiveRank('siz', adRounds) });
+      window.KA_setResultModeRanked('sizResultCard');
       window.KA_history.add('Size Compare', `adaptive · ${adRounds} rounds (phase ${adPhase})`);
     } else {
       const bestCorrect = window.KA_records.get('siz_best_correct', null);
