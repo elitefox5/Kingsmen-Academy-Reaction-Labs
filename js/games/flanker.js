@@ -281,7 +281,8 @@
       document.getElementById('flkRBestRow').classList.toggle('is-new', isNew);
       window.KA_renderThreshold('flkResultCard', 'Rounds survived',
         adRounds + ' rounds  (reached phase ' + adPhase + ')', isNew);
-      window.KA_setResultMode('flkResultCard', true);
+      window.KA_renderRunRank('flkResultCard', { combined: window.KA_getAdaptiveRank('flk', adRounds) });
+      window.KA_setResultModeRanked('flkResultCard');
       window.KA_history.add('Flanker Task', `adaptive · ${adRounds} rounds (phase ${adPhase})`);
     } else {
       const bestKey = 'flk_best_correct_' + mode;

@@ -373,8 +373,53 @@
     return { best: better ? value : best, isNew: better };
   };
 
-  // Adaptive runs are deliberately kept out of the rank system — difficulty varied per
-  // player, so accuracy is no longer comparable. They report a threshold instead.
+  // Adaptive rank ladders — a first-pass estimate, not yet tuned against real playtesting.
+  // There's no established population baseline for these never-ending modes the way Silver
+  // = population average works for the other ladders, so these follow the same method used
+  // to calibrate Flash Reflex's escalation ladder instead: work out roughly which round the
+  // difficulty curve starts genuinely testing the relevant limit, put Silver there, and climb
+  // Gold-through-Legend toward the rare/elite end. Revisit every cut point once there's
+  // actual data on where players land.
+  //   siz (rounds, higher better): phase 1 (gap shrink) completes in exactly 15 rounds —
+  //     that's the natural "cleared the warm-up" milestone, so Silver sits there. Phase 2's
+  //     length is genuinely unpredictable (a random walk between size bounds), so everything
+  //     past Silver is a rougher guess than Flanker's below.
+  //   flk (rounds, higher better): phase 1 (flash shrink) completes in exactly 20 rounds —
+  //     Silver there, same logic. Phase 2 is deterministic (window *= 0.95/round), so the
+  //     higher cuts are anchored to roughly what response-window ms they imply.
+  //   cr (ms, lower better): existing bounded staircase (400-1500ms), unchanged mode —
+  //     ladder spans that same range.
+  //   clo (callouts, higher better): existing bounded staircase (2-9 span), unchanged mode —
+  //     ladder spans that same range, consistent with Simon Sequence/Grid Recall's
+  //     memory-span calibration.
+  window.KA_ADAPTIVE_RANKS = {
+    siz: { unit: 'rounds',   higherIsBetter: true,  cuts: [0, 6, 15, 25, 40, 60, 85, 115, 150] },
+    flk: { unit: 'rounds',   higherIsBetter: true,  cuts: [0, 8, 20, 28, 36, 44, 52, 60, 68] },
+    cr:  { unit: 'ms',       higherIsBetter: false, cuts: [Infinity, 1000, 850, 700, 600, 500, 450, 425, 400] },
+    clo: { unit: 'callouts', higherIsBetter: true,  cuts: [2, 3, 5, 6, 7, 7.5, 8, 8.5, 9] }
+  };
+  window.KA_getAdaptiveRank = function(gameId, value){
+    const table = window.KA_ADAPTIVE_RANKS[gameId];
+    if (!table || value === null || value === undefined) return null;
+    for (let i = window.KA_RANK_NAMES.length - 1; i >= 0; i--){
+      const cut = table.cuts[i];
+      const ok = table.higherIsBetter ? value >= cut : value < cut;
+      if (ok) return { name: window.KA_RANK_NAMES[i], color: window.KA_RANK_COLORS[i], cut };
+    }
+    return { name: window.KA_RANK_NAMES[0], color: window.KA_RANK_COLORS[0], cut: table.cuts[0] };
+  };
+  // Same ladder, reshaped into the {name, color, min|max} form the rank-reference panel and
+  // formatRankReq already know how to render, so it doesn't need its own display path.
+  window.KA_adaptiveLadderFor = function(gameId){
+    const table = window.KA_ADAPTIVE_RANKS[gameId];
+    if (!table) return null;
+    return table.cuts.map((cut, i) => ({
+      name: window.KA_RANK_NAMES[i], color: window.KA_RANK_COLORS[i],
+      max: table.higherIsBetter ? undefined : cut,
+      min: table.higherIsBetter ? cut : undefined
+    }));
+  };
+
   window.KA_renderThreshold = function(resultCardId, label, text, isNew){
     const card = document.querySelector('#' + resultCardId + ' .card');
     if (!card) return;
@@ -391,7 +436,9 @@
     row.classList.toggle('is-new', !!isNew);
   };
 
-  // Adaptive and ranked runs show different rows — hide whichever set doesn't apply.
+  // Adaptive and ranked runs show different rows — hide whichever set doesn't apply. Games
+  // whose adaptive mode has no rank ladder at all (none currently — see KA_setResultModeRanked
+  // below for the ones that do) use this to show only the raw threshold, no rank row.
   window.KA_setResultMode = function(resultCardId, adaptive){
     const card = document.querySelector('#' + resultCardId + ' .card');
     if (!card) return;
@@ -401,6 +448,22 @@
     });
     const t = card.querySelector('.run-threshold-row');
     if (t) t.style.display = adaptive ? '' : 'none';
+  };
+
+  // For adaptive runs that DO have a rank ladder (KA_ADAPTIVE_RANKS): show the raw
+  // threshold/rounds number AND the rank it lands on, side by side — no accuracy/speed
+  // sub-badges, since an adaptive run only has the one dimension to rank.
+  window.KA_setResultModeRanked = function(resultCardId){
+    const card = document.querySelector('#' + resultCardId + ' .card');
+    if (!card) return;
+    ['.run-rank-acc', '.run-rank-speed'].forEach(sel => {
+      const el = card.querySelector(sel);
+      if (el) el.style.display = 'none';
+    });
+    ['.run-threshold-row', '.run-rank-row'].forEach(sel => {
+      const el = card.querySelector(sel);
+      if (el) el.style.display = '';
+    });
   };
 
   // Single source of truth for every game's record key(s) — drives the Stats and Leaderboards screens.
