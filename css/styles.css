@@ -1725,11 +1725,26 @@
 
   /* ================= CHOICE REACTION ================= */
 
-  #crStim{
+  /* Fixed-size square 3x3 grid, centered in the playfield and capped by the smaller of
+     width/height (vmin) — the layout always renders at the same size and shape regardless
+     of how wide or tall the browser window is, instead of stretching to fill a wide viewport.
+     Zones are grid-placed by id, so source order in the HTML doesn't matter. */
+  .cr-octagon{
     position:absolute;
-    left:50%; top:50%;
-    width:90px; height:90px;
+    top:50%; left:50%;
+    width:min(430px, 82vmin);
+    height:min(430px, 82vmin);
     transform:translate(-50%,-50%);
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    grid-template-rows:repeat(3, 1fr);
+    gap:3%;
+  }
+
+  #crStim{
+    grid-column:2; grid-row:2;
+    width:60%; height:60%;
+    justify-self:center; align-self:center;
     border-radius:50%;
     border:2px solid var(--amber-dim);
     background:transparent;
@@ -1738,8 +1753,8 @@
   }
 
   .cr-zone{
-    position:absolute;
-    width:110px; height:110px;
+    box-sizing:border-box;
+    width:100%; height:100%;
     border:2px solid var(--gold-dim);
     border-radius:6px;
     display:flex; align-items:center; justify-content:center;
@@ -1754,14 +1769,14 @@
   }
   .cr-zone.miss-flash{ outline:3px solid rgba(255,90,90,0.9); outline-offset:5px; }
   .cr-zone.hit-flash{ transform:scale(0.94); }
-  #crZoneTop{ top:60px; left:50%; transform:translateX(-50%); }
-  #crZoneBottom{ bottom:60px; left:50%; transform:translateX(-50%); }
-  #crZoneLeft{ left:60px; top:50%; transform:translateY(-50%); }
-  #crZoneRight{ right:60px; top:50%; transform:translateY(-50%); }
-  #crZoneTopLeft{ top:100px; left:100px; }
-  #crZoneTopRight{ top:100px; right:100px; }
-  #crZoneBottomLeft{ bottom:100px; left:100px; }
-  #crZoneBottomRight{ bottom:100px; right:100px; }
+  #crZoneTopLeft{ grid-column:1; grid-row:1; }
+  #crZoneTop{ grid-column:2; grid-row:1; }
+  #crZoneTopRight{ grid-column:3; grid-row:1; }
+  #crZoneLeft{ grid-column:1; grid-row:2; }
+  #crZoneRight{ grid-column:3; grid-row:2; }
+  #crZoneBottomLeft{ grid-column:1; grid-row:3; }
+  #crZoneBottom{ grid-column:2; grid-row:3; }
+  #crZoneBottomRight{ grid-column:3; grid-row:3; }
 
   .cr-feedback{
     position:absolute;
