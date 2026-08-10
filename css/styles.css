@@ -502,6 +502,7 @@
     cursor:pointer;
   }
   .ranksRefBtn:hover{ color:var(--gold-bright); border-color:var(--gold); }
+  .ranksRefBtn.muted{ color:var(--dim); border-color:var(--grid); }
 
   #rankRefModal{
     display:none;

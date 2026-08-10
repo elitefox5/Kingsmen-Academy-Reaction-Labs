@@ -5,6 +5,8 @@
 // triggers doubles as that gesture, so this never needs its own "enable sound" prompt.
 (function(){
   let ctx = null;
+  let muted = window.KA_records.get('muted', false);
+
   function getCtx(){
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return null;
@@ -14,6 +16,7 @@
   }
 
   function blip(freq, dur, type, peak){
+    if (muted) return;
     const c = getCtx();
     if (!c) return;
     const osc = c.createOscillator();
@@ -37,6 +40,11 @@
     // A square/pad lighting up during the computer's playback of a memory sequence.
     memoryShow(){ blip(520, 0.12, 'triangle', 0.13); },
     // The player's own click on a memory square, lighting it up in response.
-    memoryClick(){ blip(340, 0.08, 'square', 0.1); }
+    memoryClick(){ blip(340, 0.08, 'square', 0.1); },
+    isMuted(){ return muted; },
+    setMuted(value){
+      muted = !!value;
+      window.KA_records.set('muted', muted);
+    }
   };
 })();
