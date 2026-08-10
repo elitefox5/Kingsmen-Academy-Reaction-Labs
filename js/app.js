@@ -480,6 +480,19 @@
     btn.addEventListener('click', returnToMenu);
   });
 
+  // Mute toggle — lives next to the Workouts menu's back button. State is read fresh on
+  // every load in audio.js itself; this just keeps the button's label in sync with it.
+  const muteToggleBtn = document.getElementById('muteToggleBtn');
+  function renderMuteToggle(){
+    muteToggleBtn.textContent = 'SOUND: ' + (window.KA_sound.isMuted() ? 'OFF' : 'ON');
+    muteToggleBtn.classList.toggle('muted', window.KA_sound.isMuted());
+  }
+  muteToggleBtn.addEventListener('click', () => {
+    window.KA_sound.setMuted(!window.KA_sound.isMuted());
+    renderMuteToggle();
+  });
+  renderMuteToggle();
+
   menuBackBtn.addEventListener('click', returnToHome);
   statsBackBtn.addEventListener('click', returnToHome);
   leaderboardsBackBtn.addEventListener('click', returnToHome);
