@@ -12,16 +12,21 @@
   const ZONE_KEYS = Object.keys(ZONE_COLORS);
   const POSITIONS = ['top', 'bottom', 'left', 'right', 'topLeft', 'topRight', 'bottomLeft', 'bottomRight'];
   const TOTAL_TRIALS = 20;
-  const ADAPTIVE_TRIALS = 30; // a staircase needs more trials than 20 to settle
   const RESPONSE_WINDOW = 1200;
   const ISI_MIN = 500, ISI_MAX = 1200;
   const POST_TRIAL_PAUSE = 350;
   const STAIR = { min: 400, max: 1500, step: 75, startAt: 1200, harderIs: 'lower' };
+  // Adaptive is never-ending: the staircase keeps adjusting the response window until the
+  // player racks up 3 total errors (wrong zone or no response), not a fixed trial count.
+  // The threshold/rank scoring itself (stair.result(), KA_ADAPTIVE_RANKS) is unchanged.
+  const ADAPTIVE_ERROR_LIMIT = 3;
 
   const crHud = document.getElementById('crHud');
   const crTrialVal = document.getElementById('crTrialVal');
   const crScoreVal = document.getElementById('crScoreVal');
   const crStreakVal = document.getElementById('crStreakVal');
+  const crLivesRow = document.getElementById('crLivesRow');
+  const crLivesVal = document.getElementById('crLivesVal');
   const crStim = document.getElementById('crStim');
   const crFeedback = document.getElementById('crFeedback');
   const crStartPanel = document.getElementById('crStartPanel');
@@ -56,6 +61,7 @@
 
   let zoneAssignment = {}; // position -> colorKey
   let trialIndex, score, streak, results, runHistory = [];
+  let adErrors = 0;
   let armed = false;
   let appearTime = null;
   let currentTrial = null;
@@ -95,9 +101,10 @@
   }
 
   function updateHud(){
-    crTrialVal.textContent = trialIndex + ' / ' + runTotal;
+    crTrialVal.textContent = mode === 'adaptive' ? String(trialIndex) : (trialIndex + ' / ' + runTotal);
     crScoreVal.textContent = score;
     crStreakVal.textContent = mode === 'adaptive' ? Math.round(stair.value) + ' ms' : streak;
+    if (mode === 'adaptive') crLivesVal.textContent = Math.max(0, ADAPTIVE_ERROR_LIMIT - adErrors);
   }
 
   function clearFeedback(){
@@ -114,14 +121,16 @@
     trialIndex = 0;
     score = 0;
     streak = 0;
+    adErrors = 0;
     results = [];
     armed = false;
     clearTimers();
     assignZones();
     stair = window.KA_makeStaircase(STAIR);
-    runTotal = mode === 'adaptive' ? ADAPTIVE_TRIALS : TOTAL_TRIALS;
+    runTotal = TOTAL_TRIALS;
     switchPoints = mode === 'hard' ? [Math.floor(TOTAL_TRIALS / 3) + 1, Math.floor(TOTAL_TRIALS * 2 / 3) + 1] : [];
     crStreakVal.previousElementSibling.textContent = mode === 'adaptive' ? 'WINDOW' : 'STREAK';
+    crLivesRow.style.display = mode === 'adaptive' ? '' : 'none';
     window.KA_setResultMode('crResultCard', mode === 'adaptive');
     crStartPanel.style.display = 'none';
     crResultCard.style.display = 'none';
@@ -133,7 +142,9 @@
   }
 
   function nextTrial(){
-    if (trialIndex >= runTotal){
+    // Adaptive has no trial cap — it only ever stops once 3 errors have piled up, handled
+    // in settleTrial.
+    if (mode !== 'adaptive' && trialIndex >= runTotal){
       finishRun();
       return;
     }
@@ -210,8 +221,18 @@
 
   function settleTrial(){
     results.push(currentTrial);
-    if (mode === 'adaptive') stair.record(currentTrial.outcome === 'hit');
-    updateHud();
+    if (mode === 'adaptive'){
+      const hit = currentTrial.outcome === 'hit';
+      stair.record(hit);
+      if (!hit) adErrors++;
+      updateHud();
+      if (adErrors >= ADAPTIVE_ERROR_LIMIT){
+        timers.advance = setTimeout(finishRun, POST_TRIAL_PAUSE);
+        return;
+      }
+    } else {
+      updateHud();
+    }
     timers.advance = setTimeout(nextTrial, POST_TRIAL_PAUSE);
   }
 

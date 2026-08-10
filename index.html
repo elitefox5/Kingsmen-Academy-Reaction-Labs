@@ -1022,6 +1022,7 @@
       <div class="hud-row active"><span class="lbl">TRIAL</span><span class="val" id="crTrialVal">0 / 20</span></div>
       <div class="hud-row active"><span class="lbl">CORRECT</span><span class="val" id="crScoreVal">0</span></div>
       <div class="hud-row active"><span class="lbl">STREAK</span><span class="val" id="crStreakVal">0</span></div>
+      <div class="hud-row active" id="crLivesRow" style="display:none;"><span class="lbl">LIVES</span><span class="val" id="crLivesVal">3</span></div>
     </div>
   </header>
 
@@ -1054,7 +1055,7 @@
     <div class="difficulty-note">
       <div><b>Normal</b> — the mapping is set once and never changes.</div>
       <div><b>Hard</b> — the mapping reshuffles twice mid-run, unannounced. Watch the labels.</div>
-      <div><b>Adaptive</b> — 30 trials, and the response window tightens as you get it right. Reports the fastest window you can hold, instead of a rank.</div>
+      <div><b>Adaptive</b> — never-ending. The response window tightens as you get it right, and the run ends after 3 total errors. Reports the fastest window you can hold, instead of a rank.</div>
     </div>
     <div class="mode-toggle">
       <button id="crNormalBtn" class="selected">NORMAL</button>
