@@ -312,22 +312,47 @@
     ).join('<span style="color:var(--grid)">|</span>');
   }
 
-  window.addEventListener('mousemove', (e) => {
+  // Shared by real mouse movement (movementX/Y deltas, fired continuously by the browser)
+  // and touch (where we compute our own delta between consecutive touchmove points, since
+  // touch events carry no movementX/Y of their own).
+  function applyMovementDelta(dx, dy){
     if (waiting){
-      stillDX += e.movementX || 0;
-      stillDY += e.movementY || 0;
+      stillDX += dx;
+      stillDY += dy;
       if (Math.hypot(stillDX, stillDY) >= STILL_THRESHOLD){
         handleFalseStart();
       }
       return;
     }
     if (!armed) return;
-    sumDX += e.movementX || 0;
-    sumDY += e.movementY || 0;
+    sumDX += dx;
+    sumDY += dy;
     if (Math.hypot(sumDX, sumDY) >= MOVE_THRESHOLD){
       resolveResponse();
     }
+  }
+
+  window.addEventListener('mousemove', (e) => {
+    applyMovementDelta(e.movementX || 0, e.movementY || 0);
   });
+
+  // Touch has no movementX/Y, so we track the previous touch point ourselves and diff
+  // against it on each touchmove — same delta shape the mouse path already expects.
+  let lastTouch = null;
+  window.addEventListener('touchstart', (e) => {
+    if (!e.touches.length) return;
+    lastTouch = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  }, { passive: true });
+  window.addEventListener('touchmove', (e) => {
+    if (!e.touches.length || !lastTouch) return;
+    if (waiting || armed) e.preventDefault();
+    const t = e.touches[0];
+    const dx = t.clientX - lastTouch.x;
+    const dy = t.clientY - lastTouch.y;
+    lastTouch = { x: t.clientX, y: t.clientY };
+    applyMovementDelta(dx, dy);
+  }, { passive: false });
+  window.addEventListener('touchend', () => { lastTouch = null; });
 
   flkEasyBtn.addEventListener('click', () => setMode('easy'));
   flkFullBtn.addEventListener('click', () => setMode('full'));
