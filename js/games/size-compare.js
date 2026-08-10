@@ -122,6 +122,7 @@
     sizRightCircle.style.height = rightSize + 'px';
     sizLeftZone.style.display = 'flex';
     sizRightZone.style.display = 'flex';
+    window.KA_sound.stimulus();
     const window_ = mode === 'adaptive' ? adWindow : RESPONSE_WINDOW;
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
@@ -143,6 +144,7 @@
       showFeedback('CORRECT — ' + fmtMs(rt), 'good');
     } else {
       currentTrial.outcome = 'incorrect';
+      window.KA_sound.error();
       showFeedback('WRONG', 'bad');
     }
     settleTrial();
@@ -152,6 +154,7 @@
     if (!armed) return;
     armed = false; hideCircles();
     currentTrial.outcome = 'timeout';
+    window.KA_sound.error();
     showFeedback('TOO SLOW', 'bad');
     settleTrial();
   }

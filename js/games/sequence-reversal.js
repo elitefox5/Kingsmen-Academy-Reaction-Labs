@@ -74,9 +74,9 @@
 
   function handlePadClick(index){
     if (!accepting) return;
-    window.KA_sound.memoryClick();
     flashPad(index);
     if (index === expected[playerIndex]){
+      window.KA_sound.memoryClick();
       playerIndex++;
       if (playerIndex >= expected.length){
         accepting = false;
@@ -87,6 +87,7 @@
     } else {
       accepting = false;
       currentTrial.outcome = 'incorrect';
+      window.KA_sound.error();
       showFeedback('WRONG ORDER', 'bad');
       settleTrial();
     }

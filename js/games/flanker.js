@@ -170,6 +170,7 @@
     hideArrows();
     currentTrial.outcome = 'early';
     streak = 0;
+    window.KA_sound.error();
     showFeedback('TOO EARLY — HOLD STILL', 'bad');
     settleTrial();
   }
@@ -177,6 +178,7 @@
   function showArrows(target, flankerDir){
     waiting = false;
     renderArrows(target, flankerDir);
+    window.KA_sound.stimulus();
     sumDX = 0; sumDY = 0;
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
@@ -209,7 +211,7 @@
     currentTrial.rt = rt;
     currentTrial.outcome = correct ? 'correct' : 'incorrect';
     if (correct){ score++; streak++; showFeedback('CORRECT — ' + fmtMs(rt), 'good'); }
-    else { streak = 0; showFeedback('WRONG DIRECTION', 'bad'); }
+    else { streak = 0; window.KA_sound.error(); showFeedback('WRONG DIRECTION', 'bad'); }
     settleTrial();
   }
 
@@ -220,6 +222,7 @@
     hideArrows();
     currentTrial.outcome = 'timeout';
     streak = 0;
+    window.KA_sound.error();
     showFeedback('NO RESPONSE', 'bad');
     settleTrial();
   }

@@ -71,6 +71,7 @@
     if (!armed){
       clearTimeout(timers.isi);
       currentTrial.outcome = 'early';
+      window.KA_sound.error();
       showFeedback('TOO SOON', 'bad');
       settleTrial();
       return;
@@ -88,6 +89,7 @@
     armed = false;
     bfxZone.classList.remove('go'); bfxZone.textContent = 'WAIT';
     currentTrial.outcome = 'timeout';
+    window.KA_sound.error();
     showFeedback('MISSED', 'bad');
     settleTrial();
   }

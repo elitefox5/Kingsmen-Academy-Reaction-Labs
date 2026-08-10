@@ -77,6 +77,7 @@
       }
       cloWord.textContent = sequence[i];
       cloWord.style.display = 'block';
+      window.KA_sound.memoryShow();
       timers.show = setTimeout(() => {
         cloWord.style.display = 'none';
         i++;
@@ -89,6 +90,7 @@
   function handleZoneClick(dir){
     if (!accepting) return;
     if (dir === sequence[playerIndex]){
+      window.KA_sound.memoryClick();
       playerIndex++;
       if (playerIndex >= sequence.length){
         accepting = false;
@@ -99,6 +101,7 @@
     } else {
       accepting = false;
       currentTrial.outcome = 'incorrect';
+      window.KA_sound.error();
       showFeedback('WRONG ORDER', 'bad');
       settleTrial();
     }
