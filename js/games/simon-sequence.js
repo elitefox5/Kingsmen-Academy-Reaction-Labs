@@ -70,8 +70,8 @@
 
   function handlePadClick(color){
     if (!accepting) return;
-    window.KA_sound.memoryClick();
     if (color === sequence[playerIndex]){
+      window.KA_sound.memoryClick();
       correctClicks++;
       playerIndex++;
       if (playerIndex >= sequence.length){
@@ -81,6 +81,7 @@
       }
     } else {
       accepting = false;
+      window.KA_sound.error();
       showFeedback('WRONG PAD', 'bad');
       finishRun();
     }

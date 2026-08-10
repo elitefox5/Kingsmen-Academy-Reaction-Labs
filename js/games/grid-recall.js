@@ -82,9 +82,9 @@
 
   function handleCellClick(index){
     if (!accepting) return;
-    window.KA_sound.memoryClick();
     flashPicked(index);
     if (index === sequence[playerIndex]){
+      window.KA_sound.memoryClick();
       correctClicks++;
       playerIndex++;
       if (playerIndex >= sequence.length){
@@ -94,6 +94,7 @@
       }
     } else {
       accepting = false;
+      window.KA_sound.error();
       showFeedback('WRONG CELL', 'bad');
       finishRun();
     }

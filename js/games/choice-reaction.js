@@ -189,6 +189,7 @@
     } else {
       currentTrial.outcome = 'wrongZone';
       streak = 0;
+      window.KA_sound.error();
       showFeedback('WRONG ZONE', 'bad');
       el.classList.add('miss-flash');
       setTimeout(() => el.classList.remove('miss-flash'), 220);
@@ -202,6 +203,7 @@
     crStim.style.display = 'none';
     currentTrial.outcome = 'timeout';
     streak = 0;
+    window.KA_sound.error();
     showFeedback('NO RESPONSE', 'bad');
     settleTrial();
   }

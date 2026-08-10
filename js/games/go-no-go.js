@@ -165,6 +165,7 @@
       currentTrial.outcome = 'falseAlarm';
       score = Math.max(0, score - 1);
       streak = 0;
+      window.KA_sound.error();
       showFeedback('FALSE ALARM', 'bad');
     }
     settleTrial();
@@ -178,6 +179,7 @@
     if (currentTrial.isGo){
       currentTrial.outcome = 'miss';
       streak = 0;
+      window.KA_sound.error();
       showFeedback('MISS', 'bad');
     } else {
       currentTrial.outcome = 'correctReject';

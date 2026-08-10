@@ -33,6 +33,27 @@
     osc.stop(now + dur + 0.02);
   }
 
+  // Deliberately harsher/lower than every other cue — a falling sawtooth reads as
+  // "wrong" the way the sine/triangle blips read as neutral confirmation.
+  function errorBlip(){
+    if (muted) return;
+    const c = getCtx();
+    if (!c) return;
+    const osc = c.createOscillator();
+    const gain = c.createGain();
+    osc.type = 'sawtooth';
+    const now = c.currentTime;
+    osc.frequency.setValueAtTime(220, now);
+    osc.frequency.exponentialRampToValueAtTime(110, now + 0.16);
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(0.15, now + 0.008);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
+    osc.connect(gain);
+    gain.connect(c.destination);
+    osc.start(now);
+    osc.stop(now + 0.2);
+  }
+
   window.KA_sound = {
     // A reaction-game stimulus appearing (Go/No-Go's color, Peripheral Ping's dot, Base
     // Reflex's green, Flash Reflex's arrow, Choice Reaction's flash).
@@ -41,6 +62,8 @@
     memoryShow(){ blip(520, 0.12, 'triangle', 0.13); },
     // The player's own click on a memory square, lighting it up in response.
     memoryClick(){ blip(340, 0.08, 'square', 0.1); },
+    // A wrong answer, miss, timeout, or false start — any trial-ending mistake.
+    error(){ errorBlip(); },
     isMuted(){ return muted; },
     setMuted(value){
       muted = !!value;

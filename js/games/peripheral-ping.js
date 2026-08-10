@@ -108,6 +108,7 @@
     if (!armed) return;
     armed = false; perPing.style.display = 'none';
     currentTrial.outcome = 'timeout';
+    window.KA_sound.error();
     showFeedback('MISSED', 'bad');
     settleTrial();
   }

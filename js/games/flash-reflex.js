@@ -154,6 +154,7 @@
     } else {
       currentTrial.outcome = 'incorrect';
       lives--;
+      window.KA_sound.error();
       showFeedback('WRONG DIRECTION', 'bad');
     }
     settleRound();
@@ -164,6 +165,7 @@
     phase = 'idle';
     currentTrial.outcome = 'timeout';
     lives--;
+    window.KA_sound.error();
     showFeedback('TOO SLOW', 'bad');
     settleRound();
   }
