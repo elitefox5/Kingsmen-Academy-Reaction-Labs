@@ -15,7 +15,10 @@
   const RESPONSE_WINDOW = 1200;
   const ISI_MIN = 500, ISI_MAX = 1200;
   const POST_TRIAL_PAUSE = 350;
-  const STAIR = { min: 400, max: 1500, step: 75, startAt: 1200, harderIs: 'lower' };
+  // missPenalty: 3 — a single error backs the response window off 3 step-sizes (225ms)
+  // instead of the standard 1-step recovery, so one miss undoes as much difficulty as
+  // 3 separate hardening moves (each of which itself takes 2 correct answers to earn).
+  const STAIR = { min: 400, max: 1500, step: 75, startAt: 1200, harderIs: 'lower', missPenalty: 3 };
   // Adaptive is never-ending: the staircase keeps adjusting the response window until the
   // player racks up 3 total errors (wrong zone or no response), not a fixed trial count.
   // The threshold/rank scoring itself (stair.result(), KA_ADAPTIVE_RANKS) is unchanged.

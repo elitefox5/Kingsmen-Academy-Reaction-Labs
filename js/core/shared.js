@@ -324,9 +324,13 @@
   // time — your actual edge. The reported threshold is the mean of the last few REVERSALS
   // (points where the direction flipped), which throws away the noisy early hunting.
   //
-  // cfg: { min, max, step, startAt, harderIs:'lower'|'higher' }
+  // cfg: { min, max, step, startAt, harderIs:'lower'|'higher', missPenalty }
   //   'lower'  — harder means a smaller number (response windows, size deltas)
   //   'higher' — harder means a bigger number (sequence lengths, set sizes)
+  //   missPenalty — how many step-sizes a single miss backs off, vs. the 1 step a normal
+  //     easier-move takes (default 1). Games that want a miss to hurt more than the standard
+  //     1-up/2-down ratio (e.g. Choice Reaction backing off 3 steps — the same distance 3
+  //     hard-earned correct answers would have climbed) pass a higher value.
   window.KA_makeStaircase = function(cfg){
     const harderIsLower = cfg.harderIs !== 'higher';
     const lo = Math.min(cfg.min, cfg.max);
@@ -337,12 +341,12 @@
       streak: 0,
       reversals: [],
       lastDir: null,
-      _move(dir){
+      _move(dir, mult){
         const towardHard = (dir === 'harder');
         const delta = (towardHard === harderIsLower) ? -this.step : this.step;
         if (this.lastDir && this.lastDir !== dir) this.reversals.push(this.value);
         this.lastDir = dir;
-        this.value = Math.min(hi, Math.max(lo, this.value + delta));
+        this.value = Math.min(hi, Math.max(lo, this.value + delta * (mult || 1)));
       },
       record(wasCorrect){
         if (wasCorrect){
@@ -350,7 +354,7 @@
           if (this.streak >= 2){ this.streak = 0; this._move('harder'); }
         } else {
           this.streak = 0;
-          this._move('easier');
+          this._move('easier', cfg.missPenalty);
         }
       },
       // Falls back to the current value if the run ended before any reversal happened.
