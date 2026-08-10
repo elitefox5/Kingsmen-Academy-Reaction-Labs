@@ -161,6 +161,7 @@
     crStim.style.borderColor = hex;
     crStim.style.boxShadow = `0 0 30px ${hex}99`;
     crStim.style.display = 'block';
+    window.KA_sound.stimulus();
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         appearTime = performance.now();

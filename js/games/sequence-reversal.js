@@ -56,6 +56,7 @@
       }
       const idx = sequence[i];
       padEls[idx].classList.add('lit');
+      window.KA_sound.memoryShow();
       timers.show = setTimeout(() => {
         padEls[idx].classList.remove('lit');
         i++;
@@ -73,6 +74,7 @@
 
   function handlePadClick(index){
     if (!accepting) return;
+    window.KA_sound.memoryClick();
     flashPad(index);
     if (index === expected[playerIndex]){
       playerIndex++;

@@ -53,6 +53,7 @@
     // when the frame was presented, not just when we asked the browser to draw it.
     requestAnimationFrame(() => {
       bfxZone.classList.add('go'); bfxZone.textContent = 'CLICK!';
+      window.KA_sound.stimulus();
       // Arm immediately with a provisional timestamp. Without this there's a ~1 frame
       // window where the green is already on screen but a press would be judged a false
       // start. rAF #2 then replaces it with the true presentation time.
