@@ -84,6 +84,7 @@
     perPing.style.left = pos.x + 'px';
     perPing.style.top = pos.y + 'px';
     perPing.style.display = 'block';
+    window.KA_sound.stimulus();
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         appearTime = performance.now();

@@ -138,6 +138,7 @@
     gngStim.style.borderColor = GO_COLORS[stimColor];
     gngStim.style.boxShadow = `0 0 36px ${GO_COLORS[stimColor]}99`;
     gngStim.style.display = 'block';
+    window.KA_sound.stimulus();
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         stimAppearTime = performance.now();

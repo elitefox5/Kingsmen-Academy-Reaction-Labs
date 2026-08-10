@@ -33,6 +33,7 @@
   function lightCell(index, duration){
     return new Promise(resolve => {
       cellEls[index].classList.add('lit');
+      window.KA_sound.memoryShow();
       timers.lit = setTimeout(() => {
         cellEls[index].classList.remove('lit');
         timers.gap = setTimeout(resolve, 150);
@@ -81,6 +82,7 @@
 
   function handleCellClick(index){
     if (!accepting) return;
+    window.KA_sound.memoryClick();
     flashPicked(index);
     if (index === sequence[playerIndex]){
       correctClicks++;

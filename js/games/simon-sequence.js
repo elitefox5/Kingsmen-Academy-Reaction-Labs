@@ -29,6 +29,7 @@
   function lightPad(color, duration){
     return new Promise(resolve => {
       padEls[color].classList.add('lit');
+      window.KA_sound.memoryShow();
       timers.lit = setTimeout(() => {
         padEls[color].classList.remove('lit');
         timers.gap = setTimeout(resolve, 150);
@@ -69,6 +70,7 @@
 
   function handlePadClick(color){
     if (!accepting) return;
+    window.KA_sound.memoryClick();
     if (color === sequence[playerIndex]){
       correctClicks++;
       playerIndex++;

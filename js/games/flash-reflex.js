@@ -116,6 +116,7 @@
 
     frxArrow.innerHTML = window.KA_arrowIcon(direction);
     frxArrow.style.display = 'block';
+    window.KA_sound.stimulus();
     phase = 'flash';
     timers.flash = setTimeout(startResponseWindow, flashDuration);
   }
