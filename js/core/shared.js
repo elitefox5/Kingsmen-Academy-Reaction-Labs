@@ -259,12 +259,13 @@
   // Flash-escalation ladder — rounds survived out of Flash Reflex's ~60-round ramp down to a
   // single-frame flash. Flash duration there is roughly 200ms - round*3ms, so round 18 (~145ms
   // flash) is where it starts genuinely testing perception rather than just clicking — a
-  // reasonable average stopping point. The last few rounds approach the floor of human visual
-  // perception, so reaching them is a rare, elite result. Drives Flash Reflex specifically,
-  // since its escalation curve has nothing to do with memory span.
+  // reasonable average stopping point. Round 60 is where the flash bottoms out at its 16.7ms
+  // floor (FLASH_FLOOR in flash-reflex.js) and stays there rather than the game ending — so
+  // Legend at 80 means surviving 20 rounds beyond the ramp at the fastest possible flash, a
+  // deliberately extreme bar once the escalation itself has nothing further to give.
   window.KA_FLASH_RANKS = window.KA_RANK_NAMES.map((name, i) => ({
     name, color: window.KA_RANK_COLORS[i],
-    min: [0, 12, 18, 24, 30, 36, 42, 48, 54][i]
+    min: [0, 12, 18, 24, 30, 36, 42, 48, 80][i]
   }));
   window.KA_getFlashRank = function(rounds){
     if (rounds === null || rounds === undefined) return null;
