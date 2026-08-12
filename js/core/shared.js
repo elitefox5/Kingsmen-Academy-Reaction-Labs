@@ -300,12 +300,12 @@
   // 16.7ms floor over the first 60 rounds; from round 61 on the flash stops shrinking and the
   // response window itself starts closing in 5%/round instead (RESPONSE_WINDOW/
   // WINDOW_SHRINK_FACTOR in flash-reflex.js), which puts the practical ceiling for even a
-  // flawless player around round 100-110 — Legend at 80 is a genuinely elite result well into
+  // flawless player around round 100-110 — Legend at 85 is a genuinely elite result well into
   // that window-shrink phase, not just clearing the flash ramp. Cuts otherwise spaced evenly
   // through the ramp itself for the lower tiers.
   window.KA_FLASH_RANKS = window.KA_RANK_NAMES.map((name, i) => ({
     name, color: window.KA_RANK_COLORS[i],
-    min: [0, 24, 30, 38, 46, 54, 62, 70, 80][i]
+    min: [0, 29, 35, 43, 51, 59, 67, 75, 85][i]
   }));
   window.KA_getFlashRank = function(rounds){
     if (rounds === null || rounds === undefined) return null;
