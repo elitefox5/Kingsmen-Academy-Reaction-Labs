@@ -31,6 +31,7 @@
   const recoveryListeners = [];
   const signedInListeners = [];
   const state = { session: null, ready: false };
+  let recoveryPending = false;
 
   function notify(){ listeners.forEach(fn => fn(state.session)); }
 
@@ -115,8 +116,14 @@
     },
     // Fires when the player has landed back here from a "reset password" email — the app
     // should show a "set new password" form rather than treating this as a normal sign-in.
+    // Supabase can detect the recovery token in the URL and fire PASSWORD_RECOVERY (below)
+    // before app.js has even run — this file loads and subscribes first, but the event
+    // itself resolves asynchronously and can beat app.js's script tag to the punch, landing
+    // on an empty recoveryListeners array. recoveryPending remembers that case and replays
+    // it the moment a listener actually registers, instead of silently dropping it.
     onPasswordRecovery(fn){
       recoveryListeners.push(fn);
+      if (recoveryPending){ recoveryPending = false; fn(); }
     },
     // Fires only on a genuine new sign-in (the SIGN IN / verified-signup / reset-complete
     // moment) — never on a page load that simply restores an existing session. Use this for
@@ -263,7 +270,10 @@
   sb.auth.onAuthStateChange((event, session) => {
     state.session = session;
     state.ready = true;
-    if (event === 'PASSWORD_RECOVERY') recoveryListeners.forEach(fn => fn());
+    if (event === 'PASSWORD_RECOVERY'){
+      if (recoveryListeners.length) recoveryListeners.forEach(fn => fn());
+      else recoveryPending = true; // app.js hasn't registered its listener yet — see onPasswordRecovery above
+    }
     if (event === 'SIGNED_IN') signedInListeners.forEach(fn => fn());
     if (session) pullAndMerge(session);
     notify();
