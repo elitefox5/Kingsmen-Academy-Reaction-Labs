@@ -1042,6 +1042,22 @@
     showAuthPanel('authRecoveryPanel');
   });
 
+  // A reset/confirmation link that's already been used, or has simply expired, redirects
+  // back here with #error=...&error_code=...&error_description=... instead of the valid
+  // link's #access_token=...&type=recovery — Supabase's way of reporting the failure, not a
+  // silent no-op. Previously nothing looked at this, so following a dead link landed on the
+  // ordinary home page with zero indication anything was even attempted.
+  (function checkAuthLinkError(){
+    const hash = window.location.hash.indexOf('#') === 0 ? window.location.hash.slice(1) : '';
+    const params = new URLSearchParams(hash);
+    const error = params.get('error');
+    if (!error) return;
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+    openAuthModal();
+    showAuthPanel('authForgotPanel');
+    setAuthError(params.get('error_description') || 'That link is invalid or has expired — request a new one below.');
+  })();
+
   // ---- Global leaderboard ---------------------------------------------------------------
   // Every active game shows up here — two rows for any game that tracks both accuracy and
   // speed (the same 18 games KA_scoreRun dual-ranks locally), one row for a game with only
