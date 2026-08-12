@@ -1,16 +1,21 @@
 (function(){
   const ZONE_COLORS = {
-    yellow:'#ffe066',
+    // Pushed further apart from each other than a generic yellow/orange pair — yellow leans
+    // fully saturated gold, orange leans deeper and redder, so the two don't blur together
+    // at a glance the way a paler yellow and a lighter orange would.
+    yellow:'#ffd400',
     // Was cyan — too easy to mistake for blue under the stim circle's glow, especially on
     // the swatch-less flashing center circle where there's no text label to disambiguate.
     // Black reads unambiguously instead, but needs its own rendering path everywhere below
     // (a black-on-black fill/border would be invisible against the page's black background).
     black:'#000000',
     green:'#3ddc6f',
-    red:'#ff5a5a',
+    // Darker/deeper than the old salmon-leaning red, so it reads unmistakably as red next to
+    // orange instead of the two sitting close on the same warm-hue band.
+    red:'#c0392b',
     white:'#f2f2ea',
     blue:'#4f8cff',
-    orange:'#ff9d4d',
+    orange:'#ff7518',
     purple:'#c98bff'
   };
   const ZONE_KEYS = Object.keys(ZONE_COLORS);
