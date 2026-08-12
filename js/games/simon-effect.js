@@ -17,7 +17,7 @@
   const smeScoreVal = document.getElementById('smeScoreVal');
 
   let trialIndex, score, results, runHistory = [];
-  let armed = false, appearTime = null, currentTrial = null, timers = {};
+  let armed = false, waiting = false, appearTime = null, currentTrial = null, timers = {};
 
   function fmtMs(ms){ if (ms === null || ms === undefined) return '—'; return ms.toFixed(0) + ' ms'; }
   function clearTimers(){ clearTimeout(timers.isi); clearTimeout(timers.response); clearTimeout(timers.advance); }
@@ -26,7 +26,7 @@
   function updateHud(){ smeTrialVal.textContent = trialIndex + ' / ' + TOTAL_TRIALS; smeScoreVal.textContent = score; }
 
   function startRun(){
-    trialIndex = 0; score = 0; results = []; armed = false; clearTimers();
+    trialIndex = 0; score = 0; results = []; armed = false; waiting = false; clearTimers();
     smeStartPanel.style.display = 'none'; smeResultCard.style.display = 'none';
     clearFeedback(); smeArrow.style.display = 'none';
     updateHud();
@@ -41,11 +41,26 @@
     const position = Math.random() < 0.5 ? 'left' : 'right';
     const direction = Math.random() < 0.5 ? 'left' : 'right';
     currentTrial = { trial: trialIndex, position, direction, rt: null, outcome: null };
+    waiting = true;
     const isi = ISI_MIN + Math.random() * (ISI_MAX - ISI_MIN);
     timers.isi = setTimeout(() => showArrow(position, direction), isi);
   }
 
+  // Clicking before the arrow appears used to be a silent no-op — spamming a zone through
+  // the whole wait would land a click the instant the trial armed, banking a near-zero
+  // "reaction time" on lucky trials with no accuracy cost. An early click now fails the
+  // trial outright instead, same as Split Focus.
+  function handleEarlyClick(){
+    clearTimeout(timers.isi);
+    waiting = false;
+    smeArrow.style.display = 'none';
+    currentTrial.outcome = 'early';
+    showFeedback('TOO EARLY', 'bad');
+    settleTrial();
+  }
+
   function showArrow(position, direction){
+    waiting = false;
     smeArrow.innerHTML = window.KA_arrowIcon(direction);
     if (position === 'left'){
       smeArrow.style.left = '90px';
@@ -65,6 +80,7 @@
   }
 
   function handleZoneClick(side){
+    if (waiting){ handleEarlyClick(); return; }
     if (!armed) return;
     const rt = window.KA_applyGrace(performance.now() - appearTime);
     armed = false; clearTimeout(timers.response);
@@ -98,7 +114,7 @@
   function finishRun(){
     clearFeedback(); smeArrow.style.display = 'none';
     const correct = results.filter(r => r.outcome === 'correct');
-    const wrong = results.filter(r => r.outcome === 'incorrect');
+    const wrong = results.filter(r => r.outcome === 'incorrect' || r.outcome === 'early');
     const timeouts = results.filter(r => r.outcome === 'timeout');
     const avgRt = avg(correct.map(r => r.rt));
     const accuracy = results.length ? (correct.length / results.length) * 100 : null;
@@ -136,7 +152,7 @@
   smeNextBtn.addEventListener('click', startRun);
 
   window.smeEnterHook = function(){
-    clearTimers(); armed = false; smeArrow.style.display = 'none';
+    clearTimers(); armed = false; waiting = false; smeArrow.style.display = 'none';
     smeStartPanel.style.display = ''; smeResultCard.style.display = 'none';
     clearFeedback();
   };
