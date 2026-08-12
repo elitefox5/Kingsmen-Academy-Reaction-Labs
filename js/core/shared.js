@@ -444,7 +444,10 @@
   //     past Silver is a rougher guess than Flanker's below.
   //   flk (rounds, higher better): phase 1 (flash shrink) completes in exactly 20 rounds —
   //     Silver there, same logic. Phase 2 is deterministic (window *= 0.95/round), so the
-  //     higher cuts are anchored to roughly what response-window ms they imply.
+  //     higher cuts are anchored to roughly what response-window ms they imply. Recalibrated
+  //     after a scripted playtest (constant 200ms reaction, always correct — genuinely fast
+  //     but not superhuman) topped out at round 60 once the window closed in on it, which
+  //     felt like it should read as elite (Master), not merely Diamond.
   //   cr (ms, lower better): existing bounded staircase (400-1500ms), unchanged mode —
   //     ladder spans that same range.
   //   clo (callouts, higher better): existing bounded staircase (2-9 span), unchanged mode —
@@ -452,7 +455,7 @@
   //     memory-span calibration.
   window.KA_ADAPTIVE_RANKS = {
     siz: { unit: 'rounds',   higherIsBetter: true,  cuts: [0, 6, 15, 25, 40, 60, 85, 115, 150] },
-    flk: { unit: 'rounds',   higherIsBetter: true,  cuts: [0, 8, 20, 28, 36, 44, 52, 60, 68] },
+    flk: { unit: 'rounds',   higherIsBetter: true,  cuts: [0, 8, 14, 20, 26, 32, 38, 44, 50] },
     cr:  { unit: 'ms',       higherIsBetter: false, cuts: [Infinity, 1000, 850, 700, 600, 500, 450, 425, 400] },
     clo: { unit: 'callouts', higherIsBetter: true,  cuts: [2, 3, 5, 6, 7, 7.5, 8, 8.5, 9] }
   };
