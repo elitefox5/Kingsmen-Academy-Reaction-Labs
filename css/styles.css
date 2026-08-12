@@ -546,6 +546,18 @@
     color:var(--dim);
     margin-top:14px;
   }
+
+  /* Shown on a result card only when the run's accuracy missed the global leaderboard's
+     gate — an amber caveat rather than the red .game-bad tone, since it's informational
+     ("this run didn't count toward that one thing"), not an error in what the player did. */
+  .run-gate-note{
+    font-family:var(--mono);
+    font-size:10.5px;
+    line-height:1.6;
+    color:var(--amber);
+    text-align:center;
+    margin:4px 0 14px;
+  }
   .rank-ref-close{
     position:absolute; top:14px; right:14px;
     font-family:var(--mono);
