@@ -241,7 +241,9 @@
       badge.textContent = rank.name.toUpperCase();
       badge.style.color = rank.color;
       const idx = window.KA_RANKS.indexOf(rank);
-      const next = window.KA_RANKS[idx + 1];
+      // idx is -1 for the hidden Master tier (a freshly-built object, never a member of
+      // KA_RANKS) — treat it the same as "no next rank" rather than wrapping to Copper.
+      const next = idx === -1 ? undefined : window.KA_RANKS[idx + 1];
       sub.innerHTML = 'Best average: <b>' + best.toFixed(0) + ' ms</b>' +
         (next
           ? '<div class="rc-sub-next">Get ' + Math.max(0, best - next.max).toFixed(0) + ' ms faster to reach ' + next.name + '</div>'

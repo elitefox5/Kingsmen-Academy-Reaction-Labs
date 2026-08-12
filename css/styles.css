@@ -2197,3 +2197,71 @@
     #hud, #gngHud, #flkHud, #crHud, #frxHud{ display:none; }
     h1{ font-size:17px; }
   }
+
+  /* ================= RANK CELEBRATION ================= */
+  /* Fires once per newly-reached Platinum+ tier (see js/core/celebration.js) — a burst of
+     particles from screen center plus a banner announcing the rank. Both scale in size/
+     duration with how far above Platinum the tier is; nothing here names or explains the
+     hidden Master tier beyond however KA_MASTER_COLOR happens to render. */
+  .ka-celebrate-layer{
+    position:fixed; inset:0;
+    pointer-events:none;
+    z-index:9999;
+    overflow:hidden;
+  }
+  .ka-celebrate-particle{
+    position:absolute;
+    left:50%; top:42%;
+    width:8px; height:8px;
+    border-radius:2px;
+    opacity:0.95;
+    animation-name:ka-celebrate-fly;
+    animation-timing-function:cubic-bezier(0.15,0.6,0.35,1);
+    animation-fill-mode:forwards;
+  }
+  @keyframes ka-celebrate-fly{
+    0%{ transform:translate(-50%,-50%) rotate(0deg); opacity:1; }
+    100%{ transform:translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(var(--rot)); opacity:0; }
+  }
+
+  .ka-celebrate-banner{
+    position:fixed;
+    left:50%; top:38%;
+    transform:translate(-50%,-50%) scale(0.85);
+    z-index:10000;
+    pointer-events:none;
+    display:flex; flex-direction:column; align-items:center;
+    gap:6px;
+    padding:22px 40px;
+    border:1px solid var(--rank-color, var(--gold));
+    border-radius:8px;
+    background:rgba(6,7,10,0.72);
+    opacity:0;
+    transition:opacity 0.4s ease, transform 0.4s ease;
+  }
+  .ka-celebrate-banner.show{
+    opacity:1;
+    transform:translate(-50%,-50%) scale(1);
+  }
+  .ka-celebrate-banner.glow{
+    box-shadow:0 0 60px -4px var(--rank-color, var(--gold));
+  }
+  .ka-celebrate-banner.pulse{
+    animation:ka-celebrate-pulse 1.1s ease-in-out infinite;
+  }
+  @keyframes ka-celebrate-pulse{
+    0%, 100%{ box-shadow:0 0 40px -6px var(--rank-color, var(--gold)); }
+    50%{ box-shadow:0 0 90px 6px var(--rank-color, var(--gold)); }
+  }
+  .ka-celebrate-label{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:0.3em;
+    color:var(--dim);
+  }
+  .ka-celebrate-name{
+    font-family:var(--serif);
+    font-size:32px;
+    letter-spacing:0.08em;
+    color:var(--rank-color, var(--gold));
+  }

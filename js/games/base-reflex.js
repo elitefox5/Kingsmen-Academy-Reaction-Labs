@@ -113,6 +113,7 @@
     const rankLabel = document.getElementById('bfxRRank');
     rankLabel.textContent = rank ? rank.name.toUpperCase() : '—';
     rankLabel.style.color = rank ? rank.color : '';
+    if (rank && window.KA_maybeCelebrate) window.KA_maybeCelebrate(rank);
 
     let isNewBest = false;
     if (avgRt !== null){
