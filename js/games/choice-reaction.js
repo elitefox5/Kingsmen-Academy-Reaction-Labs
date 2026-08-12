@@ -1,7 +1,11 @@
 (function(){
   const ZONE_COLORS = {
     yellow:'#ffe066',
-    cyan:'#2fd8e6',
+    // Was cyan — too easy to mistake for blue under the stim circle's glow, especially on
+    // the swatch-less flashing center circle where there's no text label to disambiguate.
+    // Black reads unambiguously instead, but needs its own rendering path everywhere below
+    // (a black-on-black fill/border would be invisible against the page's black background).
+    black:'#000000',
     green:'#3ddc6f',
     red:'#ff5a5a',
     white:'#f2f2ea',
@@ -95,11 +99,22 @@
     POSITIONS.forEach((pos, i) => {
       zoneAssignment[pos] = colors[i];
       const el = zoneEls[pos];
-      const hex = ZONE_COLORS[colors[i]];
-      el.textContent = colors[i].toUpperCase();
-      el.style.borderColor = hex;
-      el.style.color = hex;
-      el.style.background = hex + '1a';
+      const key = colors[i];
+      const hex = ZONE_COLORS[key];
+      el.textContent = key.toUpperCase();
+      if (key === 'black'){
+        // A solid black tile with a white border/label — deliberately not the same
+        // translucent-glow treatment every other zone gets, since that would render as
+        // nothing here. Also visually distinct from the actual 'white' zone (glowing
+        // translucent box) rather than reading as the same thing.
+        el.style.borderColor = '#ffffff';
+        el.style.color = '#ffffff';
+        el.style.background = '#000000';
+      } else {
+        el.style.borderColor = hex;
+        el.style.color = hex;
+        el.style.background = hex + '1a';
+      }
     });
   }
 
@@ -170,10 +185,19 @@
   }
 
   function showStim(){
-    const hex = ZONE_COLORS[currentTrial.colorKey];
-    crStim.style.background = hex;
-    crStim.style.borderColor = hex;
-    crStim.style.boxShadow = `0 0 30px ${hex}99`;
+    const key = currentTrial.colorKey;
+    const hex = ZONE_COLORS[key];
+    if (key === 'black'){
+      // A black fill would otherwise vanish into the page's own black background — the
+      // white ring is what actually makes the circle (and its color) visible at all.
+      crStim.style.background = '#000000';
+      crStim.style.borderColor = '#ffffff';
+      crStim.style.boxShadow = '0 0 24px rgba(255,255,255,0.55)';
+    } else {
+      crStim.style.background = hex;
+      crStim.style.borderColor = hex;
+      crStim.style.boxShadow = `0 0 30px ${hex}99`;
+    }
     crStim.style.display = 'block';
     window.KA_sound.stimulus();
     requestAnimationFrame(() => {
