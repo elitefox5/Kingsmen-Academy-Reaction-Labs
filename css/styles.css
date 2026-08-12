@@ -1186,6 +1186,12 @@
     grid-row: 1 / 3;
     min-height:260px;
     padding:26px;
+    /* The hero-stat corner badge (TODAY / N RUNS) is absolutely positioned, floating on top
+       of whatever the flex-end-anchored text stack happens to land on — on a short tile
+       (.standalone on mobile especially) that stack can land near the top and run straight
+       under it, overlapping the eyebrow text. Reserving room on the right keeps text clear
+       of the badge regardless of exact vertical position. */
+    padding-right:100px;
     justify-content:flex-end;
   }
   .tile.hero .t-title{ font-size:26px; }
