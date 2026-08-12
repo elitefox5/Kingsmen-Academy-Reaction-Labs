@@ -358,12 +358,16 @@
   // Overall tier for a dual-ranked game: the midpoint of its accuracy and speed tiers, so
   // neither being fast-and-sloppy nor slow-and-perfect alone carries you to the top. Goes
   // through KA_rankIndex/KA_rankByIndex rather than indexing KA_RANK_NAMES directly, so a
-  // Master-tier speed rank (accuracy alone can never reach it) still averages correctly
-  // instead of landing on -1.
+  // Master-tier speed rank still averages correctly instead of landing on -1 — but the
+  // result is capped at Legend regardless: this is only ever called with an accuracy rank
+  // as one of its two inputs, and accuracy alone can never earn Master (100% is a ceiling),
+  // so a flat-out 100%-accurate run should never read as Master just because its speed half
+  // did. Master here would only ever come from rounding (8, 9) up to 9 anyway.
   window.KA_combineRanks = function(a, b){
     const idxs = [a, b].filter(Boolean).map(window.KA_rankIndex).filter(i => i !== null);
     if (!idxs.length) return null;
-    const i = Math.round(idxs.reduce((x, y) => x + y, 0) / idxs.length);
+    const legendIdx = window.KA_RANK_NAMES.length - 1;
+    const i = Math.min(legendIdx, Math.round(idxs.reduce((x, y) => x + y, 0) / idxs.length));
     return window.KA_rankByIndex(i);
   };
 
