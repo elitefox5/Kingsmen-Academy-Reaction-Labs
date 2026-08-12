@@ -296,16 +296,16 @@
     return window.KA_ROUNDS_RANKS[0];
   };
 
-  // Flash-escalation ladder — rounds survived out of Flash Reflex's ~60-round ramp down to a
-  // single-frame flash. Flash duration there is roughly 200ms - round*3ms, so round 18 (~145ms
-  // flash) is where it starts genuinely testing perception rather than just clicking — a
-  // reasonable average stopping point. Round 60 is where the flash bottoms out at its 16.7ms
-  // floor (FLASH_FLOOR in flash-reflex.js) and stays there rather than the game ending — so
-  // Legend at 80 means surviving 20 rounds beyond the ramp at the fastest possible flash, a
-  // deliberately extreme bar once the escalation itself has nothing further to give.
+  // Flash-escalation ladder — rounds survived. Flash duration ramps from 200ms down to its
+  // 16.7ms floor over the first 60 rounds; from round 61 on the flash stops shrinking and the
+  // response window itself starts closing in 5%/round instead (RESPONSE_WINDOW/
+  // WINDOW_SHRINK_FACTOR in flash-reflex.js), which puts the practical ceiling for even a
+  // flawless player around round 100-110 — Legend at 80 is a genuinely elite result well into
+  // that window-shrink phase, not just clearing the flash ramp. Cuts otherwise spaced evenly
+  // through the ramp itself for the lower tiers.
   window.KA_FLASH_RANKS = window.KA_RANK_NAMES.map((name, i) => ({
     name, color: window.KA_RANK_COLORS[i],
-    min: [0, 12, 18, 24, 30, 36, 42, 48, 80][i]
+    min: [0, 24, 30, 38, 46, 54, 62, 70, 80][i]
   }));
   window.KA_getFlashRank = function(rounds){
     if (rounds === null || rounds === undefined) return null;

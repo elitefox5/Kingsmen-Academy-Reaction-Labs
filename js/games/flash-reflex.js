@@ -2,9 +2,16 @@
   const DIRECTIONS = ['left', 'right', 'up', 'down'];
   const INITIAL_FLASH = 200; // ms the arrow stays visible on round 1
   const FLASH_FLOOR = 16.7; // ms — 1 frame at 60fps; the fastest the flash will ever get, since anything shorter can't reliably paint at all
-  const RAMP_ROUNDS = 60; // correct rounds it takes to go from INITIAL_FLASH down to FLASH_FLOOR
+  const RAMP_ROUNDS = 60; // correct rounds it takes to go from INITIAL_FLASH down to FLASH_FLOOR — flash hits max speed at round 60
   const FLASH_STEP = (INITIAL_FLASH - FLASH_FLOOR) / RAMP_ROUNDS;
-  const RESPONSE_WINDOW = 500; // fixed 0.5s to respond once the arrow disappears
+  // Response window starts generous (2s to complete the flick after the arrow's gone) since
+  // early rounds are about reacting to a flash you can still see, not being rushed. Once the
+  // flash ramp bottoms out at FLASH_FLOOR (round 60), the window itself starts closing in
+  // instead — 5% tighter per successful round — so the difficulty never actually stops
+  // climbing even after the flash has nothing further to give. That decay puts the practical
+  // ceiling for even a flawless player somewhere around round 100-110, which is the point.
+  const RESPONSE_WINDOW = 2000;
+  const WINDOW_SHRINK_FACTOR = 0.95;
   const MOVE_THRESHOLD = 10; // cumulative px displacement that counts as a directional response
   const GAP_MIN = 200, GAP_MAX = 1000; // random pause between rounds
   const TOTAL_LIVES = 3;
@@ -22,7 +29,7 @@
   const frxNextBtn = document.getElementById('frxNextBtn');
   const frxLog = document.getElementById('frxLog');
 
-  let round, lives, score, flashDuration, results, runHistory = [];
+  let round, lives, score, flashDuration, respWindow, results, runHistory = [];
   let phase = 'idle'; // 'flash' | 'response'
   let appearTime = null;
   let sumDX = 0, sumDY = 0;
@@ -44,7 +51,15 @@
   function updateHud(){
     frxRoundVal.textContent = round;
     frxLivesVal.textContent = lives;
-    frxSpeedVal.textContent = flashDuration.toFixed(1) + ' ms';
+    // Once the flash has bottomed out at FLASH_FLOOR, the label/value swap to reporting the
+    // shrinking response window instead — that's the dimension still escalating from here on.
+    if (flashDuration <= FLASH_FLOOR){
+      frxSpeedVal.previousElementSibling.textContent = 'WINDOW';
+      frxSpeedVal.textContent = Math.round(respWindow) + ' ms';
+    } else {
+      frxSpeedVal.previousElementSibling.textContent = 'FLASH';
+      frxSpeedVal.textContent = flashDuration.toFixed(1) + ' ms';
+    }
     frxScoreVal.textContent = score;
   }
 
@@ -68,6 +83,7 @@
     lives = TOTAL_LIVES;
     score = 0;
     flashDuration = INITIAL_FLASH;
+    respWindow = RESPONSE_WINDOW;
     results = [];
     phase = 'idle';
     clearTimers();
@@ -130,7 +146,7 @@
         phase = 'response';
         sumDX = 0; sumDY = 0;
         appearTime = performance.now();
-        timers.response = setTimeout(handleTimeout, RESPONSE_WINDOW);
+        timers.response = setTimeout(handleTimeout, respWindow);
       });
     });
   }
@@ -150,7 +166,9 @@
       currentTrial.outcome = 'correct';
       score++;
       showFeedback('CAUGHT IT — ' + fmtMs(rt), 'good');
+      const atMaxFlash = flashDuration <= FLASH_FLOOR; // already maxed out going into this round
       flashDuration = Math.max(FLASH_FLOOR, flashDuration - FLASH_STEP);
+      if (atMaxFlash) respWindow *= WINDOW_SHRINK_FACTOR;
     } else {
       currentTrial.outcome = 'incorrect';
       lives--;
