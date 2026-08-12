@@ -1,9 +1,13 @@
 (function(){
   const GO_COLORS = {
     yellow:'#ffe066',
-    pink:'#ff6b9d',
+    // Hotter/more saturated magenta-pink than the old dusty rose, so it doesn't drift toward
+    // reading as a paler shade of red under a quick glance.
+    pink:'#ff2d95',
     green:'#3ddc6f',
-    red:'#ff5a5a',
+    // Darker/deeper than the old salmon-leaning red, so it reads unmistakably as red next to
+    // the hotter pink instead of the two sitting close on the same warm-hue band.
+    red:'#c0392b',
     white:'#f2f2ea',
     blue:'#4f8cff'
   };
