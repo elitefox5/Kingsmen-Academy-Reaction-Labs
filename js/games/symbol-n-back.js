@@ -20,7 +20,7 @@
   const nbkHardBtn = document.getElementById('nbkHardBtn');
 
   let trialIndex, score, results, runHistory = [];
-  let armed = false, appearTime = null, currentTrial = null, timers = {};
+  let armed = false, waiting = false, appearTime = null, currentTrial = null, timers = {};
   let symbolHistory = [];
   let mode = 'easy';
   let backDist = 1;
@@ -39,7 +39,7 @@
   function updateHud(){ nbkTrialVal.textContent = trialIndex + ' / ' + TOTAL_TRIALS; nbkScoreVal.textContent = score; }
 
   function startRun(){
-    trialIndex = 0; score = 0; results = []; armed = false; symbolHistory = []; clearTimers();
+    trialIndex = 0; score = 0; results = []; armed = false; waiting = false; symbolHistory = []; clearTimers();
     nbkStartPanel.style.display = 'none'; nbkResultCard.style.display = 'none';
     clearFeedback(); nbkSymbol.style.display = 'none';
     updateHud();
@@ -62,12 +62,27 @@
       do { symbol = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)]; } while (symbol === lastSymbol);
     }
     currentTrial = { trial: trialIndex, symbol, isMatch, rt: null, outcome: null };
+    waiting = true;
 
     const isi = ISI_MIN + Math.random() * (ISI_MAX - ISI_MIN);
     timers.isi = setTimeout(() => showSymbol(symbol), isi);
   }
 
+  // Clicking Match before the symbol appears used to be a silent no-op — spamming the
+  // button through the whole wait would land a click the instant the trial armed, banking
+  // a near-zero "reaction time" on lucky match trials with no accuracy cost. An early click
+  // now fails the trial outright instead, same as Split Focus.
+  function handleEarlyClick(){
+    clearTimeout(timers.isi);
+    waiting = false;
+    nbkSymbol.style.display = 'none';
+    currentTrial.outcome = 'early';
+    showFeedback('TOO EARLY', 'bad');
+    settleTrial();
+  }
+
   function showSymbol(symbol){
+    waiting = false;
     nbkSymbol.textContent = symbol;
     nbkSymbol.style.display = 'block';
     requestAnimationFrame(() => {
@@ -80,6 +95,7 @@
   }
 
   function handleMatchClick(){
+    if (waiting){ handleEarlyClick(); return; }
     if (!armed) return;
     const rt = window.KA_applyGrace(performance.now() - appearTime);
     armed = false; clearTimeout(timers.response);
@@ -119,7 +135,7 @@
     clearFeedback(); nbkSymbol.style.display = 'none';
     const hits = results.filter(r => r.outcome === 'hit');
     const misses = results.filter(r => r.outcome === 'miss');
-    const falseAlarms = results.filter(r => r.outcome === 'falseAlarm');
+    const falseAlarms = results.filter(r => r.outcome === 'falseAlarm' || r.outcome === 'early');
     const correctRejects = results.filter(r => r.outcome === 'correctReject');
     const avgRt = avg(hits.map(r => r.rt));
     const accuracy = results.length ? ((hits.length + correctRejects.length) / results.length) * 100 : null;
@@ -159,7 +175,7 @@
   nbkHardBtn.addEventListener('click', () => setMode('hard'));
 
   window.nbkEnterHook = function(){
-    clearTimers(); armed = false; nbkSymbol.style.display = 'none';
+    clearTimers(); armed = false; waiting = false; nbkSymbol.style.display = 'none';
     nbkStartPanel.style.display = ''; nbkResultCard.style.display = 'none';
     clearFeedback();
   };

@@ -17,7 +17,7 @@
   document.querySelectorAll('.mth-zone').forEach(el => { zoneEls[el.getAttribute('data-answer')] = el; });
 
   let trialIndex, score, results, runHistory = [];
-  let armed = false, appearTime = null, currentTrial = null, timers = {};
+  let armed = false, waiting = false, appearTime = null, currentTrial = null, timers = {};
 
   function fmtMs(ms){ if (ms === null || ms === undefined) return '—'; return ms.toFixed(0) + ' ms'; }
   function clearTimers(){ clearTimeout(timers.isi); clearTimeout(timers.response); clearTimeout(timers.advance); }
@@ -43,7 +43,7 @@
   }
 
   function startRun(){
-    trialIndex = 0; score = 0; results = []; armed = false; clearTimers();
+    trialIndex = 0; score = 0; results = []; armed = false; waiting = false; clearTimers();
     mthStartPanel.style.display = 'none'; mthResultCard.style.display = 'none';
     clearFeedback(); mthEquation.style.display = 'none';
     updateHud();
@@ -57,11 +57,26 @@
     mthEquation.style.display = 'none';
     const eq = buildEquation();
     currentTrial = { trial: trialIndex, text: eq.text, answer: eq.answer, rt: null, outcome: null };
+    waiting = true;
     const isi = ISI_MIN + Math.random() * (ISI_MAX - ISI_MIN);
     timers.isi = setTimeout(() => showEquation(eq), isi);
   }
 
+  // Clicking before the equation appears used to be a silent no-op — spamming both zones
+  // through the whole wait would land a click the instant the trial armed, banking a
+  // near-zero "reaction time" on lucky trials with no accuracy cost. An early click now
+  // fails the trial outright instead, same as Split Focus.
+  function handleEarlyClick(){
+    clearTimeout(timers.isi);
+    waiting = false;
+    mthEquation.style.display = 'none';
+    currentTrial.outcome = 'early';
+    showFeedback('TOO EARLY', 'bad');
+    settleTrial();
+  }
+
   function showEquation(eq){
+    waiting = false;
     mthEquation.textContent = eq.text;
     mthEquation.style.display = 'block';
     requestAnimationFrame(() => {
@@ -74,6 +89,7 @@
   }
 
   function handleZoneClick(answerStr){
+    if (waiting){ handleEarlyClick(); return; }
     if (!armed) return;
     const rt = window.KA_applyGrace(performance.now() - appearTime);
     armed = false; clearTimeout(timers.response);
@@ -108,7 +124,7 @@
   function finishRun(){
     clearFeedback(); mthEquation.style.display = 'none';
     const correct = results.filter(r => r.outcome === 'correct');
-    const wrong = results.filter(r => r.outcome === 'incorrect');
+    const wrong = results.filter(r => r.outcome === 'incorrect' || r.outcome === 'early');
     const timeouts = results.filter(r => r.outcome === 'timeout');
     const avgRt = avg(correct.map(r => r.rt));
     const accuracy = results.length ? (correct.length / results.length) * 100 : null;
@@ -145,7 +161,7 @@
   mthNextBtn.addEventListener('click', startRun);
 
   window.mthEnterHook = function(){
-    clearTimers(); armed = false; mthEquation.style.display = 'none';
+    clearTimers(); armed = false; waiting = false; mthEquation.style.display = 'none';
     mthStartPanel.style.display = ''; mthResultCard.style.display = 'none';
     clearFeedback();
   };
