@@ -979,7 +979,7 @@
       }
       setAuthStatus('Creating account…');
       await window.KA_cloud.signUpWithPassword(email, password, username);
-      setAuthStatus('Account created — check your email to verify it, then sign in.');
+      setAuthStatus('Account created — check your email (and junk/spam folder) to verify it, then sign in.');
     } catch (err){
       setAuthError(authErrorMessage(err, 'Could not create account — check your connection and try again.'));
     } finally {
@@ -994,7 +994,7 @@
     setAuthStatus('Sending…');
     try {
       await window.KA_cloud.sendPasswordReset(email);
-      setAuthStatus('Check your email for a reset link.');
+      setAuthStatus('Check your email (and junk/spam folder) for a reset link.');
     } catch (err){
       setAuthError(authErrorMessage(err, 'Something went wrong — check your connection and try again.'));
     } finally {
