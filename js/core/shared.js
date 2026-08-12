@@ -132,7 +132,32 @@
 
     const combined = window.KA_combineRanks(accRank, speedRank);
     window.KA_renderRunRank(resultCardId, { accRank, speedRank, combined });
+    window.KA_renderGlobalGateNote(resultCardId, run.accuracyPct);
     return combined;
+  };
+
+  // Every game that reaches here has a global-leaderboard combo entry (it's only ever called
+  // by games with a speedMid) — so a run that didn't clear the accuracy gate is exactly the
+  // case where it's worth telling the player their score doesn't count toward it, right where
+  // they'd otherwise wonder why. Removes the note on a qualifying run rather than just never
+  // adding it, since the same result card gets reused across retries.
+  window.KA_renderGlobalGateNote = function(resultCardId, accuracyPct){
+    const card = document.querySelector('#' + resultCardId + ' .card');
+    if (!card) return;
+    let note = card.querySelector('.run-gate-note');
+    const qualifies = accuracyPct !== null && accuracyPct !== undefined && accuracyPct >= window.KA_GLOBAL_ACCURACY_GATE;
+    if (qualifies){
+      if (note) note.remove();
+      return;
+    }
+    if (!note){
+      note = document.createElement('div');
+      note.className = 'run-gate-note';
+      const firstBtn = card.querySelector('button');
+      if (firstBtn) card.insertBefore(note, firstBtn); else card.appendChild(note);
+    }
+    note.textContent = 'Not counted on the global leaderboard — needs ' + window.KA_GLOBAL_ACCURACY_GATE + '%+ accuracy (this run: ' +
+      (accuracyPct === null || accuracyPct === undefined ? '—' : Math.round(accuracyPct) + '%') + ').';
   };
 
   // Recent-activity feed shared across all games — capped, newest first.
