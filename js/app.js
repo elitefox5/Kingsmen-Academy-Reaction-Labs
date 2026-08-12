@@ -406,42 +406,117 @@
     }
   }
 
-  function renderLeaderboards(){
-    // Accuracy list also shows each game's best average reaction time alongside its
-    // accuracy, for any game that actually tracks both (same games KA_scoreRun dual-ranks).
-    const accGames = window.KA_GAMES.filter(g => g.type === 'count');
-    const accRows = accGames.map(g => {
-      const v = window.KA_records.get(g.key, null);
-      const rt = g.speedMid ? window.KA_records.get(g.id + '_best_avg_rt', null) : null;
-      const pct = v === null ? null : (v / g.total * 100);
-      const valText = pct === null ? 'NOT PLAYED'
-        : rt !== null ? pct.toFixed(0) + '% · ' + rt.toFixed(0) + ' ms'
-        : pct.toFixed(0) + '%';
-      return { name: g.name, val: v, pct, valText };
-    }).sort((a, b) => {
-      if (a.pct === null && b.pct === null) return 0;
-      if (a.pct === null) return 1;
-      if (b.pct === null) return -1;
-      return b.pct - a.pct;
-    });
-    document.getElementById('lbAccuracyList').innerHTML = accRows.map((r, i) =>
-      `<div class="leaderboard-row ${r.val === null ? 'unplayed' : ''}"><span class="lr-rank">${r.val === null ? '—' : '#' + (i + 1)}</span><span class="lr-game">${r.name}</span><span class="lr-val">${r.valText}</span></div>`
-    ).join('');
-
-    const specialGames = window.KA_GAMES.filter(g => g.type !== 'count');
-    let specialHtml = '';
-    specialGames.forEach(g => {
-      if (g.metrics){
-        g.metrics.forEach(m => {
-          const v = window.KA_records.get(m.key, null);
-          specialHtml += `<div class="leaderboard-row ${v === null ? 'unplayed' : ''}"><span class="lr-rank">&#9679;</span><span class="lr-game">${g.name} — ${m.label}</span><span class="lr-val">${window.KA_fmtMetric(v, m)}</span></div>`;
+  // Same per-mode breakdown the global leaderboard uses (one row per Normal/Hard/Easy/
+  // Adaptive variant, not one blended-best row per game), but reading straight from local
+  // KA_records instead of hitting the network, and carrying a computed rank tier instead of
+  // a dataKey for a cloud fetch. The per-mode accuracy+speed values only exist locally once
+  // a run has cleared the global leaderboard's 80% accuracy gate (that's the only place
+  // KA_scoreRun writes a mode-suffixed bundle) — a mode with no qualifying run yet shows as
+  // such rather than silently falling back to some other mode's number.
+  function personalLeaderboardEntries(){
+    const opts = [];
+    window.KA_GAMES.forEach(g => {
+      if (g.adaptiveKey){
+        const v = window.KA_records.get(g.adaptiveKey, null);
+        const fmt = ADAPTIVE_UNIT_FMT[g.adaptiveUnit] || msFmt;
+        opts.push({
+          category: g.category, label: g.name + ' — Adaptive', played: v !== null,
+          valueText: v === null ? 'NOT PLAYED' : fmt(v),
+          rank: v === null ? null : window.KA_getAdaptiveRank(g.id, v)
         });
-      } else {
-        const v = window.KA_records.get(g.key, null);
-        specialHtml += `<div class="leaderboard-row ${v === null ? 'unplayed' : ''}"><span class="lr-rank">&#9679;</span><span class="lr-game">${g.name}</span><span class="lr-val">${window.KA_fmtMetric(v, g)}</span></div>`;
+      }
+      if (g.key){
+        const isRounds = g.type === 'rounds';
+        if (g.speedMid && !isRounds){
+          const modes = g.modes || [null];
+          modes.forEach(mode => {
+            const suffix = mode ? '_' + mode : '';
+            const label = g.name + (mode ? ' — ' + titleCase(mode) : '');
+            const acc = window.KA_records.get(g.id + '_rank_acc' + suffix, null);
+            const speed = window.KA_records.get(g.id + '_rank_speed' + suffix, null);
+            const played = acc !== null && speed !== null;
+            const rank = played ? window.KA_combineRanks(window.KA_getAccRank(acc), window.KA_getSpeedRank(speed, g)) : null;
+            opts.push({
+              category: g.category, label, played,
+              valueText: played ? Math.round(acc) + '% · ' + Math.round(speed) + ' ms' : 'NO QUALIFYING RUN YET',
+              rank
+            });
+          });
+        } else {
+          const v = window.KA_records.get(g.key, null);
+          const played = v !== null;
+          let rank = null, valueText = 'NOT PLAYED';
+          if (played){
+            if (isRounds){
+              rank = window.KA_getRoundsRank(v);
+              valueText = Math.round(v) + ' rounds';
+            } else {
+              const pct = (v / g.total) * 100;
+              rank = window.KA_getAccRank(pct);
+              valueText = Math.round(pct) + '%';
+            }
+          }
+          opts.push({ category: g.category, label: g.name, played, valueText, rank });
+        }
+      } else if (g.metrics){
+        if (g.id === 'flk'){
+          (g.modes || ['easy', 'full']).forEach(mode => {
+            const suffix = '_' + mode;
+            const label = g.name + ' — ' + titleCase(mode);
+            const acc = window.KA_records.get(g.id + '_rank_acc' + suffix, null);
+            const speed = window.KA_records.get(g.id + '_rank_speed' + suffix, null);
+            const played = acc !== null && speed !== null;
+            const rank = played ? window.KA_combineRanks(window.KA_getAccRank(acc), window.KA_getSpeedRank(speed, g)) : null;
+            opts.push({
+              category: g.category, label, played,
+              valueText: played ? Math.round(acc) + '% · ' + Math.round(speed) + ' ms' : 'NO QUALIFYING RUN YET',
+              rank
+            });
+          });
+        } else if (g.type === 'time-multi'){
+          const times = g.metrics.map(m => window.KA_records.get(m.key, null)).filter(t => t !== null);
+          const played = times.length > 0;
+          const avgMs = played ? times.reduce((a, b) => a + b, 0) / times.length : null;
+          opts.push({
+            category: g.category, label: g.name, played,
+            valueText: played ? Math.round(avgMs) + ' ms' : 'NOT PLAYED',
+            rank: played ? window.KA_getRank(avgMs) : null
+          });
+        } else {
+          // Flash Reflex: rounds survived + fastest flash beaten.
+          const roundsMetric = g.metrics.find(m => !m.isTime);
+          const timeMetric = g.metrics.find(m => m.isTime);
+          const v = roundsMetric ? window.KA_records.get(roundsMetric.key, null) : null;
+          const flash = timeMetric ? window.KA_records.get(timeMetric.key, null) : null;
+          const played = v !== null;
+          opts.push({
+            category: g.category, label: g.name, played,
+            valueText: played ? Math.round(v) + ' rounds' + (flash !== null ? ' · ' + Math.round(flash) + ' ms' : '') : 'NOT PLAYED',
+            rank: played ? window.KA_getFlashRank(v) : null
+          });
+        }
       }
     });
-    document.getElementById('lbSpecialList').innerHTML = specialHtml;
+    return opts;
+  }
+
+  function renderLeaderboards(){
+    const entries = personalLeaderboardEntries();
+    const categories = ['Reaction Speed', 'Processing Speed', 'Processing Complexity', 'Memory'];
+    document.getElementById('lbPersonalSections').innerHTML = categories.map(cat => {
+      const rows = entries.filter(e => e.category === cat);
+      if (!rows.length) return '';
+      const rowsHtml = rows.map(e => {
+        const rankName = e.rank ? e.rank.name.toUpperCase() : '—';
+        const rankColor = e.rank ? e.rank.color : '';
+        return `<div class="leaderboard-row ${e.played ? '' : 'unplayed'}">` +
+          `<span class="lr-rank" style="color:${rankColor}">${rankName}</span>` +
+          `<span class="lr-game">${e.label}</span>` +
+          `<span class="lr-val">${e.valueText}</span>` +
+          `</div>`;
+      }).join('');
+      return `<div class="leaderboard-section"><div class="leaderboard-section-title">${cat}</div><div class="leaderboard-list">${rowsHtml}</div></div>`;
+    }).join('');
   }
 
   function openTile(el){

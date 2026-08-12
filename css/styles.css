@@ -777,6 +777,17 @@
   .leaderboard-row .lr-val{ color:var(--green); min-width:70px; text-align:right; }
   .leaderboard-row.unplayed .lr-val{ color:var(--dim); }
 
+  /* Personal leaderboard's rank column shows a tier name (PLATINUM, MASTER, …) instead of
+     the global list's numeric #N — wider and smaller than the default so the longest tier
+     names still fit on one line, and left-aligned since a name reads better that way than
+     a number does. Color comes from an inline style per row (the tier's own color), so this
+     doesn't need to touch .lr-rank's default gold-dim. */
+  #lbPersonalSections .lr-rank{
+    width:64px; text-align:left; flex-shrink:0;
+    font-size:9.5px; letter-spacing:0.04em;
+  }
+  #lbPersonalSections .leaderboard-row.unplayed .lr-rank{ color:var(--dim) !important; }
+
   .leaderboard-row.expandable{ cursor:pointer; }
   /* Layered on top of the solid fill (not a bare translucent background) so hovering
      doesn't reintroduce the grid-bleed-through problem this fill exists to prevent. */
