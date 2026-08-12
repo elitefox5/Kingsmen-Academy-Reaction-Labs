@@ -455,7 +455,7 @@
   //     memory-span calibration.
   window.KA_ADAPTIVE_RANKS = {
     siz: { unit: 'rounds',   higherIsBetter: true,  cuts: [0, 6, 15, 25, 40, 60, 85, 115, 150] },
-    flk: { unit: 'rounds',   higherIsBetter: true,  cuts: [0, 8, 14, 20, 26, 32, 38, 44, 50] },
+    flk: { unit: 'rounds',   higherIsBetter: true,  cuts: [0, 10, 16, 22, 28, 34, 40, 46, 52] },
     cr:  { unit: 'ms',       higherIsBetter: false, cuts: [Infinity, 1000, 850, 700, 600, 500, 450, 425, 400] },
     clo: { unit: 'callouts', higherIsBetter: true,  cuts: [2, 3, 5, 6, 7, 7.5, 8, 8.5, 9] }
   };
