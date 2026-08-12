@@ -59,6 +59,7 @@
     if (!card || !ranks) return;
     if (ranks.name || ranks.color){
       KA_setRankRow(KA_rankRow(card, 'run-rank-row', 'Rank achieved'), ranks);
+      if (window.KA_maybeCelebrate) window.KA_maybeCelebrate(ranks);
       return;
     }
     if (ranks.speedRank){
@@ -66,6 +67,7 @@
       KA_setRankRow(KA_rankRow(card, 'run-rank-speed', 'Speed rank'), ranks.speedRank);
     }
     KA_setRankRow(KA_rankRow(card, 'run-rank-row', 'Overall rank'), ranks.combined);
+    if (window.KA_maybeCelebrate) window.KA_maybeCelebrate(ranks.combined);
   };
 
   // A run only counts toward the shared/global leaderboard once its accuracy clears this —
@@ -205,6 +207,38 @@
   window.KA_RANK_NAMES = ['Copper', 'Bronze', 'Silver', 'Gold', 'Platinum', 'Sapphire', 'Emerald', 'Diamond', 'Legend'];
   window.KA_RANK_COLORS = ['#b8733a', '#cd7f32', '#c4c4cc', '#f0cf82', '#9fd8d8', '#4f8cff', '#3ddc6f', '#7fe7ff', '#c98bff'];
 
+  // Master — a hidden 10th tier, one rung above Legend, that exists nowhere in
+  // KA_RANK_NAMES/COLORS and is never listed in a ladder or rank-reference panel. It's
+  // computed inline by each ranking function below as "20% better than that ladder's own
+  // Legend cut," in whichever direction is better for that measure — there's no explanation
+  // shown anywhere in the app; the only way to learn it exists is to actually clear it.
+  // Accuracy-based ladders never get one: Legend there is already 100%, a hard ceiling that
+  // can't be beaten by 20%.
+  window.KA_MASTER_NAME = 'Master';
+  window.KA_MASTER_COLOR = '#f2f6ff';
+  window.KA_MASTER_MARGIN = 0.2;
+  window.KA_maybeMaster = function(value, legendCut, higherIsBetter){
+    if (value === null || value === undefined || legendCut === undefined || legendCut === Infinity) return false;
+    return higherIsBetter
+      ? value >= legendCut * (1 + window.KA_MASTER_MARGIN)
+      : value < legendCut * (1 - window.KA_MASTER_MARGIN);
+  };
+  // Maps a rank object to a linear tier index, with Master sitting one above Legend's index
+  // (KA_RANK_NAMES.length) instead of the -1 a plain indexOf would give it — every place that
+  // averages or steps through tiers (KA_combineRanks, the category/overall aggregate) goes
+  // through this pair instead of touching KA_RANK_NAMES directly, so Master flows through
+  // correctly without needing a real slot in that array.
+  window.KA_rankIndex = function(rank){
+    if (!rank) return null;
+    if (rank.name === window.KA_MASTER_NAME) return window.KA_RANK_NAMES.length;
+    const i = window.KA_RANK_NAMES.indexOf(rank.name);
+    return i === -1 ? null : i;
+  };
+  window.KA_rankByIndex = function(i){
+    if (i >= window.KA_RANK_NAMES.length) return { name: window.KA_MASTER_NAME, color: window.KA_MASTER_COLOR };
+    return { name: window.KA_RANK_NAMES[i], color: window.KA_RANK_COLORS[i] };
+  };
+
   // Every ladder below is calibrated the same way: Silver sits on the realistic population
   // average for that measure, Bronze/Copper sit slightly and clearly below it, and Gold
   // through Legend climb toward genuinely elite, rare performance — not just "did the drill."
@@ -218,6 +252,9 @@
   }));
   window.KA_getRank = function(avgRt){
     if (avgRt === null || avgRt === undefined) return null;
+    if (window.KA_maybeMaster(avgRt, window.KA_RANKS[window.KA_RANKS.length - 1].max, false)){
+      return { name: window.KA_MASTER_NAME, color: window.KA_MASTER_COLOR };
+    }
     for (let i = window.KA_RANKS.length - 1; i >= 0; i--){
       if (avgRt < window.KA_RANKS[i].max) return window.KA_RANKS[i];
     }
@@ -250,6 +287,9 @@
   }));
   window.KA_getRoundsRank = function(rounds){
     if (rounds === null || rounds === undefined) return null;
+    if (window.KA_maybeMaster(rounds, window.KA_ROUNDS_RANKS[window.KA_ROUNDS_RANKS.length - 1].min, true)){
+      return { name: window.KA_MASTER_NAME, color: window.KA_MASTER_COLOR };
+    }
     for (let i = window.KA_ROUNDS_RANKS.length - 1; i >= 0; i--){
       if (rounds >= window.KA_ROUNDS_RANKS[i].min) return window.KA_ROUNDS_RANKS[i];
     }
@@ -269,6 +309,9 @@
   }));
   window.KA_getFlashRank = function(rounds){
     if (rounds === null || rounds === undefined) return null;
+    if (window.KA_maybeMaster(rounds, window.KA_FLASH_RANKS[window.KA_FLASH_RANKS.length - 1].min, true)){
+      return { name: window.KA_MASTER_NAME, color: window.KA_MASTER_COLOR };
+    }
     for (let i = window.KA_FLASH_RANKS.length - 1; i >= 0; i--){
       if (rounds >= window.KA_FLASH_RANKS[i].min) return window.KA_FLASH_RANKS[i];
     }
@@ -303,6 +346,9 @@
     if (avgRt === null || avgRt === undefined) return null;
     const ladder = window.KA_speedLadderFor(game);
     if (!ladder) return null;
+    if (window.KA_maybeMaster(avgRt, ladder[ladder.length - 1].max, false)){
+      return { name: window.KA_MASTER_NAME, color: window.KA_MASTER_COLOR };
+    }
     for (let i = ladder.length - 1; i >= 0; i--){
       if (avgRt < ladder[i].max) return ladder[i];
     }
@@ -310,12 +356,15 @@
   };
 
   // Overall tier for a dual-ranked game: the midpoint of its accuracy and speed tiers, so
-  // neither being fast-and-sloppy nor slow-and-perfect alone carries you to the top.
+  // neither being fast-and-sloppy nor slow-and-perfect alone carries you to the top. Goes
+  // through KA_rankIndex/KA_rankByIndex rather than indexing KA_RANK_NAMES directly, so a
+  // Master-tier speed rank (accuracy alone can never reach it) still averages correctly
+  // instead of landing on -1.
   window.KA_combineRanks = function(a, b){
-    const idxs = [a, b].filter(Boolean).map(r => window.KA_RANK_NAMES.indexOf(r.name));
+    const idxs = [a, b].filter(Boolean).map(window.KA_rankIndex).filter(i => i !== null);
     if (!idxs.length) return null;
     const i = Math.round(idxs.reduce((x, y) => x + y, 0) / idxs.length);
-    return { name: window.KA_RANK_NAMES[i], color: window.KA_RANK_COLORS[i] };
+    return window.KA_rankByIndex(i);
   };
 
   // ---- Adaptive difficulty (staircase) -------------------------------------------------
@@ -406,6 +455,9 @@
   window.KA_getAdaptiveRank = function(gameId, value){
     const table = window.KA_ADAPTIVE_RANKS[gameId];
     if (!table || value === null || value === undefined) return null;
+    if (window.KA_maybeMaster(value, table.cuts[table.cuts.length - 1], table.higherIsBetter)){
+      return { name: window.KA_MASTER_NAME, color: window.KA_MASTER_COLOR };
+    }
     for (let i = window.KA_RANK_NAMES.length - 1; i >= 0; i--){
       const cut = table.cuts[i];
       const ok = table.higherIsBetter ? value >= cut : value < cut;
@@ -566,7 +618,7 @@
   function KA_averageTierIndex(games){
     const idxs = games.map(g => {
       const r = window.KA_getGameRank(g);
-      return r ? window.KA_RANK_NAMES.indexOf(r.rank.name) : null;
+      return r ? window.KA_rankIndex(r.rank) : null;
     }).filter(i => i !== null);
     if (!idxs.length) return null;
     const avgIdx = Math.round(idxs.reduce((a, b) => a + b, 0) / idxs.length);
@@ -577,13 +629,13 @@
     const games = window.KA_GAMES.filter(g => g.category === category);
     const agg = KA_averageTierIndex(games);
     if (!agg) return null;
-    return { name: window.KA_RANK_NAMES[agg.idx], color: window.KA_RANK_COLORS[agg.idx], played: agg.played, total: agg.total };
+    return Object.assign(window.KA_rankByIndex(agg.idx), { played: agg.played, total: agg.total });
   };
 
   window.KA_getOverallRank = function(){
     const agg = KA_averageTierIndex(window.KA_GAMES);
     if (!agg) return null;
-    return { name: window.KA_RANK_NAMES[agg.idx], color: window.KA_RANK_COLORS[agg.idx], played: agg.played, total: agg.total };
+    return Object.assign(window.KA_rankByIndex(agg.idx), { played: agg.played, total: agg.total });
   };
 
   // Formats a single metric's stored value for display — shared by Stats and Leaderboards.
