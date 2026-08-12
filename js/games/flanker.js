@@ -19,10 +19,11 @@
   // Adaptive is never-ending: one wrong answer, timeout, or false start ends the run outright.
   // Phase 1: the arrows flash then vanish, for less time each success, down to a single
   // frame — you're completing the flick from a near-instant glimpse rather than a held view.
-  // Phase 2: once the flash bottoms out, the response window itself starts closing in, 5%
-  // tighter per success, same escalation as Size Compare's final phase. Score is total
-  // rounds survived across both phases.
+  // Phase 2: once the flash bottoms out, the response window itself starts closing in from a
+  // generous 2s, 5% tighter per success, same escalation Flash Reflex uses once its own flash
+  // ramp maxes out. Score is total rounds survived across both phases.
   const ADAPTIVE_FLASH_START = 600, ADAPTIVE_FLASH_STEP = 30, ADAPTIVE_FLASH_FLOOR = 17;
+  const ADAPTIVE_WINDOW_START = 2000;
   const ADAPTIVE_TIME_FACTOR = 0.95;
 
   const flkHud = document.getElementById('flkHud');
@@ -51,7 +52,7 @@
   let timers = {};
 
   // Adaptive-only state — reset in startRun, advanced in settleTrial, read in showArrows.
-  let adPhase = 1, adFlash = ADAPTIVE_FLASH_START, adWindow = RESPONSE_WINDOW, adRounds = 0;
+  let adPhase = 1, adFlash = ADAPTIVE_FLASH_START, adWindow = ADAPTIVE_WINDOW_START, adRounds = 0;
 
   function axisOf(dir){ return (dir === 'left' || dir === 'right') ? 'horizontal' : 'vertical'; }
   function oppositeOnAxis(dir){
@@ -125,7 +126,7 @@
     results = [];
     armed = false;
     waiting = false;
-    adPhase = 1; adFlash = ADAPTIVE_FLASH_START; adWindow = RESPONSE_WINDOW; adRounds = 0;
+    adPhase = 1; adFlash = ADAPTIVE_FLASH_START; adWindow = ADAPTIVE_WINDOW_START; adRounds = 0;
     clearTimers();
     flkStartPanel.style.display = 'none';
     flkResultCard.style.display = 'none';
