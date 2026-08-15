@@ -275,9 +275,17 @@
     name, color: window.KA_RANK_COLORS[i],
     max: [Infinity, 310, 280, 245, 220, 200, 180, 160, 140][i]
   }));
-  window.KA_getRank = function(avgRt){
+  // hadErrors: Base Reflex only counts 'correct' trials toward avgRt — an early click or a
+  // timeout is tracked separately and simply excluded from the average, not capped or
+  // penalized in it. That makes the raw number gameable in a way accuracy-relevant modes
+  // shouldn't be: a handful of lucky fast hits among a pile of failed ones could still average
+  // out to an elite time. Master demands a genuinely clean run (zero errors) on top of the
+  // speed threshold; passing true here caps the result at Legend regardless of how fast avgRt
+  // is. Not every caller has an accuracy concept at all (a game that ends the run outright on
+  // any mistake has nothing left to game), so this only ever matters for the ones that do.
+  window.KA_getRank = function(avgRt, hadErrors){
     if (avgRt === null || avgRt === undefined) return null;
-    if (window.KA_maybeMaster(avgRt, window.KA_RANKS[window.KA_RANKS.length - 1].max, false)){
+    if (!hadErrors && window.KA_maybeMaster(avgRt, window.KA_RANKS[window.KA_RANKS.length - 1].max, false)){
       return { name: window.KA_MASTER_NAME, color: window.KA_MASTER_COLOR };
     }
     for (let i = window.KA_RANKS.length - 1; i >= 0; i--){
@@ -484,10 +492,15 @@
     cr:  { unit: 'ms',       higherIsBetter: false, cuts: [Infinity, 1000, 850, 700, 600, 500, 450, 425, 400] },
     clo: { unit: 'callouts', higherIsBetter: true,  cuts: [2, 3, 5, 6, 7, 7.5, 8, 8.5, 9] }
   };
-  window.KA_getAdaptiveRank = function(gameId, value){
+  // hadErrors only matters for adaptive games that can genuinely finish with 100% accuracy
+  // (Callout Recall's fixed-trial staircase — see adaptiveAccuracyRelevant on its KA_GAMES
+  // entry). The others (cr/siz/flk) end the run outright on the very first miss, so reaching
+  // Master there already implies nothing about accuracy either way; callers for those never
+  // pass this, and passing nothing is the same as passing false.
+  window.KA_getAdaptiveRank = function(gameId, value, hadErrors){
     const table = window.KA_ADAPTIVE_RANKS[gameId];
     if (!table || value === null || value === undefined) return null;
-    if (window.KA_maybeMaster(value, table.cuts[table.cuts.length - 1], table.higherIsBetter)){
+    if (!hadErrors && window.KA_maybeMaster(value, table.cuts[table.cuts.length - 1], table.higherIsBetter)){
       return { name: window.KA_MASTER_NAME, color: window.KA_MASTER_COLOR };
     }
     for (let i = window.KA_RANK_NAMES.length - 1; i >= 0; i--){
@@ -594,8 +607,12 @@
     { id:'sim', name:'Simon Sequence', category:'Memory', tile:'tileSimon', type:'rounds', key:'sim_best_rounds' },
     { id:'nbk', name:'Symbol 1-Back', category:'Memory', tile:'tileSymbolMatch', type:'count', total:20, key:'nbk_best_correct', speedMid:560, modes:['easy','hard'] },
     { id:'grd', name:'Grid Recall', category:'Memory', tile:'tileGridRecall', type:'rounds', key:'grd_best_rounds' },
+    // adaptiveAccuracyRelevant: unlike cr/siz/flk's adaptive modes (which always end via a
+    // miss by design — reaching Master there says nothing about accuracy since the run can
+    // never finish clean), Callout Recall's adaptive is a fixed 24-trial staircase that
+    // genuinely can finish with 100% accuracy. Master there requires it — see KA_getAdaptiveRank.
     { id:'clo', name:'Callout Recall', category:'Memory', tile:'tileCalloutRecall', type:'count', total:12, key:'clo_best_correct',
-      adaptiveKey:'clo_best_threshold', adaptiveHigherIsBetter:true, adaptiveUnit:'callouts' },
+      adaptiveKey:'clo_best_threshold', adaptiveHigherIsBetter:true, adaptiveUnit:'callouts', adaptiveAccuracyRelevant:true },
     { id:'ldr', name:'Loadout Recall', category:'Memory', tile:'tileLoadoutRecall', type:'count', total:12, key:'ldr_best_correct', speedMid:2600 },
     { id:'rev', name:'Sequence Reversal', category:'Memory', tile:'tileSequenceReversal', type:'count', total:12, key:'rev_best_correct' }
   ];
@@ -642,7 +659,13 @@
       const times = game.metrics.map(m => window.KA_records.get(m.key, null)).filter(t => t !== null);
       if (!times.length) return null;
       const avgMs = times.reduce((a, b) => a + b, 0) / times.length;
-      return { rank: window.KA_getRank(avgMs), value: avgMs.toFixed(0) + ' ms' };
+      // A metric only counts as "clean" if a best value exists AND its companion _clean flag
+      // (written alongside a new best — see base-reflex.js) says that specific run had zero
+      // errors. A metric with no recorded _clean flag at all (an older best set before this
+      // existed, or a game that's never opted in) defaults to not-clean, which is the safe
+      // direction: it just means Master isn't reachable until a fresh clean run sets a new best.
+      const anyDirty = game.metrics.some(m => window.KA_records.get(m.key, null) !== null && !window.KA_records.get(m.key + '_clean', 0));
+      return { rank: window.KA_getRank(avgMs, anyDirty), value: avgMs.toFixed(0) + ' ms' };
     }
     return null;
   };

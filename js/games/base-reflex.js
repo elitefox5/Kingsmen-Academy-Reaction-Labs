@@ -109,7 +109,11 @@
     document.getElementById('bfxRAvgRt').textContent = fmtMs(avgRt);
     document.getElementById('bfxRErrors').textContent = errors.length;
 
-    const rank = avgRt === null ? null : window.KA_getRank(avgRt);
+    // Errors are excluded from avgRt entirely (only 'correct' trials feed the average), so
+    // unlike a game that ends the run outright on any mistake, a few lucky fast hits among a
+    // pile of failed ones could still average out to an elite time. Master requires a
+    // genuinely clean run (zero errors) on top of the speed threshold — see KA_getRank.
+    const rank = avgRt === null ? null : window.KA_getRank(avgRt, errors.length > 0);
     const rankLabel = document.getElementById('bfxRRank');
     rankLabel.textContent = rank ? rank.name.toUpperCase() : '—';
     rankLabel.style.color = rank ? rank.color : '';
@@ -119,7 +123,13 @@
     if (avgRt !== null){
       const best = window.KA_records.get('rank_best_avg_rt', null);
       isNewBest = best === null || avgRt < best;
-      if (isNewBest) window.KA_records.set('rank_best_avg_rt', avgRt, false);
+      if (isNewBest){
+        window.KA_records.set('rank_best_avg_rt', avgRt, false);
+        // Cloud sync only pushes numeric values (see cloud.js's patched KA_records.set) — a
+        // plain boolean would silently stay local-only and never reach the global leaderboard
+        // check for other players, so 1/0 rather than true/false.
+        window.KA_records.set('rank_best_avg_rt_clean', errors.length === 0 ? 1 : 0);
+      }
       document.getElementById('bfxRBest').textContent = fmtMs(isNewBest ? avgRt : best);
     } else {
       document.getElementById('bfxRBest').textContent = fmtMs(window.KA_records.get('rank_best_avg_rt', null));

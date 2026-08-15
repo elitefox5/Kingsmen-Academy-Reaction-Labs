@@ -127,9 +127,16 @@
       const { best, isNew } = window.KA_recordThreshold('clo', threshold, 'higher');
       document.getElementById('cloRBest').textContent = best.toFixed(1) + ' callouts';
       document.getElementById('cloRBestRow').classList.toggle('is-new', isNew);
+      // Unlike cr/siz/flk's adaptive modes, this is a fixed 24-trial staircase that doesn't
+      // end the run on a miss — it genuinely can finish with 100% accuracy, so Master here
+      // requires it (see adaptiveAccuracyRelevant on this game's KA_GAMES entry). 1/0 rather
+      // than true/false so it actually reaches the cloud (see cloud.js's patched
+      // KA_records.set — only numeric values push).
+      if (isNew) window.KA_records.set('clo_best_threshold_clean', accuracy === 100 ? 1 : 0);
+      const hadErrors = accuracy !== 100;
       window.KA_renderThreshold('cloResultCard', 'Span held',
         threshold.toFixed(1) + ' callouts  (' + stair.reversalCount() + ' reversals)', isNew);
-      window.KA_renderRunRank('cloResultCard', { combined: window.KA_getAdaptiveRank('clo', threshold) });
+      window.KA_renderRunRank('cloResultCard', { combined: window.KA_getAdaptiveRank('clo', threshold, hadErrors) });
       window.KA_setResultModeRanked('cloResultCard');
       window.KA_history.add('Callout Recall', `adaptive · span ${threshold.toFixed(1)}`);
     } else {

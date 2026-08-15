@@ -228,9 +228,12 @@
   }
 
   function renderRank(){
-    // Baseline rank — from the dedicated Base Reflex ms test.
+    // Baseline rank — from the dedicated Base Reflex ms test. Master requires that best-ever
+    // run to have been error-free (see KA_getRank) — an older best with no recorded _clean
+    // flag defaults to not-clean, the safe direction.
     const best = window.KA_records.get('rank_best_avg_rt', null);
-    const rank = window.KA_getRank(best);
+    const bestClean = window.KA_records.get('rank_best_avg_rt_clean', 0);
+    const rank = window.KA_getRank(best, !bestClean);
     const badge = document.getElementById('rankBadge');
     const sub = document.getElementById('rankSub');
     if (!rank){
@@ -419,10 +422,11 @@
       if (g.adaptiveKey){
         const v = window.KA_records.get(g.adaptiveKey, null);
         const fmt = ADAPTIVE_UNIT_FMT[g.adaptiveUnit] || msFmt;
+        const hadErrors = g.adaptiveAccuracyRelevant && !window.KA_records.get(g.adaptiveKey + '_clean', 0);
         opts.push({
           category: g.category, label: g.name + ' — Adaptive', played: v !== null,
           valueText: v === null ? 'NOT PLAYED' : fmt(v),
-          rank: v === null ? null : window.KA_getAdaptiveRank(g.id, v)
+          rank: v === null ? null : window.KA_getAdaptiveRank(g.id, v, hadErrors)
         });
       }
       if (g.key){
@@ -477,10 +481,11 @@
           const times = g.metrics.map(m => window.KA_records.get(m.key, null)).filter(t => t !== null);
           const played = times.length > 0;
           const avgMs = played ? times.reduce((a, b) => a + b, 0) / times.length : null;
+          const anyDirty = g.metrics.some(m => window.KA_records.get(m.key, null) !== null && !window.KA_records.get(m.key + '_clean', 0));
           opts.push({
             category: g.category, label: g.name, played,
             valueText: played ? Math.round(avgMs) + ' ms' : 'NOT PLAYED',
-            rank: played ? window.KA_getRank(avgMs) : null
+            rank: played ? window.KA_getRank(avgMs, anyDirty) : null
           });
         } else {
           // Flash Reflex: rounds survived + fastest flash beaten.
@@ -1075,8 +1080,27 @@
   // real stats (accuracy% + speed ms, or rounds + flash time) that produced it — never the
   // score itself. Key construction has to match KA_scoreRun's exactly (gameId + '_rank_score'
   // + suffix, not gameId + suffix + '_rank_score') or this silently reads the wrong records.
-  function comboEntry(category, label, scoreKey, extraKeys, higherIsBetter, formatCombo){
-    return { category, label, kind: 'combo', dataKey: scoreKey, scoreKey, extraKeys, higherIsBetter, formatCombo };
+  // rankFn(score, extra) computes the rank tier badge shown alongside the row — separate from
+  // formatCombo since the tier depends on the underlying acc/speed rank functions, not on how
+  // the numbers happen to be displayed.
+  function comboEntry(category, label, scoreKey, extraKeys, higherIsBetter, formatCombo, rankFn){
+    return { category, label, kind: 'combo', dataKey: scoreKey, scoreKey, extraKeys, higherIsBetter, formatCombo, rankFn };
+  }
+
+  // Master is a hidden tier — showing "MASTER" outright on the global leaderboard to a player
+  // who's never cleared it themselves would just hand them the answer. Gated on the same
+  // account-wide watermark the celebration effect uses (achieving Master in ANY workout
+  // unlocks seeing it everywhere), not per-game — the point is "have you found this exists at
+  // all," not "did you find it in this specific drill."
+  function hasDiscoveredMaster(){
+    return window.KA_records.get('celebrated_max_rank_idx', -1) >= window.KA_RANK_NAMES.length;
+  }
+  function maskedRank(rank){
+    if (!rank) return null;
+    if (rank.name === window.KA_MASTER_NAME && !hasDiscoveredMaster()){
+      return { name: '???', color: 'var(--dim)' };
+    }
+    return rank;
   }
 
   function globalLeaderboardEntries(){
@@ -1087,11 +1111,23 @@
         // report a single threshold instead of accuracy+speed — no composite needed, it's
         // already one number. Checked before the key/metrics branch below since a game can
         // have both a normal leaderboard entry AND an adaptive one.
-        opts.push({
-          category: g.category, label: g.name + ' — Adaptive', kind: 'simple', dataKey: g.adaptiveKey,
-          key: g.adaptiveKey, higherIsBetter: g.adaptiveHigherIsBetter,
-          format: ADAPTIVE_UNIT_FMT[g.adaptiveUnit] || msFmt
-        });
+        const fmt = ADAPTIVE_UNIT_FMT[g.adaptiveUnit] || msFmt;
+        if (g.adaptiveAccuracyRelevant){
+          // Needs the companion _clean flag to compute the tier correctly for OTHER players
+          // too, which means fetching it from the cloud — routed through comboEntry purely
+          // to get that extra-key fetch, not because there's an actual composite score here.
+          const cleanKey = g.adaptiveKey + '_clean';
+          opts.push(comboEntry(g.category, g.name + ' — Adaptive', g.adaptiveKey, [cleanKey], g.adaptiveHigherIsBetter,
+            (score) => fmt(score),
+            (score, extra) => window.KA_getAdaptiveRank(g.id, score, !extra[cleanKey])));
+        } else {
+          opts.push({
+            category: g.category, label: g.name + ' — Adaptive', kind: 'simple', dataKey: g.adaptiveKey,
+            key: g.adaptiveKey, higherIsBetter: g.adaptiveHigherIsBetter,
+            format: fmt,
+            rankFn: (value) => window.KA_getAdaptiveRank(g.id, value)
+          });
+        }
       }
       if (g.key){
         const isRounds = g.type === 'rounds';
@@ -1109,14 +1145,16 @@
                 const acc = extra[accKey], speed = extra[speedKey];
                 return (acc === null || acc === undefined || speed === null || speed === undefined)
                   ? '—' : Math.round(acc) + '% · ' + Math.round(speed) + ' ms';
-              }));
+              },
+              (score, extra) => window.KA_combineRanks(window.KA_getAccRank(extra[accKey]), window.KA_getSpeedRank(extra[speedKey], g))));
           });
         } else {
           // Accuracy-only or rounds-only (no speed component) — single value, unchanged.
           opts.push({
             category: g.category, label: g.name, kind: 'simple', dataKey: g.key,
             key: g.key, higherIsBetter: true,
-            format: isRounds ? roundsFmt : pctFmt(g.total)
+            format: isRounds ? roundsFmt : pctFmt(g.total),
+            rankFn: isRounds ? (value) => window.KA_getRoundsRank(value) : (value) => window.KA_getAccRank(value)
           });
         }
       } else if (g.metrics){
@@ -1133,7 +1171,8 @@
                 const acc = extra[accKey], speed = extra[speedKey];
                 return (acc === null || acc === undefined || speed === null || speed === undefined)
                   ? '—' : Math.round(acc) + '% · ' + Math.round(speed) + ' ms';
-              }));
+              },
+              (score, extra) => window.KA_combineRanks(window.KA_getAccRank(extra[accKey]), window.KA_getSpeedRank(extra[speedKey], g))));
           });
         } else {
           // Flash Reflex: rounds survived is the real, visible score (not hidden) — sort by
@@ -1146,7 +1185,8 @@
               (score, extra) => {
                 const flash = extra[timeMetric.key];
                 return Math.round(score) + ' rounds' + (flash === null || flash === undefined ? '' : ' · ' + Math.round(flash) + ' ms');
-              }));
+              },
+              (score) => window.KA_getFlashRank(score)));
           }
         }
       }
@@ -1169,7 +1209,7 @@
       const rows = entries.filter(e => e.category === cat);
       if (!rows.length) return '';
       const rowsHtml = rows.map(e =>
-        `<div class="leaderboard-row unplayed" data-key="${e.dataKey}"><span class="lr-rank">—</span><span class="lr-game">${e.label}</span><span class="lr-val">Loading…</span><span class="lr-chevron">&#9656;</span></div>` +
+        `<div class="leaderboard-row unplayed" data-key="${e.dataKey}"><span class="lr-rank">—</span><span class="lr-game">${e.label}</span><span class="lr-tier"></span><span class="lr-val">Loading…</span><span class="lr-chevron">&#9656;</span></div>` +
         `<div class="leaderboard-expand" data-expand="${e.dataKey}"></div>`
       ).join('');
       return `<div class="leaderboard-section"><div class="leaderboard-section-title">${cat}</div><div class="leaderboard-list">${rowsHtml}</div></div>`;
@@ -1203,6 +1243,10 @@
         row.querySelector('.lr-rank').textContent = '#' + (mine.rank || '—');
         row.querySelector('.lr-val').textContent = isCombo ? e.formatCombo(mine.value, mine.extra) : e.format(mine.value);
         row.classList.toggle('lr-first', mine.rank === 1);
+        const tierEl = row.querySelector('.lr-tier');
+        const rank = e.rankFn ? maskedRank(e.rankFn(mine.value, mine.extra)) : null;
+        tierEl.textContent = rank ? rank.name.toUpperCase() : '';
+        tierEl.style.color = rank ? rank.color : '';
       }
     });
   }
@@ -1246,7 +1290,9 @@
       ? top10.map((r, i) => {
           const name = isCombo ? r.username : ((r.profiles && r.profiles.username) || 'Unknown');
           const val = isCombo ? entry.formatCombo(r.score, r.extra) : entry.format(r.value);
-          return `<div class="leaderboard-row"><span class="lr-rank">#${i + 1}</span><span class="lr-game">${name}</span><span class="lr-val">${val}</span></div>`;
+          const rank = entry.rankFn ? maskedRank(isCombo ? entry.rankFn(r.score, r.extra) : entry.rankFn(r.value)) : null;
+          const tierHtml = rank ? `<span class="lr-tier" style="color:${rank.color}">${rank.name.toUpperCase()}</span>` : '<span class="lr-tier"></span>';
+          return `<div class="leaderboard-row"><span class="lr-rank">#${i + 1}</span><span class="lr-game">${name}</span>${tierHtml}<span class="lr-val">${val}</span></div>`;
         }).join('')
       : '<div class="leaderboard-row unplayed"><span class="lr-game">No scores yet</span></div>';
     panel.innerHTML = html;
