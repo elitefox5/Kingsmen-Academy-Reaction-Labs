@@ -788,6 +788,15 @@
   .leaderboard-row .lr-game{ flex:1; color:var(--text); }
   .leaderboard-row .lr-val{ color:var(--green); min-width:70px; text-align:right; }
   .leaderboard-row.unplayed .lr-val{ color:var(--dim); }
+  /* Rank tier badge next to the score — the global list's own equivalent of the personal
+     leaderboard's tier column, kept alongside the meaningful #N placement rather than
+     replacing it (unlike personal's, this rank position is a real competitive number).
+     Color comes from an inline style per row, same as personal's. */
+  .leaderboard-row .lr-tier{
+    width:56px; flex-shrink:0; text-align:right;
+    font-family:var(--mono);
+    font-size:9px; letter-spacing:0.03em;
+  }
 
   /* Personal leaderboard's rank column shows a tier name (PLATINUM, MASTER, …) instead of
      the global list's numeric #N — wider and smaller than the default so the longest tier
