@@ -389,17 +389,19 @@
   };
 
   // Overall tier for a dual-ranked game: the midpoint of its accuracy and speed tiers, so
-  // neither being fast-and-sloppy nor slow-and-perfect alone carries you to the top. Goes
-  // through KA_rankIndex/KA_rankByIndex rather than indexing KA_RANK_NAMES directly, so a
-  // Master-tier speed rank still averages correctly instead of landing on -1 — but the
-  // result is capped at Legend regardless: this is only ever called with an accuracy rank
-  // as one of its two inputs, and accuracy alone can never earn Master (100% is a ceiling),
-  // so a flat-out 100%-accurate run should never read as Master just because its speed half
-  // did. Master here would only ever come from rounding (8, 9) up to 9 anyway.
+  // neither being fast-and-sloppy nor slow-and-perfect alone carries you to the top. Always
+  // called as (accRank, speedRank) — accuracy alone can never earn Master on its own (100% is
+  // a hard ceiling, Legend), so Master here only unlocks when accuracy genuinely sits at that
+  // ceiling AND speed independently cleared its own Master bar — not merely an average that
+  // happens to round up to it (e.g. Legend accuracy + Diamond speed must NOT read as Master).
+  // Anything short of that combination is capped at Legend.
   window.KA_combineRanks = function(a, b){
+    const legendIdx = window.KA_RANK_NAMES.length - 1;
+    if (a && b && window.KA_rankIndex(a) === legendIdx && window.KA_rankIndex(b) === legendIdx + 1){
+      return { name: window.KA_MASTER_NAME, color: window.KA_MASTER_COLOR };
+    }
     const idxs = [a, b].filter(Boolean).map(window.KA_rankIndex).filter(i => i !== null);
     if (!idxs.length) return null;
-    const legendIdx = window.KA_RANK_NAMES.length - 1;
     const i = Math.min(legendIdx, Math.round(idxs.reduce((x, y) => x + y, 0) / idxs.length));
     return window.KA_rankByIndex(i);
   };
