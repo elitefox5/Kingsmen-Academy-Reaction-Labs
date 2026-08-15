@@ -340,9 +340,12 @@
     name, color: window.KA_RANK_COLORS[i],
     min: [0, 29, 35, 43, 51, 59, 67, 75, 85][i]
   }));
+  // Master pinned at an explicit 103 rather than the generic 20%-above-Legend formula
+  // (85 * 1.2 = 102) — a deliberate 1-round bump past what that formula alone would give.
+  window.KA_FLASH_MASTER_MIN = 103;
   window.KA_getFlashRank = function(rounds){
     if (rounds === null || rounds === undefined) return null;
-    if (window.KA_maybeMaster(rounds, window.KA_FLASH_RANKS[window.KA_FLASH_RANKS.length - 1].min, true)){
+    if (rounds >= window.KA_FLASH_MASTER_MIN){
       return { name: window.KA_MASTER_NAME, color: window.KA_MASTER_COLOR };
     }
     for (let i = window.KA_FLASH_RANKS.length - 1; i >= 0; i--){
