@@ -581,10 +581,10 @@
     //   metrics:[ {key:'lab_best_A', label:'Color reaction', isTime:true}, {key:'lab_best_Bclick', label:'B click', isTime:true}, {key:'lab_best_Cclick', label:'C click', isTime:true} ] },
     // speedMid = the realistic average response time for that task, which sits on Silver.
     // Games without it are ranked on their primary metric alone (rounds, or accuracy only).
-    // speedMid eased from 379 to 410 so Legend lands at 238ms (Master 190ms) — 220/176 was
-    // too tight once you factor in that every trial also needs a live color-vs-rule check
-    // (plus catching every rule switch and holding on every no-go), not a bare reflex click.
-    { id:'gng', name:'Go / No-Go', category:'Reaction Speed', tile:'tileGoNoGo', type:'count', total:20, key:'gng_best_correct', speedMid:410 },
+    // speedMid tightened from 410 to 388 so Legend lands at 225ms, Master 180ms — 238/190 read
+    // as too easy given every trial also needs a live color-vs-rule check (plus catching every
+    // rule switch and holding on every no-go), not a bare reflex click.
+    { id:'gng', name:'Go / No-Go', category:'Reaction Speed', tile:'tileGoNoGo', type:'count', total:20, key:'gng_best_correct', speedMid:388 },
     { id:'frx', name:'Flash Reflex', category:'Reaction Speed', tile:'tileFlashReflex', type:'mixed',
       metrics:[ {key:'frx_best_rounds', label:'Rounds survived', isTime:false}, {key:'frx_best_flash', label:'Fastest flash', isTime:true} ] },
     // Explicit cuts rather than speedMid multipliers: this drill is dominated by cursor
