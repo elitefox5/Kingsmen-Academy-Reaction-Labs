@@ -581,7 +581,10 @@
     //   metrics:[ {key:'lab_best_A', label:'Color reaction', isTime:true}, {key:'lab_best_Bclick', label:'B click', isTime:true}, {key:'lab_best_Cclick', label:'C click', isTime:true} ] },
     // speedMid = the realistic average response time for that task, which sits on Silver.
     // Games without it are ranked on their primary metric alone (rounds, or accuracy only).
-    { id:'gng', name:'Go / No-Go', category:'Reaction Speed', tile:'tileGoNoGo', type:'count', total:20, key:'gng_best_correct', speedMid:400 },
+    // speedMid tightened from 410 to 388 so Legend lands at 225ms, Master 180ms — 238/190 read
+    // as too easy given every trial also needs a live color-vs-rule check (plus catching every
+    // rule switch and holding on every no-go), not a bare reflex click.
+    { id:'gng', name:'Go / No-Go', category:'Reaction Speed', tile:'tileGoNoGo', type:'count', total:20, key:'gng_best_correct', speedMid:388 },
     { id:'frx', name:'Flash Reflex', category:'Reaction Speed', tile:'tileFlashReflex', type:'mixed',
       metrics:[ {key:'frx_best_rounds', label:'Rounds survived', isTime:false}, {key:'frx_best_flash', label:'Fastest flash', isTime:true} ] },
     // Explicit cuts rather than speedMid multipliers: this drill is dominated by cursor
@@ -591,7 +594,8 @@
       speedMid:780, speedLadder:[Infinity, 900, 820, 740, 660, 580, 500, 425, 350] },
     { id:'cr', name:'Choice Reaction', category:'Reaction Speed', tile:'tileChoiceReaction', type:'count', total:20, key:'cr_best_correct', speedMid:750,
       modes:['normal','hard'], adaptiveKey:'cr_best_threshold', adaptiveHigherIsBetter:false, adaptiveUnit:'ms' },
-    { id:'aud', name:'Audio Reflex', category:'Reaction Speed', tile:'tileAudioReflex', type:'count', total:15, key:'aud_best_correct', speedMid:380 },
+    // speedMid tightened from 380 to 293 so Legend lands at 170ms (was 220ms).
+    { id:'aud', name:'Audio Reflex', category:'Reaction Speed', tile:'tileAudioReflex', type:'count', total:15, key:'aud_best_correct', speedMid:293 },
     { id:'bfx', name:'Base Reflex', category:'Reaction Speed', tile:'tileBaseReflex', type:'time-multi',
       metrics:[ {key:'rank_best_avg_rt', label:'Best average', isTime:true} ] },
     { id:'flk', name:'Flanker Task', category:'Processing Speed', tile:'tileFlanker', type:'count-multi', speedMid:480,
@@ -605,10 +609,22 @@
     { id:'cnt', name:'Count Rush', category:'Processing Speed', tile:'tileCountRush', type:'count', total:20, key:'cnt_best_correct', speedMid:620 },
     { id:'str', name:'Stroop Test', category:'Processing Complexity', tile:'tileStroop', type:'count', total:20, key:'str_best_correct', speedMid:720, modes:['normal','hard'] },
     { id:'ant', name:'Anti-Saccade', category:'Processing Complexity', tile:'tileAntiSaccade', type:'count', total:20, key:'ant_best_correct', speedMid:560 },
-    { id:'trg', name:'Trigger Discipline', category:'Processing Complexity', tile:'tileTriggerDiscipline', type:'count', total:20, key:'trg_best_correct', speedMid:480 },
+    // Explicit cuts, evenly spaced (53ms/tier) between Bronze and Legend rather than the
+    // shared multiplier table: it's a one-hand two-finger task, not the bimanual chord it
+    // looks like, so Bronze was eased 40ms (582 -> 622) and everything between it and the
+    // unchanged 250ms Legend now steps down in equal increments instead of the front-loaded
+    // multiplier spacing.
+    { id:'trg', name:'Trigger Discipline', category:'Processing Complexity', tile:'tileTriggerDiscipline', type:'count', total:20, key:'trg_best_correct',
+      speedMid:569, speedLadder:[Infinity, 622, 569, 516, 463, 409, 356, 303, 250] },
     { id:'sme', name:'Simon Effect', category:'Processing Complexity', tile:'tileSimonEffect', type:'count', total:20, key:'sme_best_correct', speedMid:520 },
     { id:'fsr', name:'Feature Search', category:'Processing Complexity', tile:'tileFeatureSearch', type:'count', total:20, key:'fsr_best_correct', speedMid:850 },
-    { id:'spl', name:'Split Focus', category:'Processing Complexity', tile:'tileSplitFocus', type:'count', total:20, key:'spl_best_correct', speedMid:420 },
+    // Explicit cuts matching Base Reflex's own ladder rather than the shared speedMid
+    // factors: a correct trial here needs no discrimination, just a click on the center
+    // dot the instant it lights — mechanically the same simple-RT action as Base Reflex,
+    // with the decoy adding pressure to trials that go wrong rather than slowing the ones
+    // that go right. Legend at 140ms matches Base Reflex's Legend for that reason.
+    { id:'spl', name:'Split Focus', category:'Processing Complexity', tile:'tileSplitFocus', type:'count', total:20, key:'spl_best_correct',
+      speedMid:265, speedLadder:[Infinity, 310, 280, 245, 220, 200, 180, 160, 140] },
     { id:'sim', name:'Simon Sequence', category:'Memory', tile:'tileSimon', type:'rounds', key:'sim_best_rounds' },
     { id:'nbk', name:'Symbol 1-Back', category:'Memory', tile:'tileSymbolMatch', type:'count', total:20, key:'nbk_best_correct', speedMid:560, modes:['easy','hard'] },
     { id:'grd', name:'Grid Recall', category:'Memory', tile:'tileGridRecall', type:'rounds', key:'grd_best_rounds' },
