@@ -1,5 +1,14 @@
 (function(){
   const PADS = ['green', 'red', 'blue', 'yellow'];
+  // Per-click deadline during playback of your own answer — without this, nothing stops a
+  // player from recording the WATCH phase and then taking as long as they want between clicks
+  // to go check the recording before every single pad, which turns the whole drill into
+  // transcription instead of memory. Resets on every correct click, so sequence length never
+  // makes it harsher — it's purely "recall and click now," not "recall the whole thing fast."
+  // The very first click gets longer (5s) since it's also the WATCH-to-YOUR TURN reaction
+  // gear-shift, not just recall; every click after that only needs recall, so it drops to 2s.
+  const FIRST_RESPONSE_WINDOW = 5000;
+  const RESPONSE_WINDOW = 2000;
   const padEls = {
     green: document.getElementById('simPadGreen'),
     red: document.getElementById('simPadRed'),
@@ -46,6 +55,7 @@
     playerIndex = 0;
     accepting = true;
     simStateVal.textContent = 'YOUR TURN';
+    timers.response = setTimeout(handleResponseTimeout, FIRST_RESPONSE_WINDOW);
   }
 
   function startRun(){
@@ -70,6 +80,7 @@
 
   function handlePadClick(color){
     if (!accepting) return;
+    clearTimeout(timers.response);
     if (color === sequence[playerIndex]){
       window.KA_sound.memoryClick();
       correctClicks++;
@@ -78,6 +89,8 @@
         accepting = false;
         showFeedback('CORRECT — NEXT ROUND', 'good');
         timers.advance = setTimeout(nextRound, 700);
+      } else {
+        timers.response = setTimeout(handleResponseTimeout, RESPONSE_WINDOW);
       }
     } else {
       accepting = false;
@@ -85,6 +98,14 @@
       showFeedback('WRONG PAD', 'bad');
       finishRun();
     }
+  }
+
+  function handleResponseTimeout(){
+    if (!accepting) return;
+    accepting = false;
+    window.KA_sound.error();
+    showFeedback('TOO SLOW', 'bad');
+    finishRun();
   }
 
   function finishRun(){
