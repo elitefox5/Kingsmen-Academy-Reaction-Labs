@@ -1,5 +1,14 @@
 (function(){
   const CELLS = 9;
+  // Per-click deadline during playback of your own answer — without this, nothing stops a
+  // player from recording the WATCH phase and then taking as long as they want between clicks
+  // to go check the recording before every single cell, which turns the whole drill into
+  // transcription instead of memory. Resets on every correct click, so sequence length never
+  // makes it harsher — it's purely "recall and click now," not "recall the whole thing fast."
+  // The very first click gets longer (5s) since it's also the WATCH-to-YOUR TURN reaction
+  // gear-shift, not just recall; every click after that only needs recall, so it drops to 2s.
+  const FIRST_RESPONSE_WINDOW = 5000;
+  const RESPONSE_WINDOW = 2000;
   const grdGrid = document.getElementById('grdGrid');
   const cellEls = [];
   for (let i = 0; i < CELLS; i++){
@@ -50,6 +59,7 @@
     playerIndex = 0;
     accepting = true;
     grdStateVal.textContent = 'YOUR TURN';
+    timers.response = setTimeout(handleResponseTimeout, FIRST_RESPONSE_WINDOW);
   }
 
   function startRun(){
@@ -82,6 +92,7 @@
 
   function handleCellClick(index){
     if (!accepting) return;
+    clearTimeout(timers.response);
     flashPicked(index);
     if (index === sequence[playerIndex]){
       window.KA_sound.memoryClick();
@@ -91,6 +102,8 @@
         accepting = false;
         showFeedback('CORRECT — NEXT ROUND', 'good');
         timers.advance = setTimeout(nextRound, 700);
+      } else {
+        timers.response = setTimeout(handleResponseTimeout, RESPONSE_WINDOW);
       }
     } else {
       accepting = false;
@@ -98,6 +111,14 @@
       showFeedback('WRONG CELL', 'bad');
       finishRun();
     }
+  }
+
+  function handleResponseTimeout(){
+    if (!accepting) return;
+    accepting = false;
+    window.KA_sound.error();
+    showFeedback('TOO SLOW', 'bad');
+    finishRun();
   }
 
   function finishRun(){
